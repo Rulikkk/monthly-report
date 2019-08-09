@@ -1,3 +1,10 @@
 [build]
   command = "npm run build" # the command you run to build this file
   publish = "build" # create-react-app builds to this folder, Netlify should serve all these files statically
+
+# The following redirect is intended for use with most SPAs that handle
+# routing internally.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
