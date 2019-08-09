@@ -1,7 +1,5 @@
 body {
   margin: 0;
-  font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-kerning: normal;
@@ -61,7 +59,12 @@ body {
 
 .Pane {
   overflow-y: scroll;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch; /* Lets it scroll lazy */
+}
+
+.Pane > * {
+  min-width: 300px;
 }
 
 .Resizer {

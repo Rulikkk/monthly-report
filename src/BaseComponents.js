@@ -14,7 +14,7 @@ const getButtonColor = color => `bg-${color}-500 hover:bg-${color}-700 `;
 
 const getButtonClassName = (red, small, disabled, className) =>
   [
-    "text-white font-xs px-2 rounded",
+    "text-white font-xs px-2 rounded truncate",
     getButtonColor(red ? "red" : "blue"),
     small ? "" : "py-1",
     disabled ? "opacity-50 cursor-not-allowed" : "",
@@ -32,6 +32,7 @@ const Button = ({
   <button
     className={getButtonClassName(red, small, disabled, className)}
     type="button"
+    title={typeof children === "string" ? children : null}
     {...props}
   >
     {children}
