@@ -21,7 +21,7 @@ export default class Store {
   }
 
   static get sidebarState() {
-    return this.getJsonVal(this.SIDEBAR_STATE_KEY, { size: 410, open: false });
+    return this.getJsonVal(this.SIDEBAR_STATE_KEY, { size: 450, open: false });
   }
 
   static set sidebarState(value) {
