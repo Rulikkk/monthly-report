@@ -11,6 +11,7 @@ body {
   font-feature-settings: "kern", "clig", "calt", "liga";
   overflow-wrap: break-word;
   word-wrap: break-word;
+  overflow: hidden;
 }
 
 /* fix font size in code-highlights on iPhone 
@@ -58,11 +59,9 @@ body {
   }
 }
 
-.limit-height {
-}
-
 .Pane {
-  overflow: scroll;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch; /* Lets it scroll lazy */
 }
 
 .Resizer {
