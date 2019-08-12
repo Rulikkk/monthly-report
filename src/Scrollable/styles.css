@@ -1,0 +1,38 @@
+/* total width */
+.scrollable__scrollbar::-webkit-scrollbar {
+  background-color: #fff;
+  width: 16px;
+}
+
+/* background of the scrollbar except button or resizer */
+.scrollable__scrollbar::-webkit-scrollbar-track {
+  background-color: #fff;
+}
+
+/* bar */
+.scrollable__scrollbar::-webkit-scrollbar-thumb {
+  background-color: #babac0;
+  border-radius: 16px;
+  border: 5px solid #fff;
+}
+
+.scrollable__scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a0a0a5;
+  border: 4px solid #fff;
+}
+
+/* top and bottom button */
+.scrollable__scrollbar::-webkit-scrollbar-button {
+  display: none;
+}
+
+.scrollable__scrollbar {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+/* Firefox support */
+.scrollable__scrollbar {
+  scrollbar-color: #babac0 #fff;
+  scrollbar-width: thin;
+}
