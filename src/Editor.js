@@ -416,7 +416,7 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
 
 export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
   <Scrollable>
-    <div className="flex w-full bg-gray-300 justify-between p-1">
+    <div className="flex bg-gray-300 justify-between p-1">
       <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
       <div className="spaced-row-grid">
         <CopyPreviousReport data={data} setData={setData} />
