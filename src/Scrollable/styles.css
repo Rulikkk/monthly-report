@@ -36,3 +36,9 @@
   scrollbar-color: #babac0 #fff;
   scrollbar-width: thin;
 }
+
+/* Custom for apple devices */
+.scrollable__mac {
+  overflow: auto;
+  -webkit-overflow-scrolling: touch; /* Lets it scroll lazy */
+}
