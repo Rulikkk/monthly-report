@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import Store from "./Store";
 import { initCap } from "./BaseComponents";
+import { Scrollable } from './Scrollable';
 
 const ReportSelector = ({ reports, activeReportCode, setActiveReportCode }) => {
   return (
@@ -288,36 +289,38 @@ export default ({
     setActiveReport(data.reports.find(r => r.code === activeReportCode));
   }, [activeReportCode, data.reports]);
   return (
-    <div
-      ref={reportToPrintRef}
-      className="container p-4 mx-auto max-w-4xl good-fonts"
-    >
-      <img
-        alt="Logo"
-        src={data.headerImageSrc || "https://placekitten.com/300/100"}
-        className="mx-auto"
-      />
-      <h1 className="text-3xl">
-        <ReportSelector
-          reports={data.reports}
-          activeReportCode={activeReportCode}
-          setActiveReportCode={setActiveReportCode}
-        />{" "}
-        — {data.reportName || "<data.reportName>"}
-      </h1>
-      <Note notes={data.notes} />
-      <TotalsTable
-        projects={activeReport.projects}
-        prevProjects={activeReport.prev && activeReport.prev.projects}
-      />
-      {PROJECT_STATES_ALL.map(ps => (
-        <ProjectListForState
-          key={ps}
-          projectState={ps}
-          projects={activeReport.projects[ps]}
+    <Scrollable>
+      <div
+        ref={reportToPrintRef}
+        className="container p-4 mx-auto max-w-4xl good-fonts"
+      >
+        <img
+          alt="Logo"
+          src={data.headerImageSrc || "https://placekitten.com/300/100"}
+          className="mx-auto"
         />
-      ))}
-    </div>
+        <h1 className="text-3xl">
+          <ReportSelector
+            reports={data.reports}
+            activeReportCode={activeReportCode}
+            setActiveReportCode={setActiveReportCode}
+          />{" "}
+          — {data.reportName || "<data.reportName>"}
+        </h1>
+        <Note notes={data.notes} />
+        <TotalsTable
+          projects={activeReport.projects}
+          prevProjects={activeReport.prev && activeReport.prev.projects}
+        />
+        {PROJECT_STATES_ALL.map(ps => (
+          <ProjectListForState
+            key={ps}
+            projectState={ps}
+            projects={activeReport.projects[ps]}
+          />
+        ))}
+      </div>
+    </Scrollable>
   );
 };
 
