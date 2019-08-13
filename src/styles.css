@@ -58,7 +58,7 @@ body {
 }
 
 .Pane {
-  overflow: hidden;
+  overflow: auto;
   -webkit-overflow-scrolling: touch; /* Lets it scroll lazy */
 }
 
