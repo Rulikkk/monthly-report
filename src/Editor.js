@@ -9,6 +9,7 @@ import {
   PrintButton,
   enhanceDataInplace
 } from "./BaseComponents";
+import { Scrollable } from './Scrollable';
 // import "prismjs/components/prism-yaml";
 // import "prismjs/themes/prism.css";
 // import { highlight, languages } from "prismjs/components/prism-core";
@@ -414,8 +415,8 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
 );
 
 export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
-  <>
-    <div className="flex w-full bg-gray-300 justify-between p-1">
+  <Scrollable>
+    <div className="flex bg-gray-300 justify-between p-1">
       <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
       <div className="spaced-row-grid">
         <CopyPreviousReport data={data} setData={setData} />
@@ -442,5 +443,5 @@ export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
         }}
       />
     </div> */}
-  </>
+  </Scrollable>
 );
