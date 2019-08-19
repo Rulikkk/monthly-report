@@ -2,7 +2,7 @@ import React, { Fragment, useState, useEffect } from "react";
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import Store from "./Store";
 import { initCap } from "./BaseComponents";
-import { Scrollable } from './Scrollable';
+import { Scrollable } from "./Scrollable";
 
 const ReportSelector = ({ reports, activeReportCode, setActiveReportCode }) => {
   return (
@@ -323,7 +323,3 @@ export default ({
     </Scrollable>
   );
 };
-
-//
-
-// line 322!!!

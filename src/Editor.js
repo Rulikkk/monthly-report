@@ -9,11 +9,7 @@ import {
   PrintButton,
   enhanceDataInplace
 } from "./BaseComponents";
-import { Scrollable } from './Scrollable';
-// import "prismjs/components/prism-yaml";
-// import "prismjs/themes/prism.css";
-// import { highlight, languages } from "prismjs/components/prism-core";
-// import Editor from "react-simple-code-editor";
+import { Scrollable } from "./Scrollable";
 
 const VALIDATION_CODE = "ARBUZ";
 
