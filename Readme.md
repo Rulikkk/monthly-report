@@ -19,4 +19,4 @@ This is a monthly report online editor.
 
 # Editing
 
-Use this sandbox to shoot a PR: https://codesandbox.io/s/report-x9kib
+Use this sandbox to shoot a PR: https://codesandbox.io/s/github/Rulikkk/monthly-report
