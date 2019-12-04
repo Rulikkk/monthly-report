@@ -242,13 +242,11 @@ const BenchImgUploadButton = ({ report, updateReport }) => {
       }
 
       try {
-        console.log("Reading");
         if (acceptedFiles.length > 0 && acceptedFiles[0]) {
           let reader = new FileReader();
           reader.readAsDataURL(acceptedFiles[0]);
           reader.onerror = err => console.log(err);
           reader.onloadend = () => {
-            console.log("Image read");
             report.benchImage = reader.result;
             updateReport();
           };
