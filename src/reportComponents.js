@@ -264,6 +264,14 @@ const ProjectTable = ({ projectState, projects }) => (
   </table>
 );
 
+const BenchInfo = ({ report }) => (
+  <>
+    <h1 className="text-3xl mt-5">Bench</h1>
+    {report.benchImage && <img src={report.benchImage} alt="Bench details" />}
+    {!report.benchImage && "No image"}
+  </>
+);
+
 const ProjectListForState = p => {
   return (
     <>
@@ -312,6 +320,7 @@ export default ({
           projects={activeReport.projects}
           prevProjects={activeReport.prev && activeReport.prev.projects}
         />
+        <BenchInfo report={activeReport} />
         {PROJECT_STATES_ALL.map(ps => (
           <ProjectListForState
             key={ps}

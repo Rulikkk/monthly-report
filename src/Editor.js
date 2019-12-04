@@ -232,6 +232,58 @@ const ProjectState = ({ project, updateReport, projects }) => (
   </div>
 );
 
+const BenchImgUploadButton = ({ report, updateReport }) => {
+  const onDrop = useCallback(
+    acceptedFiles => {
+      // Do whatever you want with the file contents
+      if (acceptedFiles.length > 1) {
+        window.alert(`Only support one file.`);
+        return;
+      }
+
+      try {
+        console.log("Reading");
+        if (acceptedFiles.length > 0 && acceptedFiles[0]) {
+          let reader = new FileReader();
+          reader.readAsDataURL(acceptedFiles[0]);
+          reader.onerror = err => console.log(err);
+          reader.onloadend = () => {
+            console.log("Image read");
+            report.benchImage = reader.result;
+            updateReport();
+          };
+        }
+      } catch (e) {
+        window.alert(`Could not parse file with error ${e}.`);
+      }
+    },
+    [report, updateReport]
+  );
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: "image/*"
+  });
+
+  return (
+    <div
+      className="ml-2 text-white font-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-700 cursor-pointer select-none"
+      title="Click or drop JSON here"
+      {...getRootProps()}
+    >
+      <input {...getInputProps()} />
+      {isDragActive ? <p>DROP</p> : <p>Open bench image</p>}
+    </div>
+  );
+};
+
+const BenchGroup = ({ report, updateReport }) => (
+  <div>
+    <h1 className="text-xl m-2">Bench</h1>
+    <BenchImgUploadButton report={report} updateReport={updateReport} />
+  </div>
+);
+
 const ProjectGroup = ({ forState, projects, updateReport }) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
@@ -422,6 +474,13 @@ export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
         <EditorHideButton setPaneSize={setPaneSize} lastSize={lastSize} />
       </div>
     </div>
+
+    <BenchGroup
+      report={data.reports.find(r => r.code === activeReportCode)}
+      updateReport={() => {
+        setData({ ...data });
+      }}
+    />
 
     <ProjectGroupShell
       key={data.loadId}
