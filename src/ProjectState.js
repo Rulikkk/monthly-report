@@ -1,3 +1,5 @@
+import './typedef'
+
 import React from 'react';
 
 import { PROJECT_STATES_ALL } from "./const";
@@ -15,8 +17,11 @@ import {
 
 /**
  * 
- * @param {string} forState - the state of the project.
- * @param {} 
+ * @param {Object} obj - props.
+ * @param {string} obj.forState - the state of the project.
+ * @param {Project} obj.project - the project to display.
+ * @param {*} obj.updateReport
+ * @param {*} obj.projects
  */
 const ProjectState = ({ forState, project, updateReport, projects }) => (
     <div className="m-2 p-2 rounded border shadow-lg">
