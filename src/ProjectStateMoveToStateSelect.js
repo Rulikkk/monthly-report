@@ -20,7 +20,7 @@ const ProjectStateMoveToStateSelect = ({ allStates, currentState, onStateChange 
         onStateChange && onStateChange(currentState, newState);
     };
     return (
-        <select value={currentState} onChange={onChangeHandler}>
+        <select className="text-white bg-blue-500 hover:bg-blue-700 font-xs px-2 py-0 rounded truncate" value={currentState} onChange={onChangeHandler}>
             {allStates && allStates.map(state => (
                 <option value={state} key={state}>
                     {state}

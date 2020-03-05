@@ -42,7 +42,7 @@ const ProjectState = ({ forState, project, updateReport, projects }) => (
                 updateReport={updateReport}
             />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end py-1">
             <span>Move to: <ProjectStateMoveToStateSelect allStates={PROJECT_STATES_ALL} currentState={forState} /></span>
         </div>
         {project.issues &&
