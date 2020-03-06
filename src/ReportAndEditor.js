@@ -75,6 +75,25 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
     }, 200),
     [data]
   );
+
+  const onProjectStateChange = (project, oldState, newState) => {
+    // Find current report.
+    const currentReport = data.reports.find(r => r.code === reportCode);
+
+    // Remove the project from old state list.
+    const oldStateProjects = currentReport.projects[oldState];
+    currentReport.projects[oldState] = oldStateProjects.filter(
+      p => p !== project
+    );
+
+    // Add the project to new state list.
+    const newStateProjects = currentReport.projects[newState];
+    currentReport.projects[newState] = [...newStateProjects, project];
+
+    // Update the component state.
+    setData({ ...data });
+  };
+
   return (
     <Split
       split="vertical"
@@ -96,6 +115,7 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
         activeReportCode={reportCode}
         setPaneSize={setPaneSize}
         lastSize={lastSize}
+        onProjectStateChange={onProjectStateChange}
       />
     </Split>
   );

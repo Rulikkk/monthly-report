@@ -232,7 +232,7 @@ const BenchGroup = ({ report, updateReport }) => (
   </div>
 );
 
-const ProjectGroup = ({ forState, projects, updateReport }) => (
+const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
     <AddProjectButton
@@ -248,18 +248,20 @@ const ProjectGroup = ({ forState, projects, updateReport }) => (
         forState={forState}
         key={p.id || i}
         updateReport={updateReport}
+        onProjectStateChange={onProjectStateChange}
       />
     ))}
   </div>
 );
 
-const ProjectGroupShell = ({ report, updateReport }) =>
+const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
   PROJECT_STATES_ALL.map(state => (
     <ProjectGroup
       forState={state}
       key={state}
       projects={report.projects[state]}
       updateReport={updateReport}
+      onProjectStateChange={onProjectStateChange}
     />
   ));
 
@@ -411,7 +413,7 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
   </Button>
 );
 
-export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
+export default ({ data, setData, activeReportCode, setPaneSize, lastSize, onProjectStateChange }) => (
   <Scrollable>
     <div className="flex bg-gray-300 justify-between p-1">
       <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
@@ -437,6 +439,7 @@ export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
       updateReport={() => {
         setData({ ...data });
       }}
+      onProjectStateChange={onProjectStateChange}
     />
     {/* <div className="no-print p-4 font-mono text-xs">
       <Editor
