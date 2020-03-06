@@ -1,8 +1,12 @@
+import "./typedef";
+
 import React, { Fragment, useState, useEffect } from "react";
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import Store from "./Store";
 import { initCap } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
+
+import BenchInfoSection from "./BenchInfoSection";
 
 const ReportSelector = ({ reports, activeReportCode, setActiveReportCode }) => {
   return (
@@ -264,14 +268,6 @@ const ProjectTable = ({ projectState, projects }) => (
   </table>
 );
 
-const BenchInfo = ({ report }) => (
-  <>
-    <h1 className="text-3xl mt-5">Bench</h1>
-    {report.benchImage && <img src={report.benchImage} alt="Bench details" />}
-    {!report.benchImage && "No image"}
-  </>
-);
-
 const ProjectListForState = p => {
   return (
     <>
@@ -296,6 +292,39 @@ export default ({
     Store.lastSelectedReport = activeReportCode;
     setActiveReport(data.reports.find(r => r.code === activeReportCode));
   }, [activeReportCode, data.reports]);
+
+  // TODO Move mock data to state
+  // const benchSectionEnabled = true;
+
+  // const benchInfoData = [
+  //   {
+  //     caption: "Total on Bench",
+  //     count: 34,
+  //     info:
+  //       ".NET (5), Python (8), Front-end (13), iOS (1), Android (1), Scala (1), ReactNative (3), QA (3)",
+  //     emphasizeCaption: true
+  //   },
+  //   {
+  //     caption: "Available Starters",
+  //     count: 6,
+  //     info:
+  //       "Ildar Nigmatullin (.75), Vladimir Toshchev (.9), Zulfat Nutfullin, Alexander Zheleznov (.5), Kamil Zakiev, Timur Fayzrakhmanov, Artur Khanin"
+  //   },
+  //   {
+  //     disabled: true,
+  //     caption: "Invested, good chance for project",
+  //     count: 1,
+  //     info: 'MS "VM Central" extension'
+  //   }
+  // ];
+
+  // const remarks = [
+  //   "Bench state for last day of report’s month. Bench stats tend to change each day.",
+  //   "For “Total on Bench” individual skill-counts are shown in brackets, so one person may contribute to more than one skill.",
+  //   "For “Available Starters” number in brackets denote availability. Starter is fully available otherwise.",
+  //   "Non-invested people on bench are either on internal project/education or vacation."
+  // ];
+
   return (
     <Scrollable>
       <div
@@ -320,7 +349,11 @@ export default ({
           projects={activeReport.projects}
           prevProjects={activeReport.prev && activeReport.prev.projects}
         />
-        <BenchInfo report={activeReport} />
+
+        {activeReport?.benchInfoData?.benchSectionEnabled && (
+          <BenchInfoSection benchInfoData={activeReport.benchInfoData} />
+        )}
+
         {PROJECT_STATES_ALL.map(ps => (
           <ProjectListForState
             key={ps}

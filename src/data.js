@@ -1,4 +1,9 @@
-export default {
+import './typedef'
+
+/**
+ * @type {Data}
+ */
+const defaultData = {
   reports: [
     {
       code: "2019-01",
@@ -106,3 +111,5 @@ export default {
     }
   ]
 };
+
+export default defaultData;

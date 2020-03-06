@@ -11,7 +11,8 @@ import {
 } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
 
-import ProjectState from './ProjectState';
+import { migrateOldReportData } from "./UpdateReportVersion";
+import ProjectState from "./ProjectState";
 
 const VALIDATION_CODE = "ARBUZ";
 
@@ -345,8 +346,12 @@ const OpenReport = ({ setData }) => {
           if (!window.confirm("Replace current report with loaded data?"))
             return;
           incrementLoadId(loadedData);
-          setData(loadedData);
-          Store.reportJSON = loadedData;
+
+          // Upgrade report to the latest format version.
+          const upgradedReportData = migrateOldReportData(loadedData);
+         
+          setData(upgradedReportData);
+          Store.reportJSON = upgradedReportData;
         } catch (e) {
           window.alert(`Could not parse file with error ${e}.`);
         }

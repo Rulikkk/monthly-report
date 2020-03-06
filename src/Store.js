@@ -1,5 +1,7 @@
 import data from "./data";
 
+import { migrateOldReportData } from "./UpdateReportVersion";
+
 const serializeFilter = (key, value) => {
   if (key === "next" || key === "prev" || key === "enhanced") return undefined;
   return value;
@@ -29,7 +31,8 @@ export default class Store {
   }
 
   static get reportJSON() {
-    return this.getJsonVal(this.JSON_REPORT, data);
+    let reportData = this.getJsonVal(this.JSON_REPORT, data);
+    return migrateOldReportData(reportData);
   }
 
   static set reportJSON(value) {
