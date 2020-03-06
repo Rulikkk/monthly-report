@@ -5,7 +5,7 @@
 
 /**
  * @typedef BenchInfoData
- * @property {*} benchSectionEnabled
+ * @property {boolean} benchSectionEnabled
  * @property {*[]} info
  * @property {*[]} remarks
  */
