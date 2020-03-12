@@ -39,7 +39,7 @@ export default function BenchEditorMainInfoCard({
     <EditorShadowedCard>
       <div className="flex mb-2">
         <Input
-          value={info.caption}
+          value={info.caption || ""}
           placeholder="Caption"
           onChange={getHandlerForField("caption")}
         />
@@ -48,15 +48,16 @@ export default function BenchEditorMainInfoCard({
 
       <Input
         className="mb-2"
-        value={info.count}
+        value={info.count || ""}
         placeholder="Count"
         onChange={getHandlerForField("count")}
       />
 
       <Input
         className="mb-2"
-        value={info.info}
+        value={info.info || ""}
         placeholder="Info"
+        textarea
         onChange={getHandlerForField("info")}
       />
 

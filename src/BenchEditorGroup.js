@@ -40,7 +40,7 @@ const BenchEditorGroup = ({ report, updateReport }) => {
 
   return (
     <div>
-      <h1 className="text-xl">
+      <h1 className="text-xl m-2">
         Bench
         <input
           type="checkbox"
@@ -56,7 +56,14 @@ const BenchEditorGroup = ({ report, updateReport }) => {
         onBenchInfoUpdate={() => updateReport()}
         onDeleteBenchInfo={deleteBenchInfo}
       />
-      <BenchEditorRemarks />
+
+      <BenchEditorRemarks
+        remarks={report.benchInfoData.remarks}
+        onRemarksUpdate={newRemarks => {
+          report.benchInfoData.remarks = newRemarks;
+          updateReport();
+        }}
+      />
     </div>
   );
 };

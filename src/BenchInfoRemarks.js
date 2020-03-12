@@ -3,12 +3,14 @@ import React from "react";
 const BenchInfoRemarks = ({ remarks }) => {
   return (
     <table style={styles.tableStyle}>
-      {remarks.map(remark => (
-        <tr>
-          <td className="align-top">-</td>
-          <td>{remark}</td>
-        </tr>
-      ))}
+      <tbody>
+        {remarks.map((remark, ix) => (
+          <tr key={ix}>
+            <td className="align-top">-</td>
+            <td>{remark}</td>
+          </tr>
+        ))}
+      </tbody>
     </table>
   );
 };

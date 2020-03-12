@@ -21,22 +21,32 @@ const BenchInfoTable = ({ benchInfoData }) => {
         <thead>
           <tr style={{ color: orangeColor }}>
             <th className="w-3/12"></th>
-            <th className="w-1/12" style={{ fontWeight: "bold" }}>Count</th>
-            <th style={{ fontWeight: "normal" }}>Info</th>
+            <th
+              className="w-1/12 text-left p-2 pr-8"
+              style={{ fontWeight: "bold" }}
+            >
+              Count
+            </th>
+            <th className="text-left p-2" style={{ fontWeight: "normal" }}>
+              Info
+            </th>
           </tr>
         </thead>
         <tbody>
           {benchInfoData.map(
             (info, idx) =>
               info.disabled || (
-                <tr key={info.id} className={`${idx % 2 === 1 && "bg-gray-200"} align-top`}>
-                  <td className="p-1" style={getEmphasizedStyle(info, true)}>
+                <tr
+                  key={info.id}
+                  className={`${idx % 2 === 0 && "bg-gray-200"} align-top`}
+                >
+                  <td className="p-2" style={getEmphasizedStyle(info, true)}>
                     {info.caption}
                   </td>
-                  <td className="p-1 text-center" style={getEmphasizedStyle(info)}>
+                  <td className="p-2" style={getEmphasizedStyle(info)}>
                     {info.count}
                   </td>
-                  <td className="p-1 text-justify">{info.info}</td>
+                  <td className="p-2 pr-4 text-justify">{info.info}</td>
                 </tr>
               )
           )}

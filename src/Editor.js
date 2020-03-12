@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 import { PROJECT_STATES_ALL } from "./const";
@@ -41,6 +41,12 @@ export const Input = ({
       value: state,
       onChange: handleChange
     };
+
+  // Update the state value if props value has been changed. Sometimes they can be out of sync.
+  useEffect(() => {
+    setState(value);
+  }, [value]);
+
   return textarea ? (
     <TextareaAutosize {...props} />
   ) : (
@@ -164,7 +170,12 @@ const AddProjectButton = ({ projects, updateReport, ...props }) => {
   );
 };
 
-export const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
+export const RemoveProjectButton = ({
+  project,
+  projects,
+  updateReport,
+  ...props
+}) => {
   return (
     <Button
       {...props}
@@ -184,7 +195,12 @@ export const RemoveProjectButton = ({ project, projects, updateReport, ...props 
   );
 };
 
-const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }) => (
+const ProjectGroup = ({
+  forState,
+  projects,
+  updateReport,
+  onProjectStateChange
+}) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
     <AddProjectButton
@@ -300,7 +316,7 @@ const OpenReport = ({ setData }) => {
 
           // Upgrade report to the latest format version.
           const upgradedReportData = migrateOldReportData(loadedData);
-         
+
           setData(upgradedReportData);
           Store.reportJSON = upgradedReportData;
         } catch (e) {
@@ -369,7 +385,14 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
   </Button>
 );
 
-export default ({ data, setData, activeReportCode, setPaneSize, lastSize, onProjectStateChange }) => (
+export default ({
+  data,
+  setData,
+  activeReportCode,
+  setPaneSize,
+  lastSize,
+  onProjectStateChange
+}) => (
   <Scrollable>
     <div className="flex bg-gray-300 justify-between p-1">
       <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
