@@ -67,8 +67,6 @@ const BenchEditorRemarks = ({ remarks, onRemarksUpdate }) => {
     convertRemarksArrayToText(remarks)
   );
 
-  console.log("rerender", remarksText, remarks);
-
   useEffect(
     () =>
       debouncedProcessNewRemarks(remarksText, onRemarksUpdate, setRemarksText),
