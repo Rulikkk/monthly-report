@@ -11,11 +11,13 @@ import {
 } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
 
+import ProjectState from './ProjectState';
+
 const VALIDATION_CODE = "ARBUZ";
 
 const initCap = s => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
-const Input = ({
+export const Input = ({
   value,
   onChange,
   afterChange,
@@ -44,7 +46,7 @@ const Input = ({
   );
 };
 
-const Issue = ({ issue, updateReport }) => {
+export const Issue = ({ issue, updateReport }) => {
   return (
     <div className="border-l-2 my-4 pl-1">
       Issue
@@ -76,7 +78,7 @@ const Issue = ({ issue, updateReport }) => {
   );
 };
 
-const AddRemoveNotesButton = ({ project, updateReport }) => {
+export const AddRemoveNotesButton = ({ project, updateReport }) => {
   const has = project.notes !== undefined;
   return (
     <Button
@@ -99,7 +101,7 @@ const AddRemoveNotesButton = ({ project, updateReport }) => {
   );
 };
 
-const AddRemoveStaffingButton = ({ project, updateReport }) => {
+export const AddRemoveStaffingButton = ({ project, updateReport }) => {
   const has = project.staffing !== undefined;
   return (
     <Button
@@ -122,7 +124,7 @@ const AddRemoveStaffingButton = ({ project, updateReport }) => {
   );
 };
 
-const AddRemoveIssueButton = ({ project, updateReport }) => {
+export const AddRemoveIssueButton = ({ project, updateReport }) => {
   const hasIssues = !!(project.issues && project.issues.length > 0);
   return (
     <Button
@@ -160,7 +162,7 @@ const AddProjectButton = ({ projects, updateReport, ...props }) => {
   );
 };
 
-const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
+export const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
   return (
     <Button
       {...props}
@@ -179,58 +181,6 @@ const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
     </Button>
   );
 };
-
-const ProjectState = ({ project, updateReport, projects }) => (
-  <div className="m-2 p-2 rounded border shadow-lg">
-    <Input
-      className="font-bold"
-      value={project.name}
-      placeholder="Project Name"
-      afterChange={updateReport}
-      onChange={val => (project.name = val)}
-    />
-    <div className="flex justify-end">
-      <AddRemoveIssueButton project={project} updateReport={updateReport} />
-      <AddRemoveNotesButton project={project} updateReport={updateReport} />
-      <AddRemoveStaffingButton project={project} updateReport={updateReport} />
-      <RemoveProjectButton
-        project={project}
-        projects={projects}
-        updateReport={updateReport}
-      />
-    </div>
-    {project.issues &&
-      project.issues.map((issue, i) => (
-        <Issue key={issue.id || i} issue={issue} updateReport={updateReport} />
-      ))}
-    <div>
-      {project.notes !== undefined && (
-        <>
-          Notes
-          <Input
-            value={project.notes}
-            afterChange={updateReport}
-            onChange={val => (project.notes = val)}
-            placeholder="Add notes here"
-            textarea
-          />
-        </>
-      )}
-      {project.staffing !== undefined && (
-        <>
-          Staffing
-          <Input
-            value={project.staffing}
-            afterChange={updateReport}
-            onChange={val => (project.staffing = val)}
-            placeholder="Add staffing info here"
-            textarea
-          />
-        </>
-      )}
-    </div>
-  </div>
-);
 
 const BenchImgUploadButton = ({ report, updateReport }) => {
   const onDrop = useCallback(
@@ -282,7 +232,7 @@ const BenchGroup = ({ report, updateReport }) => (
   </div>
 );
 
-const ProjectGroup = ({ forState, projects, updateReport }) => (
+const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
     <AddProjectButton
@@ -295,20 +245,23 @@ const ProjectGroup = ({ forState, projects, updateReport }) => (
       <ProjectState
         project={p}
         projects={projects}
+        forState={forState}
         key={p.id || i}
         updateReport={updateReport}
+        onProjectStateChange={onProjectStateChange}
       />
     ))}
   </div>
 );
 
-const ProjectGroupShell = ({ report, updateReport }) =>
+const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
   PROJECT_STATES_ALL.map(state => (
     <ProjectGroup
       forState={state}
       key={state}
       projects={report.projects[state]}
       updateReport={updateReport}
+      onProjectStateChange={onProjectStateChange}
     />
   ));
 
@@ -460,7 +413,7 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
   </Button>
 );
 
-export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
+export default ({ data, setData, activeReportCode, setPaneSize, lastSize, onProjectStateChange }) => (
   <Scrollable>
     <div className="flex bg-gray-300 justify-between p-1">
       <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
@@ -486,6 +439,7 @@ export default ({ data, setData, activeReportCode, setPaneSize, lastSize }) => (
       updateReport={() => {
         setData({ ...data });
       }}
+      onProjectStateChange={onProjectStateChange}
     />
     {/* <div className="no-print p-4 font-mono text-xs">
       <Editor
