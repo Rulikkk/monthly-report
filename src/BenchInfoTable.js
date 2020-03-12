@@ -20,8 +20,8 @@ const BenchInfoTable = ({ benchInfoData }) => {
       <table className="table-auto w-full">
         <thead>
           <tr style={{ color: orangeColor }}>
-            <th></th>
-            <th style={{ fontWeight: "bold" }}>Count</th>
+            <th className="w-3/12"></th>
+            <th className="w-1/12" style={{ fontWeight: "bold" }}>Count</th>
             <th style={{ fontWeight: "normal" }}>Info</th>
           </tr>
         </thead>
@@ -29,14 +29,14 @@ const BenchInfoTable = ({ benchInfoData }) => {
           {benchInfoData.map(
             (info, idx) =>
               info.disabled || (
-                <tr className={`${idx % 2 === 1 && "bg-gray-200"} align-top`}>
+                <tr key={info.id} className={`${idx % 2 === 1 && "bg-gray-200"} align-top`}>
                   <td className="p-1" style={getEmphasizedStyle(info, true)}>
                     {info.caption}
                   </td>
-                  <td className="p-1" style={getEmphasizedStyle(info)}>
+                  <td className="p-1 text-center" style={getEmphasizedStyle(info)}>
                     {info.count}
                   </td>
-                  <td className="p-1">{info.info}</td>
+                  <td className="p-1 text-justify">{info.info}</td>
                 </tr>
               )
           )}

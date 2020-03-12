@@ -14,6 +14,7 @@ import {
   RemoveProjectButton,
   Issue
 } from "./Editor";
+import { EditorShadowedCard } from "./BaseComponents";
 
 /**
  * A project state change callback.
@@ -38,7 +39,7 @@ const ProjectState = ({
   projects,
   onProjectStateChange
 }) => (
-  <div className="m-2 p-2 rounded border shadow-lg">
+  <EditorShadowedCard>
     <Input
       className="font-bold"
       value={project.name}
@@ -99,7 +100,7 @@ const ProjectState = ({
         </>
       )}
     </div>
-  </div>
+  </EditorShadowedCard>
 );
 
 export default ProjectState;

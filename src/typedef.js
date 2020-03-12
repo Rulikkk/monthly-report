@@ -6,8 +6,16 @@
 /**
  * @typedef BenchInfoData
  * @property {boolean} benchSectionEnabled
- * @property {*[]} info
+ * @property {BenchInfoRecord[]} info
  * @property {*[]} remarks
+ */
+
+/**
+ * @typedef BenchInfoRecord
+ * @property {string} id
+ * @property {string} caption
+ * @property {string} count
+ * @property {string} info
  */
 
 /**

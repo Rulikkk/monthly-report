@@ -1,5 +1,7 @@
 import React from "react";
+import isNil from "lodash.isnil";
 
+import { getRandomId } from "./BaseComponents";
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
 import BenchEditorRemarks from "./BenchEditorRemarks";
 
@@ -15,9 +17,30 @@ const BenchEditorGroup = ({ report, updateReport }) => {
     updateReport();
   };
 
+  const onAddBenchInfoLine = () => {
+    if (isNil(report.benchInfoData.info)) {
+      report.benchInfoData.info = [];
+    }
+
+    report.benchInfoData.info.push({
+      id: getRandomId()
+    });
+
+    updateReport();
+  };
+
+  const deleteBenchInfo = info => {
+    const filteredInfo = report.benchInfoData.info.filter(
+      record => record.id !== info.id
+    );
+    report.benchInfoData.info = filteredInfo;
+
+    updateReport();
+  };
+
   return (
-    <>
-      <h1 className="text-xl m-2">
+    <div>
+      <h1 className="text-xl">
         Bench
         <input
           type="checkbox"
@@ -27,9 +50,14 @@ const BenchEditorGroup = ({ report, updateReport }) => {
         ></input>
       </h1>
 
-      <BenchEditorMainInfo />
+      <BenchEditorMainInfo
+        benchInfo={report.benchInfoData.info}
+        onAddBenchInfoLine={onAddBenchInfoLine}
+        onBenchInfoUpdate={() => updateReport()}
+        onDeleteBenchInfo={deleteBenchInfo}
+      />
       <BenchEditorRemarks />
-    </>
+    </div>
   );
 };
 

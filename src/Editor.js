@@ -30,8 +30,8 @@ export const Input = ({
   const [state, setState] = useState(value),
     handleChange = ({ target: { value } }) => {
       setState(value);
-      onChange(value);
-      afterChange();
+      onChange && onChange(value);
+      afterChange && afterChange();
     },
     props = {
       ...otherProps,
