@@ -1,8 +1,12 @@
+import "./typedef";
+
 import React, { Fragment, useState, useEffect } from "react";
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import Store from "./Store";
 import { initCap } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
+
+import BenchInfoSection from "./BenchInfoSection";
 
 const ReportSelector = ({ reports, activeReportCode, setActiveReportCode }) => {
   return (
@@ -264,14 +268,6 @@ const ProjectTable = ({ projectState, projects }) => (
   </table>
 );
 
-const BenchInfo = ({ report }) => (
-  <>
-    <h1 className="text-3xl mt-5">Bench</h1>
-    {report.benchImage && <img src={report.benchImage} alt="Bench details" />}
-    {!report.benchImage && "No image"}
-  </>
-);
-
 const ProjectListForState = p => {
   return (
     <>
@@ -296,6 +292,7 @@ export default ({
     Store.lastSelectedReport = activeReportCode;
     setActiveReport(data.reports.find(r => r.code === activeReportCode));
   }, [activeReportCode, data.reports]);
+
   return (
     <Scrollable>
       <div
@@ -320,7 +317,11 @@ export default ({
           projects={activeReport.projects}
           prevProjects={activeReport.prev && activeReport.prev.projects}
         />
-        <BenchInfo report={activeReport} />
+
+        {activeReport?.benchInfoData?.benchSectionEnabled && (
+          <BenchInfoSection benchInfoData={activeReport.benchInfoData} />
+        )}
+
         {PROJECT_STATES_ALL.map(ps => (
           <ProjectListForState
             key={ps}

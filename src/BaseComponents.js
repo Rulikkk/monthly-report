@@ -112,6 +112,10 @@ const enhanceDataInplace = data => {
   data.enhanced = 1;
 };
 
+const EditorShadowedCard = ({ children }) => (
+  <div className="m-2 p-2 rounded border shadow-lg">{children}</div>
+);
+
 export {
   getRandomId,
   initCap,
@@ -120,5 +124,6 @@ export {
   useAll,
   useEffects,
   PrintButton,
-  enhanceDataInplace
+  enhanceDataInplace,
+  EditorShadowedCard
 };

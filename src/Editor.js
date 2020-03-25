@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 import { PROJECT_STATES_ALL } from "./const";
@@ -11,7 +11,9 @@ import {
 } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
 
-import ProjectState from './ProjectState';
+import { migrateOldReportData } from "./UpdateReportVersion";
+import ProjectState from "./ProjectState";
+import BenchEditorGroup from "./BenchEditorGroup";
 
 const VALIDATION_CODE = "ARBUZ";
 
@@ -28,8 +30,8 @@ export const Input = ({
   const [state, setState] = useState(value),
     handleChange = ({ target: { value } }) => {
       setState(value);
-      onChange(value);
-      afterChange();
+      onChange && onChange(value);
+      afterChange && afterChange();
     },
     props = {
       ...otherProps,
@@ -39,6 +41,12 @@ export const Input = ({
       value: state,
       onChange: handleChange
     };
+
+  // Update the state value if props value has been changed. Sometimes they can be out of sync.
+  useEffect(() => {
+    setState(value);
+  }, [value]);
+
   return textarea ? (
     <TextareaAutosize {...props} />
   ) : (
@@ -162,7 +170,12 @@ const AddProjectButton = ({ projects, updateReport, ...props }) => {
   );
 };
 
-export const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
+export const RemoveProjectButton = ({
+  project,
+  projects,
+  updateReport,
+  ...props
+}) => {
   return (
     <Button
       {...props}
@@ -182,57 +195,12 @@ export const RemoveProjectButton = ({ project, projects, updateReport, ...props 
   );
 };
 
-const BenchImgUploadButton = ({ report, updateReport }) => {
-  const onDrop = useCallback(
-    acceptedFiles => {
-      // Do whatever you want with the file contents
-      if (acceptedFiles.length > 1) {
-        window.alert(`Only support one file.`);
-        return;
-      }
-
-      try {
-        if (acceptedFiles.length > 0 && acceptedFiles[0]) {
-          let reader = new FileReader();
-          reader.readAsDataURL(acceptedFiles[0]);
-          reader.onerror = err => console.log(err);
-          reader.onloadend = () => {
-            report.benchImage = reader.result;
-            updateReport();
-          };
-        }
-      } catch (e) {
-        window.alert(`Could not parse file with error ${e}.`);
-      }
-    },
-    [report, updateReport]
-  );
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    accept: "image/*"
-  });
-
-  return (
-    <div
-      className="ml-2 text-white font-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-700 cursor-pointer select-none"
-      title="Click or drop JSON here"
-      {...getRootProps()}
-    >
-      <input {...getInputProps()} />
-      {isDragActive ? <p>DROP</p> : <p>Open bench image</p>}
-    </div>
-  );
-};
-
-const BenchGroup = ({ report, updateReport }) => (
-  <div>
-    <h1 className="text-xl m-2">Bench</h1>
-    <BenchImgUploadButton report={report} updateReport={updateReport} />
-  </div>
-);
-
-const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }) => (
+const ProjectGroup = ({
+  forState,
+  projects,
+  updateReport,
+  onProjectStateChange
+}) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
     <AddProjectButton
@@ -345,8 +313,12 @@ const OpenReport = ({ setData }) => {
           if (!window.confirm("Replace current report with loaded data?"))
             return;
           incrementLoadId(loadedData);
-          setData(loadedData);
-          Store.reportJSON = loadedData;
+
+          // Upgrade report to the latest format version.
+          const upgradedReportData = migrateOldReportData(loadedData);
+
+          setData(upgradedReportData);
+          Store.reportJSON = upgradedReportData;
         } catch (e) {
           window.alert(`Could not parse file with error ${e}.`);
         }
@@ -413,7 +385,14 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
   </Button>
 );
 
-export default ({ data, setData, activeReportCode, setPaneSize, lastSize, onProjectStateChange }) => (
+export default ({
+  data,
+  setData,
+  activeReportCode,
+  setPaneSize,
+  lastSize,
+  onProjectStateChange
+}) => (
   <Scrollable>
     <div className="flex bg-gray-300 justify-between p-1">
       <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
@@ -426,7 +405,7 @@ export default ({ data, setData, activeReportCode, setPaneSize, lastSize, onProj
       </div>
     </div>
 
-    <BenchGroup
+    <BenchEditorGroup
       report={data.reports.find(r => r.code === activeReportCode)}
       updateReport={() => {
         setData({ ...data });
@@ -441,14 +420,5 @@ export default ({ data, setData, activeReportCode, setPaneSize, lastSize, onProj
       }}
       onProjectStateChange={onProjectStateChange}
     />
-    {/* <div className="no-print p-4 font-mono text-xs">
-      <Editor
-        value={yml}
-        onValueChange={setYml}
-        highlight={code => {
-          return highlight(code, languages.yaml);
-        }}
-      />
-    </div> */}
   </Scrollable>
 );
