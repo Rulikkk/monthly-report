@@ -1,6 +1,6 @@
-import React, { useState, useCallback, useEffect } from "react";
-import TextareaAutosize from "react-autosize-textarea";
+import React, { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import TextareaAutosize from "react-autosize-textarea";
 import { PROJECT_STATES_ALL } from "./const";
 import Store from "./Store";
 import {
@@ -10,10 +10,10 @@ import {
   enhanceDataInplace
 } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
-
 import { migrateOldReportData } from "./UpdateReportVersion";
 import ProjectState from "./ProjectState";
 import BenchEditorGroup from "./BenchEditorGroup";
+import { PraiseEditorGroup } from "./Praises";
 
 const VALIDATION_CODE = "ARBUZ";
 
@@ -392,33 +392,34 @@ export default ({
   setPaneSize,
   lastSize,
   onProjectStateChange
-}) => (
-  <Scrollable>
-    <div className="flex bg-gray-300 justify-between p-1">
-      <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
-      <div className="spaced-row-grid">
-        <CopyPreviousReport data={data} setData={setData} />
-        <OpenReport setData={setData} />
-        <SaveReport data={data} />
-        <PrintButton />
-        <EditorHideButton setPaneSize={setPaneSize} lastSize={lastSize} />
+}) => {
+  const activeReport = data.reports.find(r => r.code === activeReportCode),
+    updateReport = () => {
+      setData({ ...data });
+    };
+  return (
+    <Scrollable>
+      <div className="flex bg-gray-300 justify-between p-1">
+        <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
+        <div className="spaced-row-grid">
+          <CopyPreviousReport data={data} setData={setData} />
+          <OpenReport setData={setData} />
+          <SaveReport data={data} />
+          <PrintButton />
+          <EditorHideButton setPaneSize={setPaneSize} lastSize={lastSize} />
+        </div>
       </div>
-    </div>
 
-    <BenchEditorGroup
-      report={data.reports.find(r => r.code === activeReportCode)}
-      updateReport={() => {
-        setData({ ...data });
-      }}
-    />
+      <BenchEditorGroup report={activeReport} updateReport={updateReport} />
 
-    <ProjectGroupShell
-      key={data.loadId}
-      report={data.reports.find(r => r.code === activeReportCode)}
-      updateReport={() => {
-        setData({ ...data });
-      }}
-      onProjectStateChange={onProjectStateChange}
-    />
-  </Scrollable>
-);
+      <ProjectGroupShell
+        key={data.loadId}
+        report={activeReport}
+        updateReport={updateReport}
+        onProjectStateChange={onProjectStateChange}
+      />
+
+      <PraiseEditorGroup report={activeReport} updateReport={updateReport} />
+    </Scrollable>
+  );
+};
