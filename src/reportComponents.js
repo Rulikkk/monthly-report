@@ -5,6 +5,7 @@ import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import Store from "./Store";
 import { initCap } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
+import { Praises } from "./Praises";
 
 import BenchInfoSection from "./BenchInfoSection";
 
@@ -329,6 +330,7 @@ export default ({
             projects={activeReport.projects[ps]}
           />
         ))}
+        <Praises praises={activeReport.praises} />
       </div>
     </Scrollable>
   );

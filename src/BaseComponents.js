@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
 
 const getRandomId = () => {
   let array = new Uint32Array(8);
@@ -116,6 +117,42 @@ const EditorShadowedCard = ({ children }) => (
   <div className="m-2 p-2 rounded border shadow-lg">{children}</div>
 );
 
+const SingleImgButton = ({ onImage, className, title, dragTitle }) => {
+  const onDrop = useCallback(
+    acceptedFiles => {
+      // Do whatever you want with the file contents
+      if (acceptedFiles.length > 1) {
+        window.alert(`Only support one file.`);
+        return;
+      }
+
+      try {
+        if (acceptedFiles.length > 0 && acceptedFiles[0]) {
+          let reader = new FileReader();
+          reader.readAsDataURL(acceptedFiles[0]);
+          reader.onerror = err => console.log(err);
+          reader.onloadend = () => onImage(reader.result);
+        }
+      } catch (e) {
+        window.alert(`Could not parse file with error ${e}.`);
+      }
+    },
+    [onImage]
+  );
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: "image/*"
+  });
+
+  return (
+    <div className={className} title={title} {...getRootProps()}>
+      <input {...getInputProps()} />
+      {isDragActive ? <p>{dragTitle}</p> : <p>{title}</p>}
+    </div>
+  );
+};
+
 export {
   getRandomId,
   initCap,
@@ -125,5 +162,6 @@ export {
   useEffects,
   PrintButton,
   enhanceDataInplace,
-  EditorShadowedCard
+  EditorShadowedCard,
+  SingleImgButton
 };
