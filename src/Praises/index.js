@@ -58,9 +58,12 @@ const PraiseEditorGroup = ({ report, updateReport }) => (
 );
 
 const Praise = ({ praise: { img, text } }) => (
-  <li>
-    {text}
-    {img && <img src={img} alt={text} />}
+  <li className="mb-8">
+    <EditorShadowedCard>
+      <h2 className="text-xl ml-4 py-2">{text}</h2>
+      <hr />
+      {img && <img src={img} alt={text} />}
+    </EditorShadowedCard>
   </li>
 );
 
