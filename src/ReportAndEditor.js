@@ -29,7 +29,7 @@ const parsedData = Store.reportJSON;
 enhanceDataInplace(parsedData);
 
 const pathname = document.location.pathname;
-const activeReport = parsedData.reports.find(r => r.code === pathname);
+const activeReport = parsedData.reports.find((r) => r.code === pathname);
 if (pathname.length < 3 || !activeReport) {
   navigate("/" + parsedData.reports[parsedData.reports.length - 1].code);
 }
@@ -50,7 +50,7 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
   </Button>
 );
 
-const nav = x => navigate("/" + x);
+const nav = (x) => navigate("/" + x);
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
   const { data, setData, onChange } = useAll({
@@ -59,7 +59,7 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
     },
     callback: {
       onChange: [
-        debounce(size => {
+        debounce((size) => {
           if (size < 50) size = 0;
           setPaneSize(size);
           if (size > 0) lastSize.current = size;
@@ -78,17 +78,17 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
 
   const onProjectStateChange = (project, oldState, newState) => {
     // Find current report.
-    const currentReport = data.reports.find(r => r.code === reportCode);
+    const currentReport = data.reports.find((r) => r.code === reportCode);
 
     // Remove the project from old state list.
     const oldStateProjects = currentReport.projects[oldState];
     currentReport.projects[oldState] = oldStateProjects.filter(
-      p => p !== project
+      (p) => p !== project
     );
 
     // Add the project to new state list.
     const newStateProjects = currentReport.projects[newState];
-    currentReport.projects[newState] = [...newStateProjects, project];
+    currentReport.projects[newState] = [project, ...newStateProjects];
 
     // Update the component state.
     setData({ ...data });
