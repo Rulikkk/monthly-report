@@ -10,21 +10,28 @@ import { Praises } from "./Praises";
 import BenchInfoSection from "./BenchInfoSection";
 
 const ReportSelector = ({ reports, activeReportCode, setActiveReportCode }) => {
+  // we may hit non-nexisting activeReportCode here
+  let currentReport = reports.find((r) => r.code === activeReportCode);
+  if (!currentReport) {
+    window.location.reload();
+    return;
+  }
+
   return (
     <>
       <select
         value={activeReportCode}
-        onChange={e => setActiveReportCode(e.target.value)}
+        onChange={(e) => setActiveReportCode(e.target.value)}
         className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print"
       >
-        {reports.map(r => (
+        {reports.map((r) => (
           <option className="text-normal" value={r.code} key={r.code}>
             {r.name}
           </option>
         ))}
       </select>
       <span className="text-3xl font-bold mt-3 leading-tight only-print">
-        {reports.find(r => r.code === activeReportCode).name}
+        {currentReport.name}
       </span>
     </>
   );
@@ -84,8 +91,8 @@ const TotalsTable = ({ projects, prevProjects }) => {
       </tr>
     ),
     sum = (a, b) => a + b,
-    countProjects = ps =>
-      ps && PROJECT_STATES.map(t => (ps[t] ? ps[t].length : 0)).reduce(sum),
+    countProjects = (ps) =>
+      ps && PROJECT_STATES.map((t) => (ps[t] ? ps[t].length : 0)).reduce(sum),
     totalProjectsNow = countProjects(projects),
     totalProjectsThen = countProjects(prevProjects),
     Comparer = ({
@@ -173,13 +180,13 @@ const TotalsTable = ({ projects, prevProjects }) => {
                 lowerBetter={false}
               />
             </Td>
-            {PROJECT_STATES.map(ps => (
+            {PROJECT_STATES.map((ps) => (
               <TdComparer key={ps} projectState={ps} />
             ))}
           </tr>
           <tr>
             <Td bold>%</Td>
-            {PROJECT_STATES.map(ps => (
+            {PROJECT_STATES.map((ps) => (
               <TdComparer
                 key={ps}
                 projectState={ps}
@@ -206,7 +213,7 @@ const ProjectStatus = ({ project, hideOK }) => {
   return (
     <ul>
       {issues ? (
-        issues.map(i =>
+        issues.map((i) =>
           i ? (
             <Fragment key={i.id}>
               <li>{i.issue}</li>
@@ -252,7 +259,7 @@ const ProjectTable = ({ projectState, projects }) => (
       </tr>
     </thead>
     <tbody>
-      {projects.map(project => (
+      {projects.map((project) => (
         <tr key={project.id} style={{ borderBottom: "solid silver 1px" }}>
           <Td className="align-top" {...{ [projectState]: true }}>
             {project && project.name}
@@ -269,7 +276,7 @@ const ProjectTable = ({ projectState, projects }) => (
   </table>
 );
 
-const ProjectListForState = p => {
+const ProjectListForState = (p) => {
   return (
     <>
       <h1 className="text-3xl mt-5">{initCap(p.projectState)}</h1>
@@ -291,7 +298,7 @@ export default ({
   const [activeReport, setActiveReport] = useState(data.reports[0]);
   useEffect(() => {
     Store.lastSelectedReport = activeReportCode;
-    setActiveReport(data.reports.find(r => r.code === activeReportCode));
+    setActiveReport(data.reports.find((r) => r.code === activeReportCode));
   }, [activeReportCode, data.reports]);
 
   return (
@@ -323,7 +330,7 @@ export default ({
           <BenchInfoSection benchInfoData={activeReport.benchInfoData} />
         )}
 
-        {PROJECT_STATES_ALL.map(ps => (
+        {PROJECT_STATES_ALL.map((ps) => (
           <ProjectListForState
             key={ps}
             projectState={ps}

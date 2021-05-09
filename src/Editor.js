@@ -17,7 +17,7 @@ import { PraiseEditorGroup } from "./Praises";
 
 const VALIDATION_CODE = "ARBUZ";
 
-const initCap = s => [s[0].toUpperCase(), ...s.slice(1)].join("");
+const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
 export const Input = ({
   value,
@@ -61,7 +61,7 @@ export const Issue = ({ issue, updateReport }) => {
       <Input
         value={issue.issue}
         afterChange={updateReport}
-        onChange={val => (issue.issue = val)}
+        onChange={(val) => (issue.issue = val)}
         placeholder="Describe issue here"
         textarea
       />
@@ -70,7 +70,7 @@ export const Issue = ({ issue, updateReport }) => {
       <Input
         value={issue.mitigation}
         afterChange={updateReport}
-        onChange={val => (issue.mitigation = val)}
+        onChange={(val) => (issue.mitigation = val)}
         placeholder="Add issue mitigation here"
         textarea
       />
@@ -78,7 +78,7 @@ export const Issue = ({ issue, updateReport }) => {
       <Input
         value={issue.eta}
         afterChange={updateReport}
-        onChange={val => (issue.eta = val)}
+        onChange={(val) => (issue.eta = val)}
         placeholder="Add issue fix ETA here"
       />
       <br />
@@ -223,7 +223,7 @@ const ProjectGroup = ({
 );
 
 const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
-  PROJECT_STATES_ALL.map(state => (
+  PROJECT_STATES_ALL.map((state) => (
     <ProjectGroup
       forState={state}
       key={state}
@@ -233,7 +233,7 @@ const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
     />
   ));
 
-const incrementLoadId = data => {
+const incrementLoadId = (data) => {
   if (!data.loadId) {
     data.loadId = 0;
   }
@@ -255,8 +255,8 @@ const MONTH_NAMES = [
   "Dec"
 ];
 
-const getNextCodeAndName = lastCode => {
-  let [year, month] = lastCode.split("-").map(x => parseInt(x, 10));
+const getNextCodeAndName = (lastCode) => {
+  let [year, month] = lastCode.split("-").map((x) => parseInt(x, 10));
   if (month < 12) month++;
   else [year, month] = [year + 1, 1];
   return [
@@ -298,7 +298,7 @@ const CopyPreviousReport = ({ data, setData, ...props }) => (
 
 const OpenReport = ({ setData }) => {
   const onDrop = useCallback(
-    acceptedFiles => {
+    (acceptedFiles) => {
       const reader = new FileReader();
 
       reader.onabort = () => console.log("file reading was aborted");
@@ -317,8 +317,8 @@ const OpenReport = ({ setData }) => {
           // Upgrade report to the latest format version.
           const upgradedReportData = migrateOldReportData(loadedData);
 
-          setData(upgradedReportData);
           Store.reportJSON = upgradedReportData;
+          window.location.reload();
         } catch (e) {
           window.alert(`Could not parse file with error ${e}.`);
         }
@@ -327,7 +327,7 @@ const OpenReport = ({ setData }) => {
         window.alert(`Only support one file.`);
         return;
       }
-      acceptedFiles.forEach(file => reader.readAsText(file, ""));
+      acceptedFiles.forEach((file) => reader.readAsText(file, ""));
     },
     [setData]
   );
@@ -393,7 +393,7 @@ export default ({
   lastSize,
   onProjectStateChange
 }) => {
-  const activeReport = data.reports.find(r => r.code === activeReportCode),
+  const activeReport = data.reports.find((r) => r.code === activeReportCode),
     updateReport = () => {
       setData({ ...data });
     };
