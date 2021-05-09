@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import TextareaAutosize from "react-autosize-textarea";
 import { PROJECT_STATES_ALL } from "./const";
@@ -296,41 +296,37 @@ const CopyPreviousReport = ({ data, setData, ...props }) => (
   </Button>
 );
 
-const OpenReport = ({ setData }) => {
-  const onDrop = useCallback(
-    (acceptedFiles) => {
-      const reader = new FileReader();
+const OpenReport = () => {
+  const onDrop = (acceptedFiles) => {
+    const reader = new FileReader();
 
-      reader.onabort = () => console.log("file reading was aborted");
-      reader.onerror = () => console.log("file reading has failed");
-      reader.onload = () => {
-        // Do whatever you want with the file contents
-        try {
-          const loadedData = JSON.parse(reader.result);
-          enhanceDataInplace(loadedData);
-          if (loadedData.validationCode !== VALIDATION_CODE)
-            throw new Error("Invalid validation code in json.");
-          if (!window.confirm("Replace current report with loaded data?"))
-            return;
-          incrementLoadId(loadedData);
+    reader.onabort = () => console.log("file reading was aborted");
+    reader.onerror = () => console.log("file reading has failed");
+    reader.onload = () => {
+      // Do whatever you want with the file contents
+      try {
+        const loadedData = JSON.parse(reader.result);
+        enhanceDataInplace(loadedData);
+        if (loadedData.validationCode !== VALIDATION_CODE)
+          throw new Error("Invalid validation code in json.");
+        if (!window.confirm("Replace current report with loaded data?")) return;
+        incrementLoadId(loadedData);
 
-          // Upgrade report to the latest format version.
-          const upgradedReportData = migrateOldReportData(loadedData);
+        // Upgrade report to the latest format version.
+        const upgradedReportData = migrateOldReportData(loadedData);
 
-          Store.reportJSON = upgradedReportData;
-          window.location.reload();
-        } catch (e) {
-          window.alert(`Could not parse file with error ${e}.`);
-        }
-      };
-      if (acceptedFiles.length > 1) {
-        window.alert(`Only support one file.`);
-        return;
+        Store.reportJSON = upgradedReportData;
+        window.location.reload();
+      } catch (e) {
+        window.alert(`Could not parse file with error ${e}.`);
       }
-      acceptedFiles.forEach((file) => reader.readAsText(file, ""));
-    },
-    [setData]
-  );
+    };
+    if (acceptedFiles.length > 1) {
+      window.alert(`Only support one file.`);
+      return;
+    }
+    acceptedFiles.forEach((file) => reader.readAsText(file, ""));
+  };
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
