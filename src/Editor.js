@@ -391,6 +391,7 @@ export default ({
 }) => {
   const activeReport = data.reports.find((r) => r.code === activeReportCode),
     updateReport = () => {
+      console.log(data)
       setData({ ...data });
     };
   return (

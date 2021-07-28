@@ -14,6 +14,8 @@ import {
   enhanceDataInplace
 } from "./BaseComponents";
 
+import { useAPI } from "./hooks/useAPI";
+
 /**
  * ToDO:
  * - Make reports collapsible
