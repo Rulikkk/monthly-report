@@ -14,7 +14,7 @@ import {
   enhanceDataInplace
 } from "./BaseComponents";
 
-import { useAPI, getMonth } from "./hooks/useAPI";
+import { useAPI, getMonth, getAllMonths } from "./hooks/useAPI";
 
 /**
  * ToDO:
@@ -79,16 +79,39 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
   );
 
   useEffect(() => {
+    const fetchAllMonths = async () => {
+      const allMonths = await getAllMonths();
+      const current = data.reports.find((r) => r.code === reportCode);
+      data.reports = [current];
+      const i = new Intl.DateTimeFormat("en", {
+        month: "short",
+        year: "numeric"
+      });
+      allMonths.forEach((x) => {
+        if (x.id !== reportCode) {
+          data.reports.push({
+            code: x.id,
+            name: i.format(Date.parse(x.id + "-01"))
+          });
+        }
+      });
+      console.log(data);
+      setData(data);
+    };
+    fetchAllMonths();
+  }, []);
+
+  useEffect(() => {
     const fetchMonth = async () => {
       const loadedData = await getMonth(reportCode);
-      console.log("LOADED MONHT ----");
-      console.log(loadedData);
+
       const i = data.reports.findIndex((r) => r.code === reportCode);
       data.reports[i] = loadedData;
+
       setData(data);
     };
     fetchMonth();
-  }, [reportCode, setData]);
+  }, [reportCode]);
 
   const onProjectStateChange = (project, oldState, newState) => {
     // Find current report.

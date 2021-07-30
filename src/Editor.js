@@ -209,16 +209,17 @@ const ProjectGroup = ({
       projects={projects}
       updateReport={updateReport}
     />
-    {projects.map((p, i) => (
-      <ProjectState
-        project={p}
-        projects={projects}
-        forState={forState}
-        key={p.id || i}
-        updateReport={updateReport}
-        onProjectStateChange={onProjectStateChange}
-      />
-    ))}
+    {projects &&
+      projects.map((p, i) => (
+        <ProjectState
+          project={p}
+          projects={projects}
+          forState={forState}
+          key={p.id || i}
+          updateReport={updateReport}
+          onProjectStateChange={onProjectStateChange}
+        />
+      ))}
   </div>
 );
 
@@ -391,7 +392,7 @@ export default ({
 }) => {
   const activeReport = data.reports.find((r) => r.code === activeReportCode),
     updateReport = () => {
-      console.log(data)
+      console.log(data);
       setData({ ...data });
     };
   return (

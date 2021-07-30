@@ -298,7 +298,7 @@ export default ({
   const [activeReport, setActiveReport] = useState(data.reports[0]);
   useEffect(() => {
     Store.lastSelectedReport = activeReportCode;
-    setActiveReport(data.reports.find((r) => r.code === activeReportCode));
+    // setActiveReport(data.reports.find((r) => r.code === activeReportCode));
   }, [activeReportCode, data.reports]);
 
   return (

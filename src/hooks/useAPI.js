@@ -27,6 +27,17 @@ function renameKey(obj, old, nk) {
   delete obj[old];
 }
 
+export async function getAllMonths() {
+  console.log("Getting all months");
+
+  let { data: allMonths } = await http.get("/months");
+
+  console.log("LOADED MONTHS ----");
+  console.log(allMonths);
+
+  return allMonths;
+}
+
 export async function getMonth(id) {
   console.log(`Getting month ${id}`);
   let { data: loadedReport } = await http.get(`/month/${id}`);
@@ -50,6 +61,9 @@ export async function getMonth(id) {
 
   delete loadedReport["project_statuses_ids"];
   delete loadedReport["project_statuses"];
+
+  console.log("LOADED MONTH ----");
+  console.log(loadedReport);
 
   return loadedReport;
 }
