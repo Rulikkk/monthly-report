@@ -31,11 +31,11 @@ export default class Store {
   }
 
   static get reportJSON() {
-    let reportData = this.getJsonVal(this.JSON_REPORT, data);
-    return migrateOldReportData(reportData);
+    // let reportData = this.getJsonVal(this.JSON_REPORT, data);
+    return migrateOldReportData(data);
   }
 
   static set reportJSON(value) {
-    this.setJsonVal(this.JSON_REPORT, value, serializeFilter);
+    // this.setJsonVal(this.JSON_REPORT, value, serializeFilter);
   }
 }

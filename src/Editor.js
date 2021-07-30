@@ -395,7 +395,13 @@ export default ({
       console.log(data);
       setData({ ...data });
     };
-  return (
+
+  console.log("ACTIVE REPORT IN EDITOR");
+  console.log(activeReport);
+
+  return activeReport.benchInfoData === undefined ? (
+    "Loading"
+  ) : (
     <Scrollable>
       <div className="flex bg-gray-300 justify-between p-1">
         <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>

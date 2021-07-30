@@ -298,7 +298,13 @@ export default ({
   const [activeReport, setActiveReport] = useState(data.reports[0]);
   useEffect(() => {
     Store.lastSelectedReport = activeReportCode;
-    // setActiveReport(data.reports.find((r) => r.code === activeReportCode));
+    const newActiveReport = data.reports.find(
+      (r) => r.code === activeReportCode
+    );
+    console.log("ACTIVE REPORT IN VIEWER");
+    console.log(newActiveReport);
+    if (!newActiveReport.benchInfoData) return;
+    setActiveReport(newActiveReport);
   }, [activeReportCode, data.reports]);
 
   return (
