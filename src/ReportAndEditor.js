@@ -13,6 +13,8 @@ import {
   useAll,
   enhanceDataInplace
 } from "./BaseComponents";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { activeReportIdData, allReportsIdsQuery } from "./store/index";
 
 /**
  * ToDO:
@@ -122,6 +124,15 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
 };
 
 const ReportAndEditor = () => {
+  let [activeReportId, setActiveReportId] = useRecoilState(activeReportIdData);
+  let allReportsIds = useRecoilValue(allReportsIdsQuery);
+
+  useEffect(() => {
+    if (activeReportId !== null) return;
+    let [{ id }] = allReportsIds;
+    setActiveReportId(id);
+  }, []);
+
   const initialSidebarState = Store.sidebarState,
     props = useAll({
       state: {
