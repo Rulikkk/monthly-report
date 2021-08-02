@@ -121,6 +121,9 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
         setActiveReportCode={nav}
       />
       <Editor
+        activeReportId={state.activeReport.id}
+        onReportChange={api.pushReport}
+        onProjectChange={api.pushProject}
         data={data}
         setData={setData}
         activeReportCode={reportCode}

@@ -252,45 +252,37 @@ export default ({
   activeReportId,
   activeReport,
   prevReport,
-  nextReport,
   notes,
   handleActiveReportChange,
-  data,
-  activeReportCode,
-  setActiveReportCode,
+  headerImageSrc = "https://placekitten.com/300/100",
   reportToPrintRef
 }) => {
-  // const [activeReport, setActiveReport] = useState(data.reports[0]);
-  // useEffect(() => {
-  //   Store.lastSelectedReport = activeReportCode;
-  //   setActiveReport(data.reports.find((r) => r.code === activeReportCode));
-  // }, [activeReportCode, data.reports]);
-
   return (
     <Scrollable>
       <div ref={reportToPrintRef} className="container p-4 mx-auto max-w-4xl good-fonts">
-        <img
-          alt="Logo"
-          src={data.headerImageSrc || "https://placekitten.com/300/100"}
-          className="mx-auto"
-        />
+        <img alt="Logo" src={headerImageSrc} className="mx-auto" />
         <h1 className="text-3xl">
-          <ReportSelector options={allReportsIds} onChange={handleActiveReportChange} /> —{" "}
-          {data.reportName || "<data.reportName>"}
+          <ReportSelector
+            options={allReportsIds}
+            currentValue={activeReportId}
+            onChange={handleActiveReportChange}
+          />{" "}
+          — {activeReport.name || "<data.reportName>"}
         </h1>
         <Note notes={notes} />
-        <TotalsTable
-          projects={activeReport.projects}
-          prevProjects={prevReport && prevReport.projects}
-        />
+        <TotalsTable projects={activeReport.projects} prevProjects={prevReport?.projects} />
 
         {activeReport?.benchInfoData?.benchSectionEnabled && (
           <BenchInfoSection benchInfoData={activeReport.benchInfoData} />
         )}
 
-        {PROJECT_STATES_ALL.map(ps =>
-          activeReport?.projects && activeReport.projects[ps] ? (
-            <ProjectListForState key={ps} projectState={ps} projects={activeReport.projects[ps]} />
+        {PROJECT_STATES_ALL.map(status =>
+          activeReport?.projects && activeReport.projects[status] ? (
+            <ProjectListForState
+              key={status}
+              projectState={status}
+              projects={activeReport.projects[status]}
+            />
           ) : null
         )}
         <Praises praises={activeReport.praises} />

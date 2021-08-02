@@ -382,6 +382,9 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
 );
 
 export default ({
+  activeReportId,
+  onProjectChange,
+  onReportChange,
   data,
   setData,
   activeReportCode,
@@ -391,6 +394,7 @@ export default ({
 }) => {
   const activeReport = data.reports.find((r) => r.code === activeReportCode),
     updateReport = () => {
+      let activeReportDirty = data.reports.find(({ id }) => id === activeReportId);
       setData({ ...data });
     };
   return (
