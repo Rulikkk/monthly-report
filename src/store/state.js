@@ -1,4 +1,4 @@
-import camelCase from "lodash.camelCase";
+import camelCase from "lodash.camelcase";
 import groupBy from "lodash.groupby";
 import { atom, selector, selectorFamily } from "recoil";
 
@@ -10,18 +10,19 @@ export let allReportsIds = selector({
   default: [],
   get: async () => {
     let { data } = await http.get("/months");
-    return data.sort((a, b) => (a.id > b.id ? -1 : 1));
+    return data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
   }
 });
 
 export let activeReportId = atom({
   key: "activeReportId",
-  default: ""
+  default: null
 });
 
 export let reportQuery = selectorFamily({
   key: "report",
   get: reportId => async () => {
+    if (!reportId) return;
     let { data } = await http.get(`/month/${reportId}`);
     data.projects = groupBy(data.projects, ({ status_color }) => status_color);
     return transformKeys(data, camelCase);
@@ -31,22 +32,32 @@ export let reportQuery = selectorFamily({
 export let activeReport = selector({
   key: "activeReport",
   get: ({ get }) => {
-    return get(reportQuery(get(activeReportId)));
+    let id = get(activeReportId);
+    if (!id) return;
+    return get(reportQuery(id));
   }
 });
 
 export let prevReport = selector({
   key: "prevReport",
   get: async ({ get }) => {
-    let i = get(allReportIds).indexOf(get(activeReportId));
-    return get(reportQuery(i - 1));
+    let activeId = get(activeReportId);
+    if (!activeId) return;
+    let ids = get(allReportsIds);
+    let index = ids.indexOf(activeId) - 1;
+    if (index < 0) return;
+    return get(reportQuery(ids[index]));
   }
 });
 
 export let nextReport = selector({
   key: "nextReport",
   get: async ({ get }) => {
-    let i = get(allReportIds).indexOf(get(activeReportId));
-    return get(reportQuery(i + 1));
+    let activeId = get(activeReportId);
+    if (!activeId) return;
+    let ids = get(allReportsIds);
+    let index = ids.indexOf(activeId) + 1;
+    if (index < 0) return;
+    return get(reportQuery(ids[index]));
   }
 });
