@@ -14,6 +14,7 @@ import {
   enhanceDataInplace
 } from "./BaseComponents";
 import { useStore } from "./store/index";
+import { createStrictEquality } from "typescript";
 
 /**
  * ToDO:
@@ -53,6 +54,12 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
 const nav = x => navigate("/" + x);
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
+  let [state, api] = useStore();
+
+  useEffect(() => {
+    console.log({ state });
+  }, [state]);
+
   const { data, setData, onChange } = useAll({
     state: {
       data: parsedData
@@ -101,7 +108,18 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
       size={paneSize}
       primary="second"
       onChange={onChange}>
-      <Report data={data} activeReportCode={reportCode} setActiveReportCode={nav} />
+      <Report
+        notes={[]}
+        allReportsIds={state.allReportsIds}
+        activeReportId={state.activeReport.id}
+        activeReport={state.activeReport}
+        nextReport={state.nextReport}
+        prevReport={state.prevReport}
+        handleActiveReportChange={api.setActiveReportId}
+        data={data}
+        activeReportCode={reportCode}
+        setActiveReportCode={nav}
+      />
       <Editor
         data={data}
         setData={setData}
@@ -115,12 +133,6 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
 };
 
 const ReportAndEditor = () => {
-  let [state, api] = useStore();
-
-  useEffect(() => {
-    console.log({ state });
-  }, [state]);
-
   const initialSidebarState = Store.sidebarState,
     props = useAll({
       state: {

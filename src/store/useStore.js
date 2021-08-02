@@ -37,6 +37,7 @@ export function useStore() {
 
   return [
     {
+      notes: [],
       allReportsIds,
       prevReport,
       nextReport,
