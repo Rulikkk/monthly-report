@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import * as api from "./api";
@@ -21,13 +22,22 @@ import * as state from "./state";
 
 /** @returns {[State, API]} [State, API] */
 export function useStore() {
+  let allReportsIds = useRecoilValue(state.allReportsIds);
   let [activeReportId, setActiveReportId] = useRecoilState(state.activeReportId);
   let activeReport = useRecoilValue(state.activeReport);
   let prevReport = useRecoilValue(state.prevReport);
   let nextReport = useRecoilValue(state.nextReport);
 
+  useEffect(() => {
+    if (!activeReportId) {
+      let [id] = allReportsIds;
+      setActiveReportId(id);
+    }
+  }, [activeReportId]);
+
   return [
     {
+      allReportsIds,
       prevReport,
       nextReport,
       activeReport: {
