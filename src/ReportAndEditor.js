@@ -13,12 +13,7 @@ import {
   useAll,
   enhanceDataInplace
 } from "./BaseComponents";
-import { useRecoilState, useRecoilValue } from "recoil";
-import {
-  activeReportIdData,
-  activeReportQuery,
-  allReportsIdsQuery
-} from "./store/index";
+import { useStore } from "./store";
 
 /**
  * ToDO:
@@ -35,7 +30,7 @@ const parsedData = Store.reportJSON;
 enhanceDataInplace(parsedData);
 
 const pathname = document.location.pathname;
-const activeReport = parsedData.reports.find((r) => r.code === pathname);
+const activeReport = parsedData.reports.find(r => r.code === pathname);
 if (pathname.length < 3 || !activeReport) {
   navigate("/" + parsedData.reports[parsedData.reports.length - 1].code);
 }
@@ -50,24 +45,21 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
         open: true,
         size: newSize
       };
-    }}
-  >
+    }}>
     {paneSize === 0 && "Edit"}
   </Button>
 );
 
-const nav = (x) => navigate("/" + x);
+const nav = x => navigate("/" + x);
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
-  const activeReport = useRecoilValue(activeReportQuery);
-  //console.log(activeReport);
   const { data, setData, onChange } = useAll({
     state: {
       data: parsedData
     },
     callback: {
       onChange: [
-        debounce((size) => {
+        debounce(size => {
           if (size < 50) size = 0;
           setPaneSize(size);
           if (size > 0) lastSize.current = size;
@@ -86,13 +78,11 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
 
   const onProjectStateChange = (project, oldState, newState) => {
     // Find current report.
-    const currentReport = data.reports.find((r) => r.code === reportCode);
+    const currentReport = data.reports.find(r => r.code === reportCode);
 
     // Remove the project from old state list.
     const oldStateProjects = currentReport.projects[oldState];
-    currentReport.projects[oldState] = oldStateProjects.filter(
-      (p) => p !== project
-    );
+    currentReport.projects[oldState] = oldStateProjects.filter(p => p !== project);
 
     // Add the project to new state list.
     const newStateProjects = currentReport.projects[newState];
@@ -110,13 +100,8 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
       defaultSize={defaultSize}
       size={paneSize}
       primary="second"
-      onChange={onChange}
-    >
-      <Report
-        data={data}
-        activeReportCode={reportCode}
-        setActiveReportCode={nav}
-      />
+      onChange={onChange}>
+      <Report data={data} activeReportCode={reportCode} setActiveReportCode={nav} />
       <Editor
         data={data}
         setData={setData}
@@ -130,14 +115,11 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
 };
 
 const ReportAndEditor = () => {
-  let [activeReportId, setActiveReportId] = useRecoilState(activeReportIdData);
-  let allReportsIds = useRecoilValue(allReportsIdsQuery);
+  let [state, api] = useStore();
 
   useEffect(() => {
-    if (activeReportId !== null) return;
-    let [{ id }] = allReportsIds;
-    setActiveReportId(id);
-  }, []);
+    state;
+  }, [state]);
 
   const initialSidebarState = Store.sidebarState,
     props = useAll({
