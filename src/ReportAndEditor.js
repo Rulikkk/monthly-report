@@ -14,7 +14,11 @@ import {
   enhanceDataInplace
 } from "./BaseComponents";
 import { useRecoilState, useRecoilValue } from "recoil";
-import { activeReportIdData, allReportsIdsQuery } from "./store/index";
+import {
+  activeReportIdData,
+  activeReportQuery,
+  allReportsIdsQuery
+} from "./store/index";
 
 /**
  * ToDO:
@@ -55,6 +59,8 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
 const nav = (x) => navigate("/" + x);
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
+  const activeReport = useRecoilValue(activeReportQuery);
+  //console.log(activeReport);
   const { data, setData, onChange } = useAll({
     state: {
       data: parsedData

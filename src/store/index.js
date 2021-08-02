@@ -1,15 +1,17 @@
 import camelCase from "lodash.camelcase";
-import groupBy from "lodash.groupby";
-import { atom, selector, selectorFamily } from "recoil";
+import { atom, selector } from "recoil";
 
-import { transformKeys } from "./helpers";
+import { transformKeys, renameKey, deleteKeys, apply } from "./helpers";
 import { http } from "./utils";
+import { PROJECT_STATES_ALL } from "../const";
 
+// current month id, e.g. "2019-01" or null
 export let activeReportIdData = atom({
   key: "activeReportId",
   default: null
 });
 
+// all months ids, array
 export let allReportsIdsQuery = selector({
   key: "allReportsIds",
   get: async () => {
@@ -18,14 +20,7 @@ export let allReportsIdsQuery = selector({
   }
 });
 
-export let projectStatusQuery = selectorFamily({
-  key: "projectStatus",
-  get: statusId => async () => {
-    let { data } = await http.get(`/project_status/${statusId}`);
-    return data;
-  }
-});
-
+// current report, e.g. data.reports[0]
 export let activeReportQuery = selector({
   key: "activeReport",
   get: async ({ get }) => {
@@ -33,18 +28,24 @@ export let activeReportQuery = selector({
     if (reportId === null) return;
     let { data } = await http.get(`/month/${reportId}`);
 
-    data = {
-      ...data,
-      projects: groupBy(
-        await Promise.all(
-          data.project_statuses_ids.map(statusId => {
-            return get(projectStatusQuery(statusId));
-          })
-        ),
-        ({ status_color }) => status_color
-      )
-    };
+    data.projects = {};
 
-    return transformKeys(data, camelCase);
+    PROJECT_STATES_ALL.forEach(
+      (state) =>
+        (data.projects[state] = data.project_statuses
+          .filter((x) => x.status_color === state)
+          .map((x) => x.status))
+    );
+
+    data.code = data.id;
+
+    data = apply(data, [
+      deleteKeys(["project_statuses", "project_statuses_ids"]),
+      transformKeys(camelCase),
+      renameKey("benchInfo", "benchInfoData")
+    ]);
+
+    console.log(data);
+    return data;
   }
 });
