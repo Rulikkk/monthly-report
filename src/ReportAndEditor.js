@@ -13,7 +13,7 @@ import {
   useAll,
   enhanceDataInplace
 } from "./BaseComponents";
-import { useStore } from "./store";
+import { useStore } from "./store/index";
 
 /**
  * ToDO:
@@ -118,7 +118,7 @@ const ReportAndEditor = () => {
   let [state, api] = useStore();
 
   useEffect(() => {
-    state;
+    console.log({ state });
   }, [state]);
 
   const initialSidebarState = Store.sidebarState,
