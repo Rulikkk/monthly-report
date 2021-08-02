@@ -9,7 +9,7 @@ export let allReportsIds = selector({
   key: "allReportsIds",
   default: [],
   get: async () => {
-    let { data } = await http.get("/months");
+    let { data } = await http.get("/reports");
     return data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
   }
 });
@@ -23,9 +23,10 @@ export let reportQuery = selectorFamily({
   key: "report",
   get: reportId => async () => {
     if (!reportId) return;
-    let { data } = await http.get(`/month/${reportId}`);
-    data.projects = groupBy(data.projects, ({ status_color }) => status_color);
-    return transformKeys(data, camelCase);
+    let { data } = await http.get(`/report/${reportId}`);
+    let { project_statuses_ids, ...restData } = data
+    restData.projects = groupBy(restData.projects, ({ status_color }) => status_color);
+    return transformKeys(restData, camelCase);
   }
 });
 
