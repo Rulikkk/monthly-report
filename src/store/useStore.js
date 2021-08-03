@@ -32,14 +32,6 @@ export function useStore() {
   let nextReport = useRecoilValue(state.nextReport);
   let config = useRecoilValue(state.config);
 
-  useEffect(() => {
-    if (!activeReportId) {
-      console.log("BAD EFFECT FIRED");
-      let [id] = allReportsIds;
-      setActiveReportId(id);
-    }
-  }, [activeReportId, allReportsIds, setActiveReportId]);
-
   return [
     {
       config,

@@ -56,10 +56,6 @@ const nav = (x) => navigate("/" + x);
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
   let [state, api] = useStore();
 
-  useEffect(() => {
-    console.log({ state });
-  }, [state]);
-
   const { data, setData, onChange } = useAll({
     state: {
       data: parsedData
@@ -101,6 +97,8 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
     setData({ ...data });
   };
 
+  console.log(state);
+
   return (
     <Split
       split="vertical"
@@ -120,6 +118,7 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
         nextReport={state.nextReport}
         prevReport={state.prevReport}
         handleActiveReportChange={api.setActiveReportId}
+        headerImageSrc={state.config.value.headerImageSrc}
         data={data}
         activeReportCode={reportCode}
         setActiveReportCode={nav}

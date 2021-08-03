@@ -8,19 +8,28 @@ import { http } from "./utils";
 export let allReportsIds = selector({
   key: "allReportsIds",
   get: async ({ set }) => {
-    console.log("LOADING ALL REPORTS");
     let { data } = await http.get("/reports");
     data = data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
-    if (data.length > 0 && data[0] && data[0].id) {
-      set();
-    }
     return data;
   }
 });
 
-export let activeReportId = atom({
-  key: "activeReportId",
+export let activeReportIdDummy = atom({
+  key: "activeReportIdDummy",
   default: null
+});
+
+export let activeReportId = selector({
+  key: "activeReportId",
+  get: ({ get }) => {
+    const dummy = get(activeReportIdDummy);
+    if (dummy) return dummy;
+
+    const ids = get(allReportsIds);
+
+    if (ids && ids.length > 0) return ids[0];
+  },
+  set: ({ set }, value) => set(activeReportIdDummy, value)
 });
 
 export let reportQuery = selectorFamily({
@@ -51,9 +60,8 @@ export let activeReport = selector({
   key: "activeReport",
   get: ({ get }) => {
     let id = get(activeReportId);
-    if (!id) return;
 
-    console.log(`LOADING REPORT ${id}`);
+    if (!id) return;
 
     return get(reportQuery(id));
   }
@@ -66,7 +74,7 @@ export let prevReport = selector({
     if (!activeId) return;
     let ids = get(allReportsIds);
     let index = ids.indexOf(activeId) + 1;
-    if (index < 0) return;
+    if (index > ids.length) return;
     return get(reportQuery(ids[index]));
   }
 });
