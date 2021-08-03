@@ -1,7 +1,5 @@
 const echo = arg => arg;
 
-const ifNotNull = (obj, fn) => (!obj ? obj : fn(obj));
-
 const deleteKey =
   key =>
   ({ [key]: _, ...rest }) =>
@@ -18,13 +16,15 @@ export const renameKey =
     return rest;
   };
 
-export const transformKeys = (obj, fn) =>
-  !obj
-    ? obj
-    : Object.entries(obj).reduce(
-        (acc, [k, v]) =>
-          typeof v === "object"
-            ? { ...acc, [fn(k)]: transformKeys(v, fn) }
-            : { ...acc, [fn(k)]: v },
-        {}
-      );
+export function transformKeys(obj, fn = echo) {
+  if (!obj) return obj;
+  return Object.entries(obj).reduce((acc, [k, v]) => {
+    if (Array.isArray(v)) {
+      return { ...acc, [fn(k)]: v.map(el => transformKeys(el, fn)) };
+    } else if (typeof v === "object") {
+      return { ...acc, [fn(k)]: transformKeys(v) };
+    } else {
+      return { ...acc, [fn(k)]: v };
+    }
+  }, {});
+}
