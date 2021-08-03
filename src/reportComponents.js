@@ -291,6 +291,7 @@ export default ({
   prevReport,
   notes,
   handleActiveReportChange,
+  heading,
   headerImageSrc = "https://placekitten.com/300/100",
   reportToPrintRef
 }) => {
@@ -307,7 +308,7 @@ export default ({
             currentValue={activeReportId}
             onChange={handleActiveReportChange}
           />{" "}
-          — {activeReport.name || "<data.reportName>"}
+          — {heading || "<data.reportName>"}
         </h1>
         <Note notes={notes} />
         <TotalsTable

@@ -8,8 +8,6 @@ import { useStore } from "./store/index";
 const BenchInfoSection = ({ benchInfoData }) => {
   const [{ config }] = useStore();
 
-  console.log(config.value.benchRemarks);
-
   return (
     <>
       <h1 className="text-3xl mt-5">Bench</h1>

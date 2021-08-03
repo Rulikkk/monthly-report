@@ -112,7 +112,8 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
       onChange={onChange}
     >
       <Report
-        notes={[]}
+        notes={state.config.value.notes}
+        heading={state.config.value.reportName}
         allReportsIds={state.allReportsIds}
         activeReportId={state.activeReport.id}
         activeReport={state.activeReport}

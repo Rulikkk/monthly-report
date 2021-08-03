@@ -24,7 +24,9 @@ import * as state from "./state";
 /** @returns {[State, API]} [State, API] */
 export function useStore() {
   let allReportsIds = useRecoilValue(state.allReportsIds);
-  let [activeReportId, setActiveReportId] = useRecoilState(state.activeReportId);
+  let [activeReportId, setActiveReportId] = useRecoilState(
+    state.activeReportId
+  );
   let activeReport = useRecoilValue(state.activeReport);
   let prevReport = useRecoilValue(state.prevReport);
   let nextReport = useRecoilValue(state.nextReport);
