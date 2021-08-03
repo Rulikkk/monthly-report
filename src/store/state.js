@@ -36,9 +36,11 @@ export let reportQuery = selectorFamily({
 
     data.code = data.id;
 
-    data = apply(data, [renameKey("benchInfo", "benchInfoData")]);
+    console.log(data);
 
-    return transformKeys(data, camelCase);
+    data = transformKeys(data, camelCase);
+
+    return apply(data, [renameKey("benchInfo", "benchInfoData")]);
   }
 });
 
@@ -79,6 +81,7 @@ export let config = selector({
   key: "config",
   get: async () => {
     let { data } = await http.get("/config/main");
-    return data;
+    console.log(data);
+    return transformKeys(data, camelCase);
   }
 });
