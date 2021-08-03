@@ -1,29 +1,32 @@
 import "./typedef";
 
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment } from "react";
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
-import Store from "./Store";
 import { initCap } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
 import { Praises } from "./Praises";
 
 import BenchInfoSection from "./BenchInfoSection";
-import { useRecoilValue } from "recoil";
 
 const ReportSelector = ({ options, currentValue, onChange }) => {
-  return (
+  return !currentValue ? (
+    "Loading..."
+  ) : (
     <>
       <select
         value={currentValue}
-        onChange={e => onChange(e.target.value)}
-        className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print">
-        {options.map(r => (
+        onChange={(e) => onChange(e.target.value)}
+        className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print"
+      >
+        {options.map((r) => (
           <option className="text-normal" value={r} key={r}>
             {r}
           </option>
         ))}
       </select>
-      <span className="text-3xl font-bold mt-3 leading-tight only-print">{currentValue}</span>
+      <span className="text-3xl font-bold mt-3 leading-tight only-print">
+        {currentValue}
+      </span>
     </>
   );
 };
@@ -60,7 +63,8 @@ const Td = ({
       c(green, "bg-green-200") +
       c(yellow, "bg-yellow-200") +
       c(bold, "font-bold")
-    }>
+    }
+  >
     {children}
   </td>
 );
@@ -81,10 +85,19 @@ const TotalsTable = ({ projects, prevProjects }) => {
       </tr>
     ),
     sum = (a, b) => a + b,
-    countProjects = ps => ps && PROJECT_STATES.map(t => (ps[t] ? ps[t].length : 0)).reduce(sum),
+    countProjects = (ps) =>
+      ps && PROJECT_STATES.map((t) => (ps[t] ? ps[t].length : 0)).reduce(sum),
     totalProjectsNow = countProjects(projects),
     totalProjectsThen = countProjects(prevProjects),
-    Comparer = ({ now, then = 0, totalNow, totalThen, tip, projectState, lowerBetter = false }) => {
+    Comparer = ({
+      now,
+      then = 0,
+      totalNow,
+      totalThen,
+      tip,
+      projectState,
+      lowerBetter = false
+    }) => {
       const percent = (v, t) => Math.round((100 * v) / t),
         nowValue = totalNow ? percent(now, totalNow) : now,
         thenValue = totalThen ? percent(then, totalThen) : then,
@@ -110,7 +123,12 @@ const TotalsTable = ({ projects, prevProjects }) => {
       return (
         <span title={title} className="cursor-default">
           {nowValue + maybePercent}{" "}
-          <span className={"font-normal text-sm " + (good ? "text-green-400" : "text-red-400")}>
+          <span
+            className={
+              "font-normal text-sm " +
+              (good ? "text-green-400" : "text-red-400")
+            }
+          >
             ({arrow}
             {Math.abs(nowValue - thenValue) + maybePercent})
           </span>
@@ -122,7 +140,11 @@ const TotalsTable = ({ projects, prevProjects }) => {
         <Td {...{ [projectState]: true }}>
           <Comparer
             now={projects[projectState] && projects[projectState].length}
-            then={prevProjects && prevProjects[projectState] && prevProjects[projectState].length}
+            then={
+              prevProjects &&
+              prevProjects[projectState] &&
+              prevProjects[projectState].length
+            }
             lowerBetter={projectState === "yellow" || projectState === "red"}
             projectState={projectState}
             {...props}
@@ -133,7 +155,15 @@ const TotalsTable = ({ projects, prevProjects }) => {
     <>
       <table className="mt-3 text-left font-mono w-full border-collapse">
         <thead style={{ borderBottom: "solid silver 1px" }}>
-          <Row bold cells={["Total Projects", "Green State", "Yellow State", "Red State"]} />
+          <Row
+            bold
+            cells={[
+              "Total Projects",
+              "Green State",
+              "Yellow State",
+              "Red State"
+            ]}
+          />
         </thead>
         <tbody>
           <tr>
@@ -145,13 +175,13 @@ const TotalsTable = ({ projects, prevProjects }) => {
                 lowerBetter={false}
               />
             </Td>
-            {PROJECT_STATES.map(ps => (
+            {PROJECT_STATES.map((ps) => (
               <TdComparer key={ps} projectState={ps} />
             ))}
           </tr>
           <tr>
             <Td bold>%</Td>
-            {PROJECT_STATES.map(ps => (
+            {PROJECT_STATES.map((ps) => (
               <TdComparer
                 key={ps}
                 projectState={ps}
@@ -178,7 +208,7 @@ const ProjectStatus = ({ project, hideOK }) => {
   return (
     <ul>
       {issues ? (
-        issues.map(i =>
+        issues.map((i) =>
           i ? (
             <Fragment key={i.id}>
               <li>{i.issue}</li>
@@ -224,13 +254,16 @@ const ProjectTable = ({ projectState, projects }) => (
       </tr>
     </thead>
     <tbody>
-      {projects.map(project => (
+      {projects.map((project) => (
         <tr key={project.id} style={{ borderBottom: "solid silver 1px" }}>
           <Td className="align-top" {...{ [projectState]: true }}>
             {project && project.name}
           </Td>
           <Td {...{ [projectState]: true }}>
-            <ProjectStatus project={project} hideOK={projectState === TERMINATED} />
+            <ProjectStatus
+              project={project}
+              hideOK={projectState === TERMINATED}
+            />
           </Td>
         </tr>
       ))}
@@ -238,11 +271,15 @@ const ProjectTable = ({ projectState, projects }) => (
   </table>
 );
 
-const ProjectListForState = p => {
+const ProjectListForState = (p) => {
   return (
     <>
       <h1 className="text-3xl mt-5">{initCap(p.projectState)}</h1>
-      {p.projects && p.projects.length > 0 ? <ProjectTable {...p} /> : "No projects."}
+      {p.projects && p.projects.length > 0 ? (
+        <ProjectTable {...p} />
+      ) : (
+        "No projects."
+      )}
     </>
   );
 };
@@ -259,7 +296,10 @@ export default ({
 }) => {
   return (
     <Scrollable>
-      <div ref={reportToPrintRef} className="container p-4 mx-auto max-w-4xl good-fonts">
+      <div
+        ref={reportToPrintRef}
+        className="container p-4 mx-auto max-w-4xl good-fonts"
+      >
         <img alt="Logo" src={headerImageSrc} className="mx-auto" />
         <h1 className="text-3xl">
           <ReportSelector
@@ -270,13 +310,16 @@ export default ({
           — {activeReport.name || "<data.reportName>"}
         </h1>
         <Note notes={notes} />
-        <TotalsTable projects={activeReport.projects} prevProjects={prevReport?.projects} />
+        <TotalsTable
+          projects={activeReport.projects}
+          prevProjects={prevReport?.projects}
+        />
 
         {activeReport?.benchInfoData?.benchSectionEnabled && (
           <BenchInfoSection benchInfoData={activeReport.benchInfoData} />
         )}
 
-        {PROJECT_STATES_ALL.map(status =>
+        {PROJECT_STATES_ALL.map((status) =>
           activeReport?.projects && activeReport.projects[status] ? (
             <ProjectListForState
               key={status}

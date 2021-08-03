@@ -1,8 +1,8 @@
 import camelCase from "lodash.camelcase";
-import groupBy from "lodash.groupby";
 import { atom, selector, selectorFamily } from "recoil";
+import { PROJECT_STATES_ALL } from "../const";
 
-import { transformKeys } from "./helpers";
+import { transformKeys, apply, renameKey } from "./helpers";
 import { http } from "./utils";
 
 export let allReportsIds = selector({
@@ -21,11 +21,23 @@ export let activeReportId = atom({
 
 export let reportQuery = selectorFamily({
   key: "report",
-  get: reportId => async () => {
+  get: (reportId) => async () => {
     if (!reportId) return;
     let { data: rawData } = await http.get(`/report/${reportId}`);
     let { project_statuses_ids, project_statuses, ...data } = rawData;
-    data.projects = groupBy(project_statuses, ({ status_color }) => status_color);
+
+    data.projects = {};
+    PROJECT_STATES_ALL.forEach(
+      (state) =>
+        (data.projects[state] = project_statuses
+          .filter((x) => x.status_color === state)
+          .map((x) => x.status))
+    );
+
+    data.code = data.id;
+
+    data = apply(data, [renameKey("benchInfo", "benchInfoData")]);
+
     return transformKeys(data, camelCase);
   }
 });
@@ -64,9 +76,9 @@ export let nextReport = selector({
 });
 
 export let config = selector({
-  get: "config",
+  key: "config",
   get: async () => {
-    let { data } = await http.get("/config/config");
+    let { data } = await http.get("/config/main");
     return data;
   }
 });

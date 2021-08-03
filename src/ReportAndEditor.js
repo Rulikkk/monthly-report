@@ -76,12 +76,12 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
       ]
     }
   });
-  useEffect(
-    debounce(() => {
-      Store.reportJSON = data;
-    }, 200),
-    [data]
-  );
+  // useEffect(
+  //   debounce(() => {
+  //     Store.reportJSON = data;
+  //   }, 200),
+  //   [data]
+  // );
 
   const onProjectStateChange = (project, oldState, newState) => {
     // Find current report.
