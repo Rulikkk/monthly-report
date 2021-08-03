@@ -23,10 +23,10 @@ export let reportQuery = selectorFamily({
   key: "report",
   get: reportId => async () => {
     if (!reportId) return;
-    let { data } = await http.get(`/report/${reportId}`);
-    let { project_statuses_ids, ...restData } = data
-    restData.projects = groupBy(restData.projects, ({ status_color }) => status_color);
-    return transformKeys(restData, camelCase);
+    let { data: rawData } = await http.get(`/report/${reportId}`);
+    let { project_statuses_ids, project_statuses, ...data } = rawData;
+    data.projects = groupBy(project_statuses, ({ status_color }) => status_color);
+    return transformKeys(data, camelCase);
   }
 });
 
