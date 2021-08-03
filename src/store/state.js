@@ -7,10 +7,14 @@ import { http } from "./utils";
 
 export let allReportsIds = selector({
   key: "allReportsIds",
-  default: [],
-  get: async () => {
+  get: async ({ set }) => {
+    console.log("LOADING ALL REPORTS");
     let { data } = await http.get("/reports");
-    return data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
+    data = data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
+    if (data.length > 0 && data[0] && data[0].id) {
+      set();
+    }
+    return data;
   }
 });
 
@@ -23,6 +27,8 @@ export let reportQuery = selectorFamily({
   key: "report",
   get: (reportId) => async () => {
     if (!reportId) return;
+
+    console.log(`LOADING REPORT ${reportId}`);
     let { data: rawData } = await http.get(`/report/${reportId}`);
     let { project_statuses_ids, project_statuses, ...data } = rawData;
 
@@ -46,6 +52,9 @@ export let activeReport = selector({
   get: ({ get }) => {
     let id = get(activeReportId);
     if (!id) return;
+
+    console.log(`LOADING REPORT ${id}`);
+
     return get(reportQuery(id));
   }
 });
@@ -56,7 +65,7 @@ export let prevReport = selector({
     let activeId = get(activeReportId);
     if (!activeId) return;
     let ids = get(allReportsIds);
-    let index = ids.indexOf(activeId) - 1;
+    let index = ids.indexOf(activeId) + 1;
     if (index < 0) return;
     return get(reportQuery(ids[index]));
   }
@@ -68,7 +77,7 @@ export let nextReport = selector({
     let activeId = get(activeReportId);
     if (!activeId) return;
     let ids = get(allReportsIds);
-    let index = ids.indexOf(activeId) + 1;
+    let index = ids.indexOf(activeId) - 1;
     if (index < 0) return;
     return get(reportQuery(ids[index]));
   }

@@ -34,10 +34,11 @@ export function useStore() {
 
   useEffect(() => {
     if (!activeReportId) {
+      console.log("BAD EFFECT FIRED");
       let [id] = allReportsIds;
       setActiveReportId(id);
     }
-  }, [activeReportId]);
+  }, [activeReportId, allReportsIds, setActiveReportId]);
 
   return [
     {

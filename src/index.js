@@ -5,11 +5,11 @@ import { RecoilRoot } from "recoil";
 
 const App = () => {
   return (
-    <Suspense fallback={<span>Loading...</span>}>
-      <RecoilRoot>
+    <RecoilRoot>
+      <Suspense fallback={<span>Loading...</span>}>
         <ReportAndEditor />
-      </RecoilRoot>
-    </Suspense>
+      </Suspense>
+    </RecoilRoot>
   );
 };
 
