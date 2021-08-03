@@ -62,3 +62,11 @@ export let nextReport = selector({
     return get(reportQuery(ids[index]));
   }
 });
+
+export let config = selector({
+  get: "config",
+  get: async () => {
+    let { data } = await http.get("/config/config");
+    return data;
+  }
+});

@@ -10,6 +10,7 @@ import * as state from "./state";
  * @property {Report} prevReport
  * @property {Report} activeReport
  * @property {Report} nextReport
+ * @property {*} config
  */
 
 /**
@@ -27,6 +28,7 @@ export function useStore() {
   let activeReport = useRecoilValue(state.activeReport);
   let prevReport = useRecoilValue(state.prevReport);
   let nextReport = useRecoilValue(state.nextReport);
+  let config = useRecoilValue(state.config);
 
   useEffect(() => {
     if (!activeReportId) {
@@ -37,7 +39,7 @@ export function useStore() {
 
   return [
     {
-      notes: [],
+      config,
       allReportsIds,
       prevReport,
       nextReport,
