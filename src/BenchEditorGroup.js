@@ -29,16 +29,18 @@ const BenchEditorGroup = ({ report, updateReport }) => {
     updateReport();
   };
 
-  const deleteBenchInfo = info => {
+  const deleteBenchInfo = (info) => {
     const filteredInfo = report.benchInfoData.info.filter(
-      record => record.id !== info.id
+      (record) => record.id !== info.id
     );
     report.benchInfoData.info = filteredInfo;
 
     updateReport();
   };
 
-  return (
+  return !report ? (
+    "Loading..."
+  ) : (
     <div>
       <h1 className="text-xl m-2">
         Bench
@@ -59,7 +61,7 @@ const BenchEditorGroup = ({ report, updateReport }) => {
 
       <BenchEditorRemarks
         remarks={report.benchInfoData.remarks}
-        onRemarksUpdate={newRemarks => {
+        onRemarksUpdate={(newRemarks) => {
           report.benchInfoData.remarks = newRemarks;
           updateReport();
         }}

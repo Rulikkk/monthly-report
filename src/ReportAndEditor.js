@@ -13,7 +13,6 @@ import {
   useAll,
   enhanceDataInplace
 } from "./BaseComponents";
-import { useStore } from "./store/index";
 
 /**
  * ToDO:
@@ -32,7 +31,7 @@ enhanceDataInplace(parsedData);
 const pathname = document.location.pathname;
 const activeReport = parsedData.reports.find((r) => r.code === pathname);
 if (pathname.length < 3 || !activeReport) {
-  navigate("/" + parsedData.reports[parsedData.reports.length - 1].code);
+  // navigate("/" + parsedData.reports[parsedData.reports.length - 1].code);
 }
 
 const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
@@ -50,8 +49,6 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
     {paneSize === 0 && "Edit"}
   </Button>
 );
-
-const nav = (x) => navigate("/" + x);
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
   //  let [state, api] = useStore();

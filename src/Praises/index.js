@@ -7,13 +7,13 @@ const PraiseEditor = ({ praise, updateReport, remove }) => (
     <Input
       value={praise.text}
       afterChange={updateReport}
-      onChange={val => (praise.text = val)}
+      onChange={(val) => (praise.text = val)}
       placeholder="Describe praise here"
       textarea
     />
     <div className="flex justify-end">
       <SingleImgButton
-        onImage={img => {
+        onImage={(img) => {
           praise.img = img;
           updateReport();
         }}
@@ -28,34 +28,37 @@ const PraiseEditor = ({ praise, updateReport, remove }) => (
   </EditorShadowedCard>
 );
 
-const PraiseEditorGroup = ({ report, updateReport }) => (
-  <>
-    <h1 className="text-xl m-2">Praises</h1>
-    <Button
-      small
-      className="ml-2"
-      onClick={() => {
-        if (!report.praises) report.praises = [];
-        report.praises.unshift({ text: "" });
-        updateReport();
-      }}
-    >
-      Add praise
-    </Button>
-    {report.praises &&
-      report.praises.map((p, i) => (
-        <PraiseEditor
-          key={i}
-          praise={p}
-          updateReport={updateReport}
-          remove={() => {
-            report.praises = report.praises.filter(x => x !== p);
-            updateReport();
-          }}
-        />
-      ))}
-  </>
-);
+const PraiseEditorGroup = ({ report, updateReport }) =>
+  !report ? (
+    "Loading"
+  ) : (
+    <>
+      <h1 className="text-xl m-2">Praises</h1>
+      <Button
+        small
+        className="ml-2"
+        onClick={() => {
+          if (!report.praises) report.praises = [];
+          report.praises.unshift({ text: "" });
+          updateReport();
+        }}
+      >
+        Add praise
+      </Button>
+      {report.praises &&
+        report.praises.map((p, i) => (
+          <PraiseEditor
+            key={i}
+            praise={p}
+            updateReport={updateReport}
+            remove={() => {
+              report.praises = report.praises.filter((x) => x !== p);
+              updateReport();
+            }}
+          />
+        ))}
+    </>
+  );
 
 const Praise = ({ praise: { img, text } }) => (
   <li className="mb-8">

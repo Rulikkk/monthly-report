@@ -223,15 +223,17 @@ const ProjectGroup = ({
 );
 
 const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
-  PROJECT_STATES_ALL.map((state) => (
-    <ProjectGroup
-      forState={state}
-      key={state}
-      projects={report.projects[state]}
-      updateReport={updateReport}
-      onProjectStateChange={onProjectStateChange}
-    />
-  ));
+  !report
+    ? "Loading..."
+    : PROJECT_STATES_ALL.map((state) => (
+        <ProjectGroup
+          forState={state}
+          key={state}
+          projects={report.projects[state]}
+          updateReport={updateReport}
+          onProjectStateChange={onProjectStateChange}
+        />
+      ));
 
 const incrementLoadId = (data) => {
   if (!data.loadId) {

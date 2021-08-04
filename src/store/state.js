@@ -1,7 +1,8 @@
 import camelCase from "lodash.camelcase";
+import sortedIndexOf from "lodash.sortedindexof";
 import { atom, selector, selectorFamily } from "recoil";
 import { PROJECT_STATES_ALL } from "../const";
-
+import { navigate } from "@reach/router";
 import { transformKeys, apply, renameKey } from "./helpers";
 import { http } from "./utils";
 
@@ -22,14 +23,23 @@ export let activeReportIdDummy = atom({
 export let activeReportId = selector({
   key: "activeReportId",
   get: ({ get }) => {
-    const dummy = get(activeReportIdDummy);
-    if (dummy) return dummy;
-
+    get(activeReportIdDummy);
     const ids = get(allReportsIds);
 
-    if (ids && ids.length > 0) return ids[0];
+    const pathname = document.location.pathname.substr(1);
+    const index = sortedIndexOf(ids, pathname);
+
+    if (index >= 0) return pathname;
+
+    if (ids && ids.length > 0) {
+      navigate(ids[0]);
+      return ids[0];
+    }
   },
-  set: ({ set }, value) => set(activeReportIdDummy, value)
+  set: ({ set }, value) => {
+    navigate(value);
+    set(activeReportIdDummy, value);
+  }
 });
 
 export let reportQuery = selectorFamily({
