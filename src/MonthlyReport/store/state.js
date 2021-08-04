@@ -1,5 +1,4 @@
 import camelCase from "lodash.camelcase";
-import sortedIndexOf from "lodash.sortedindexof";
 import { atom, selector, selectorFamily } from "recoil";
 import { PROJECT_STATES_ALL } from "../const";
 import { navigate } from "@reach/router";
@@ -27,8 +26,8 @@ export let activeReportId = selector({
     const ids = get(allReportsIds);
 
     const pathname = document.location.pathname.substr(1);
-    const index = sortedIndexOf(ids, pathname);
-
+    const index = ids.indexOf(pathname);
+    console.log(`Get active report id = ${pathname}, indx=${index}`);
     if (index >= 0) return pathname;
 
     if (ids && ids.length > 0) {
@@ -37,6 +36,7 @@ export let activeReportId = selector({
     }
   },
   set: ({ set }, value) => {
+    console.log(`Set active report id = ${value}`);
     navigate(value);
     set(activeReportIdDummy, value);
   }
@@ -89,17 +89,17 @@ export let prevReport = selector({
   }
 });
 
-export let nextReport = selector({
-  key: "nextReport",
-  get: async ({ get }) => {
-    let activeId = get(activeReportId);
-    if (!activeId) return;
-    let ids = get(allReportsIds);
-    let index = ids.indexOf(activeId) - 1;
-    if (index < 0) return;
-    return get(reportQuery(ids[index]));
-  }
-});
+// export let nextReport = selector({
+//   key: "nextReport",
+//   get: async ({ get }) => {
+//     let activeId = get(activeReportId);
+//     if (!activeId) return;
+//     let ids = get(allReportsIds);
+//     let index = ids.indexOf(activeId) - 1;
+//     if (index < 0) return;
+//     return get(reportQuery(ids[index]));
+//   }
+// });
 
 export let config = selector({
   key: "config",

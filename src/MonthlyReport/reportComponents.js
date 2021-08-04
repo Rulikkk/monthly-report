@@ -321,9 +321,7 @@ export default ({ reportToPrintRef }) => {
         <Note notes={notes} />
         <TotalsTable />
 
-        {benchInfoData?.benchSectionEnabled && (
-          <BenchInfoSection benchInfoData={benchInfoData} />
-        )}
+        {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
 
         {PROJECT_STATES_ALL.map((status) =>
           projects && projects[status] ? (

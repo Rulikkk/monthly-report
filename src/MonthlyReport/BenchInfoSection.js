@@ -3,17 +3,23 @@ import React from "react";
 import BenchInfoTable from "./BenchInfoTable";
 import BenchInfoRemarks from "./BenchInfoRemarks";
 
-import { useStore } from "./store/index";
+import { config, activeReport } from "./store/state";
 
-const BenchInfoSection = ({ benchInfoData }) => {
-  const [{ config }] = useStore();
+import { useRecoilValue } from "recoil";
+
+const BenchInfoSection = () => {
+  const {
+    value: { benchRemarks: remarks }
+  } = useRecoilValue(config);
+
+  const { benchInfoData } = useRecoilValue(activeReport);
 
   return (
     <>
       <h1 className="text-3xl mt-5">Bench</h1>
       <BenchInfoTable benchInfoData={benchInfoData.info} />
       <div className="mt-2">
-        <BenchInfoRemarks remarks={config.value.benchRemarks} />
+        <BenchInfoRemarks remarks={remarks} />
       </div>
     </>
   );

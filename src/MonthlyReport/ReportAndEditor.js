@@ -1,8 +1,7 @@
 import React from "react";
-import { Router, navigate } from "@reach/router";
+import { Router } from "@reach/router";
 import Split from "react-split-pane";
 import debounce from "lodash.debounce";
-import "./styles.css";
 import Report from "./reportComponents";
 import Editor from "./Editor";
 import Store from "./Store";
@@ -51,8 +50,6 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
 );
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
-  //  let [state, api] = useStore();
-
   const { data, setData, onChange } = useAll({
     state: {
       data: parsedData
