@@ -1,10 +1,10 @@
 import React, { useMemo } from "react";
 import { Link } from "@reach/router";
-import { useRecoilValueLoadable } from "recoil";
+import { useRecoilValue } from "recoil";
 import { allReportsIds } from "../MonthlyReport/store/state";
 
 const Home = () => {
-  const ids = useRecoilValueLoadable(allReportsIds);
+  const ids = useRecoilValue(allReportsIds);
 
   let reportLink = useMemo(() => {
     if (ids.state === "hasValue" && ids.contents?.length > 0) {
