@@ -8,6 +8,13 @@ import { Praises } from "./Praises";
 
 import BenchInfoSection from "./BenchInfoSection";
 
+const formatter = new Intl.DateTimeFormat("en", {
+  month: "short",
+  year: "numeric"
+});
+
+const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
+
 const ReportSelector = ({ options, currentValue, onChange }) => {
   return !currentValue ? (
     "Loading..."
@@ -20,7 +27,7 @@ const ReportSelector = ({ options, currentValue, onChange }) => {
       >
         {options.map((r) => (
           <option className="text-normal" value={r} key={r}>
-            {r}
+            {formatIdAsDate(r)}
           </option>
         ))}
       </select>
