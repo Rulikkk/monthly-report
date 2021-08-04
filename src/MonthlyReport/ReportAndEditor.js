@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Split from "react-split-pane";
 import debounce from "lodash.debounce";
 import Report from "./reportComponents";
@@ -7,6 +7,7 @@ import Store from "./Store";
 import {
   Button,
   PrintButton,
+  GoHomeButton,
   TopRightFixedMenu,
   useAll,
   enhanceDataInplace
@@ -48,7 +49,7 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
   </Button>
 );
 
-const ReportAndEditor = ({ reportCode }) => {
+const ReportAndEditor = ({ reportId }) => {
   const initialSidebarState = Store.sidebarState,
     props = useAll({
       state: {
@@ -84,7 +85,7 @@ const ReportAndEditor = ({ reportCode }) => {
 
   const onProjectStateChange = (project, oldState, newState) => {
     // Find current report.
-    const currentReport = data.reports.find((r) => r.code === reportCode);
+    const currentReport = data.reports.find((r) => r.code === reportId);
 
     // Remove the project from old state list.
     const oldStateProjects = currentReport.projects[oldState];
@@ -100,12 +101,11 @@ const ReportAndEditor = ({ reportCode }) => {
     setData({ ...data });
   };
 
-  console.log("Render!");
-
   return (
-    <>
+    <Suspense fallback={<span>Loading report...</span>}>
       {props.paneSize === 0 && (
         <TopRightFixedMenu>
+          <GoHomeButton />
           <PrintButton />
           <EditorShowButton {...props} />
         </TopRightFixedMenu>
@@ -123,13 +123,13 @@ const ReportAndEditor = ({ reportCode }) => {
         <Editor
           data={data}
           setData={setData}
-          activeReportCode={reportCode}
+          activeReportCode={reportId}
           setPaneSize={props.setPaneSize}
           lastSize={props.lastSize}
           onProjectStateChange={onProjectStateChange}
         />
       </Split>
-    </>
+    </Suspense>
   );
 };
 

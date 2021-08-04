@@ -1,7 +1,6 @@
 import camelCase from "lodash.camelcase";
-import { atom, selector, selectorFamily } from "recoil";
+import { selector, selectorFamily } from "recoil";
 import { PROJECT_STATES_ALL } from "../const";
-import { navigate } from "@reach/router";
 import { transformKeys, apply, renameKey } from "./helpers";
 import { http } from "./utils";
 
@@ -11,34 +10,6 @@ export let allReportsIds = selector({
     let { data } = await http.get("/reports");
     data = data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
     return data;
-  }
-});
-
-export let activeReportIdDummy = atom({
-  key: "activeReportIdDummy",
-  default: null
-});
-
-export let activeReportId = selector({
-  key: "activeReportId",
-  get: ({ get }) => {
-    get(activeReportIdDummy);
-    const ids = get(allReportsIds);
-
-    const pathname = document.location.pathname.substr(1);
-    const index = ids.indexOf(pathname);
-    console.log(`Get active report id = ${pathname}, indx=${index}`);
-    if (index >= 0) return pathname;
-
-    if (ids && ids.length > 0) {
-      navigate(ids[0]);
-      return ids[0];
-    }
-  },
-  set: ({ set }, value) => {
-    console.log(`Set active report id = ${value}`);
-    navigate(value);
-    set(activeReportIdDummy, value);
   }
 });
 
@@ -65,41 +36,6 @@ export let reportQuery = selectorFamily({
     return apply(data, [renameKey("benchInfo", "benchInfoData")]);
   }
 });
-
-export let activeReport = selector({
-  key: "activeReport",
-  get: ({ get }) => {
-    let id = get(activeReportId);
-
-    if (!id) return;
-
-    return get(reportQuery(id));
-  }
-});
-
-export let prevReport = selector({
-  key: "prevReport",
-  get: async ({ get }) => {
-    let activeId = get(activeReportId);
-    if (!activeId) return;
-    let ids = get(allReportsIds);
-    let index = ids.indexOf(activeId) + 1;
-    if (index > ids.length) return;
-    return get(reportQuery(ids[index]));
-  }
-});
-
-// export let nextReport = selector({
-//   key: "nextReport",
-//   get: async ({ get }) => {
-//     let activeId = get(activeReportId);
-//     if (!activeId) return;
-//     let ids = get(allReportsIds);
-//     let index = ids.indexOf(activeId) - 1;
-//     if (index < 0) return;
-//     return get(reportQuery(ids[index]));
-//   }
-// });
 
 export let config = selector({
   key: "config",

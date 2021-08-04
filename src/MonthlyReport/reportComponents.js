@@ -1,10 +1,13 @@
 import "./typedef";
 
 import React, { Fragment } from "react";
+import { useParams, navigate } from "@reach/router";
 
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue } from "recoil";
 
 import * as state from "./store/state";
+
+import { useActiveReport, usePrevReport } from "./store/hooks";
 
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import { initCap } from "./BaseComponents";
@@ -22,9 +25,10 @@ const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
 
 const ReportSelector = () => {
   let allReportsIds = useRecoilValue(state.allReportsIds);
-  let [activeReportId, setActiveReportId] = useRecoilState(
-    state.activeReportId
-  );
+
+  const routeParams = useParams();
+  if (!routeParams.reportId) navigate("/report/last");
+  const activeReportId = routeParams.reportId;
 
   return !activeReportId ? (
     "Loading..."
@@ -32,7 +36,7 @@ const ReportSelector = () => {
     <>
       <select
         value={activeReportId}
-        onChange={(e) => setActiveReportId(e.target.value)}
+        onChange={(e) => navigate(`/report/${e.target.value}`)}
         className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print"
       >
         {allReportsIds.map((r) => (
@@ -87,8 +91,8 @@ const Td = ({
 );
 
 const TotalsTable = () => {
-  const { projects } = useRecoilValue(state.activeReport);
-  const { projects: prevProjects } = useRecoilValue(state.prevReport);
+  const { projects } = useActiveReport();
+  const { projects: prevProjects } = usePrevReport();
   const Row = ({ cells, ...props }) => (
       <tr>
         <Td {...props}>{cells[0]}</Td>
@@ -307,7 +311,7 @@ export default ({ reportToPrintRef }) => {
   let {
     value: { notes, reportName, headerImageSrc }
   } = useRecoilValue(state.config);
-  let { benchInfoData, projects, praises } = useRecoilValue(state.activeReport);
+  let { benchInfoData, projects, praises } = useActiveReport();
   return (
     <Scrollable>
       <div

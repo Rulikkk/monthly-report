@@ -1,5 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
+import { Link } from "@reach/router";
 
 const getRandomId = () => {
   let array = new Uint32Array(8);
@@ -11,7 +12,7 @@ const getRandomId = () => {
   return str;
 };
 
-const getButtonColor = color => `bg-${color}-500 hover:bg-${color}-700 `;
+const getButtonColor = (color) => `bg-${color}-500 hover:bg-${color}-700 `;
 
 const getButtonClassName = (red, small, disabled, className) =>
   [
@@ -40,6 +41,12 @@ const Button = ({
   </button>
 );
 
+const GoHomeButton = () => (
+  <Link to="/">
+    <Button>Home</Button>
+  </Link>
+);
+
 const PrintButton = () => <Button onClick={() => window.print()}>Print</Button>;
 
 const TopRightFixedMenu = ({ children }) => (
@@ -48,9 +55,9 @@ const TopRightFixedMenu = ({ children }) => (
   </div>
 );
 
-const initCap = s => [s[0].toUpperCase(), ...s.slice(1)].join("");
+const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
-const sortedKeys = x => Object.keys(x).sort();
+const sortedKeys = (x) => Object.keys(x).sort();
 
 const simpleHook = (object, hook, result) => {
   if (object)
@@ -77,13 +84,13 @@ const useAll = ({ state, ref, callback, ...rest }) => {
   return result;
 };
 
-const useEffects = effects => {
+const useEffects = (effects) => {
   for (let effect of effects) {
     simpleHook(effect, useEffect, {});
   }
 };
 
-const enhanceDataInplace = data => {
+const enhanceDataInplace = (data) => {
   const reps = data.reports;
 
   // fill next/prev links
@@ -97,13 +104,13 @@ const enhanceDataInplace = data => {
   }
 
   // fill IDs for projects and issues
-  reps.forEach(report => {
+  reps.forEach((report) => {
     if (!report.projects) report.projects = [];
     for (let k in report.projects) {
-      report.projects[k].forEach(proj => {
+      report.projects[k].forEach((proj) => {
         if (!proj.id) proj.id = getRandomId();
         if (proj.issues)
-          proj.issues.forEach(issue => {
+          proj.issues.forEach((issue) => {
             if (!issue.id) issue.id = getRandomId();
           });
       });
@@ -119,7 +126,7 @@ const EditorShadowedCard = ({ children }) => (
 
 const SingleImgButton = ({ onImage, className, title, dragTitle }) => {
   const onDrop = useCallback(
-    acceptedFiles => {
+    (acceptedFiles) => {
       // Do whatever you want with the file contents
       if (acceptedFiles.length > 1) {
         window.alert(`Only support one file.`);
@@ -130,7 +137,7 @@ const SingleImgButton = ({ onImage, className, title, dragTitle }) => {
         if (acceptedFiles.length > 0 && acceptedFiles[0]) {
           let reader = new FileReader();
           reader.readAsDataURL(acceptedFiles[0]);
-          reader.onerror = err => console.log(err);
+          reader.onerror = (err) => console.log(err);
           reader.onloadend = () => onImage(reader.result);
         }
       } catch (e) {
@@ -161,6 +168,7 @@ export {
   useAll,
   useEffects,
   PrintButton,
+  GoHomeButton,
   enhanceDataInplace,
   EditorShadowedCard,
   SingleImgButton

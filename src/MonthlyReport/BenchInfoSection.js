@@ -3,7 +3,8 @@ import React from "react";
 import BenchInfoTable from "./BenchInfoTable";
 import BenchInfoRemarks from "./BenchInfoRemarks";
 
-import { config, activeReport } from "./store/state";
+import { config } from "./store/state";
+import { useActiveReport } from "./store/hooks";
 
 import { useRecoilValue } from "recoil";
 
@@ -12,7 +13,7 @@ const BenchInfoSection = () => {
     value: { benchRemarks: remarks }
   } = useRecoilValue(config);
 
-  const { benchInfoData } = useRecoilValue(activeReport);
+  const { benchInfoData } = useActiveReport();
 
   return (
     <>
