@@ -1,6 +1,11 @@
 import "./typedef";
 
 import React, { Fragment } from "react";
+
+import { useRecoilState, useRecoilValue } from "recoil";
+
+import * as state from "./store/state";
+
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import { initCap } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
@@ -15,24 +20,29 @@ const formatter = new Intl.DateTimeFormat("en", {
 
 const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
 
-const ReportSelector = ({ options, currentValue, onChange }) => {
-  return !currentValue ? (
+const ReportSelector = () => {
+  let allReportsIds = useRecoilValue(state.allReportsIds);
+  let [activeReportId, setActiveReportId] = useRecoilState(
+    state.activeReportId
+  );
+
+  return !activeReportId ? (
     "Loading..."
   ) : (
     <>
       <select
-        value={currentValue}
-        onChange={(e) => onChange(e.target.value)}
+        value={activeReportId}
+        onChange={(e) => setActiveReportId(e.target.value)}
         className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print"
       >
-        {options.map((r) => (
+        {allReportsIds.map((r) => (
           <option className="text-normal" value={r} key={r}>
             {formatIdAsDate(r)}
           </option>
         ))}
       </select>
       <span className="text-3xl font-bold mt-3 leading-tight only-print">
-        {formatIdAsDate(currentValue)}
+        {formatIdAsDate(activeReportId)}
       </span>
     </>
   );
@@ -76,7 +86,9 @@ const Td = ({
   </td>
 );
 
-const TotalsTable = ({ projects, prevProjects }) => {
+const TotalsTable = () => {
+  const { projects } = useRecoilValue(state.activeReport);
+  const { projects: prevProjects } = useRecoilValue(state.prevReport);
   const Row = ({ cells, ...props }) => (
       <tr>
         <Td {...props}>{cells[0]}</Td>
@@ -291,17 +303,11 @@ const ProjectListForState = (p) => {
   );
 };
 
-export default ({
-  allReportsIds,
-  activeReportId,
-  activeReport,
-  prevReport,
-  notes,
-  handleActiveReportChange,
-  heading,
-  headerImageSrc = "https://placekitten.com/300/100",
-  reportToPrintRef
-}) => {
+export default ({ reportToPrintRef }) => {
+  let {
+    value: { notes, reportName, headerImageSrc }
+  } = useRecoilValue(state.config);
+  let { benchInfoData, projects, praises } = useRecoilValue(state.activeReport);
   return (
     <Scrollable>
       <div
@@ -310,33 +316,25 @@ export default ({
       >
         <img alt="Logo" src={headerImageSrc} className="mx-auto" />
         <h1 className="text-3xl">
-          <ReportSelector
-            options={allReportsIds}
-            currentValue={activeReportId}
-            onChange={handleActiveReportChange}
-          />{" "}
-          — {heading || "<data.reportName>"}
+          <ReportSelector /> — {reportName || "<data.reportName>"}
         </h1>
         <Note notes={notes} />
-        <TotalsTable
-          projects={activeReport.projects}
-          prevProjects={prevReport?.projects}
-        />
+        <TotalsTable />
 
-        {activeReport?.benchInfoData?.benchSectionEnabled && (
-          <BenchInfoSection benchInfoData={activeReport.benchInfoData} />
+        {benchInfoData?.benchSectionEnabled && (
+          <BenchInfoSection benchInfoData={benchInfoData} />
         )}
 
         {PROJECT_STATES_ALL.map((status) =>
-          activeReport?.projects && activeReport.projects[status] ? (
+          projects && projects[status] ? (
             <ProjectListForState
               key={status}
               projectState={status}
-              projects={activeReport.projects[status]}
+              projects={projects[status]}
             />
           ) : null
         )}
-        <Praises praises={activeReport.praises} />
+        <Praises praises={praises} />
       </div>
     </Scrollable>
   );

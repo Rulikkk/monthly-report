@@ -7,7 +7,7 @@ import { http } from "./utils";
 
 export let allReportsIds = selector({
   key: "allReportsIds",
-  get: async ({ set }) => {
+  get: async () => {
     let { data } = await http.get("/reports");
     data = data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
     return data;

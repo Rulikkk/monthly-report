@@ -54,7 +54,7 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
 const nav = (x) => navigate("/" + x);
 
 const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
-  let [state, api] = useStore();
+  //  let [state, api] = useStore();
 
   const { data, setData, onChange } = useAll({
     state: {
@@ -97,7 +97,7 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
     setData({ ...data });
   };
 
-  console.log(state);
+  console.log("Render!");
 
   return (
     <Split
@@ -109,24 +109,8 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
       primary="second"
       onChange={onChange}
     >
-      <Report
-        notes={state.config.value.notes}
-        heading={state.config.value.reportName}
-        allReportsIds={state.allReportsIds}
-        activeReportId={state.activeReport.id}
-        activeReport={state.activeReport}
-        nextReport={state.nextReport}
-        prevReport={state.prevReport}
-        handleActiveReportChange={api.setActiveReportId}
-        headerImageSrc={state.config.value.headerImageSrc}
-        data={data}
-        activeReportCode={reportCode}
-        setActiveReportCode={nav}
-      />
+      <Report />
       <Editor
-        activeReportId={state.activeReport.id}
-        onReportChange={api.pushReport}
-        onProjectChange={api.pushProject}
         data={data}
         setData={setData}
         activeReportCode={reportCode}
