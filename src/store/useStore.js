@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import * as api from "./api";

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Router, navigate } from "@reach/router";
 import Split from "react-split-pane";
 import debounce from "lodash.debounce";

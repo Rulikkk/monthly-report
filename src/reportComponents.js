@@ -32,7 +32,7 @@ const ReportSelector = ({ options, currentValue, onChange }) => {
         ))}
       </select>
       <span className="text-3xl font-bold mt-3 leading-tight only-print">
-        {currentValue}
+        {formatIdAsDate(currentValue)}
       </span>
     </>
   );
