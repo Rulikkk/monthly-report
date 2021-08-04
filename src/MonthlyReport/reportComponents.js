@@ -310,7 +310,7 @@ const ProjectListForState = (p) => {
 export default ({ reportToPrintRef }) => {
   let {
     value: { notes, reportName, headerImageSrc }
-  } = useRecoilValue(state.config);
+  } = useRecoilValue(state.configQuery());
   let { benchInfoData, projects, praises } = useActiveReport();
   return (
     <Scrollable>
