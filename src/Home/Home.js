@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Link } from "@reach/router";
 import { useRecoilValueLoadable } from "recoil";
 import { allReportsIds } from "../MonthlyReport/store/state";
@@ -6,12 +6,13 @@ import { allReportsIds } from "../MonthlyReport/store/state";
 const Home = () => {
   const ids = useRecoilValueLoadable(allReportsIds);
 
-  let last = "last";
-  if (ids.state === "hasValue" && ids.contents && ids.contents.length > 0) {
-    last = ids.contents[0];
-  }
-
-  const reportLink = `/report/${last}`;
+  let reportLink = useMemo(() => {
+    if (ids.state === "hasValue" && ids.contents?.length > 0) {
+      let [last] = ids.contents;
+      return `/report/${last}`;
+    }
+    return "/report/last";
+  }, [ids]);
 
   return (
     <>
