@@ -1,7 +1,8 @@
 import camelCase from "lodash.camelcase";
 import { selector, selectorFamily } from "recoil";
+
 import { PROJECT_STATES_ALL } from "../const";
-import { transformKeys, apply, transformKey } from "./helpers";
+import { apply, transformKey, transformKeys } from "./helpers";
 import { http } from "./utils";
 
 export let allReportsIds = selector({
@@ -36,10 +37,12 @@ export let reportQuery = selectorFamily({
   },
 });
 
-export let config = selector({
+export let configQuery = selectorFamily({
   key: "config",
-  get: async () => {
-    let { data } = await http.get("/config/main");
-    return transformKeys(data, camelCase);
-  },
+  get:
+    (configId = "main") =>
+    async () => {
+      let { data } = await http.get(`/config/${configId}`);
+      return transformKeys(data, camelCase);
+    },
 });
