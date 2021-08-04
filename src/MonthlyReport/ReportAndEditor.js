@@ -1,5 +1,4 @@
 import React from "react";
-import { Router } from "@reach/router";
 import Split from "react-split-pane";
 import debounce from "lodash.debounce";
 import Report from "./reportComponents";
@@ -49,7 +48,17 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
   </Button>
 );
 
-const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
+const ReportAndEditor = ({ reportCode }) => {
+  const initialSidebarState = Store.sidebarState,
+    props = useAll({
+      state: {
+        paneSize: initialSidebarState.open ? initialSidebarState.size : 0
+      },
+      ref: {
+        lastSize: initialSidebarState.size
+      },
+      defaultSize: initialSidebarState.size
+    });
   const { data, setData, onChange } = useAll({
     state: {
       data: parsedData
@@ -58,8 +67,8 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
       onChange: [
         debounce((size) => {
           if (size < 50) size = 0;
-          setPaneSize(size);
-          if (size > 0) lastSize.current = size;
+          props.setPaneSize(size);
+          if (size > 0) props.lastSize.current = size;
           Store.sidebarState = { open: size > 0, size };
         }, 200),
         []
@@ -94,41 +103,6 @@ const Main = ({ reportCode, paneSize, setPaneSize, lastSize, defaultSize }) => {
   console.log("Render!");
 
   return (
-    <Split
-      split="vertical"
-      minSize={0}
-      maxSize={0}
-      defaultSize={defaultSize}
-      size={paneSize}
-      primary="second"
-      onChange={onChange}
-    >
-      <Report />
-      <Editor
-        data={data}
-        setData={setData}
-        activeReportCode={reportCode}
-        setPaneSize={setPaneSize}
-        lastSize={lastSize}
-        onProjectStateChange={onProjectStateChange}
-      />
-    </Split>
-  );
-};
-
-const ReportAndEditor = () => {
-  const initialSidebarState = Store.sidebarState,
-    props = useAll({
-      state: {
-        paneSize: initialSidebarState.open ? initialSidebarState.size : 0
-      },
-      ref: {
-        lastSize: initialSidebarState.size
-      },
-      defaultSize: initialSidebarState.size
-    });
-
-  return (
     <>
       {props.paneSize === 0 && (
         <TopRightFixedMenu>
@@ -136,9 +110,25 @@ const ReportAndEditor = () => {
           <EditorShowButton {...props} />
         </TopRightFixedMenu>
       )}
-      <Router>
-        <Main path=":reportCode" {...props} />
-      </Router>
+      <Split
+        split="vertical"
+        minSize={0}
+        maxSize={0}
+        defaultSize={props.defaultSize}
+        size={props.paneSize}
+        primary="second"
+        onChange={onChange}
+      >
+        <Report />
+        <Editor
+          data={data}
+          setData={setData}
+          activeReportCode={reportCode}
+          setPaneSize={props.setPaneSize}
+          lastSize={props.lastSize}
+          onProjectStateChange={onProjectStateChange}
+        />
+      </Split>
     </>
   );
 };
