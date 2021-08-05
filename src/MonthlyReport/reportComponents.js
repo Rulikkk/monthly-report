@@ -1,6 +1,6 @@
 import "./typedef";
 
-import React, { Fragment } from "react";
+import React, { Fragment, Suspense } from "react";
 import { useParams, navigate } from "@reach/router";
 
 import { useRecoilValue } from "recoil";
@@ -307,36 +307,52 @@ const ProjectListForState = (p) => {
   );
 };
 
-export default ({ reportToPrintRef }) => {
+const ReportHeader = () => {
   let {
     value: { notes, reportName, headerImageSrc }
   } = useRecoilValue(state.config);
+  return (
+    <>
+      <img alt="Logo" src={headerImageSrc} className="mx-auto" />
+      <h1 className="text-3xl">
+        <ReportSelector /> — {reportName || "<data.reportName>"}
+      </h1>
+      <Note notes={notes} />
+    </>
+  );
+};
+
+const ReportBody = () => {
   let { benchInfoData, projects, praises } = useActiveReport();
   return (
+    <>
+      <TotalsTable />
+
+      {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
+
+      {PROJECT_STATES_ALL.map((status) =>
+        projects && projects[status] ? (
+          <ProjectListForState
+            key={status}
+            projectState={status}
+            projects={projects[status]}
+          />
+        ) : null
+      )}
+      <Praises praises={praises} />
+    </>
+  );
+};
+
+export default () => {
+  return (
     <Scrollable>
-      <div
-        ref={reportToPrintRef}
-        className="container p-4 mx-auto max-w-4xl good-fonts"
-      >
-        <img alt="Logo" src={headerImageSrc} className="mx-auto" />
-        <h1 className="text-3xl">
-          <ReportSelector /> — {reportName || "<data.reportName>"}
-        </h1>
-        <Note notes={notes} />
-        <TotalsTable />
+      <div className="container p-4 mx-auto max-w-4xl good-fonts">
+        <ReportHeader />
 
-        {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
-
-        {PROJECT_STATES_ALL.map((status) =>
-          projects && projects[status] ? (
-            <ProjectListForState
-              key={status}
-              projectState={status}
-              projects={projects[status]}
-            />
-          ) : null
-        )}
-        <Praises praises={praises} />
+        <Suspense fallback="Loading report data...">
+          <ReportBody />
+        </Suspense>
       </div>
     </Scrollable>
   );
