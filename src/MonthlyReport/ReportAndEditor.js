@@ -4,6 +4,7 @@ import debounce from "lodash.debounce";
 import Report from "./reportComponents";
 import Editor from "./Editor";
 import Store from "./Store";
+import Spinner from "../Spinner";
 import {
   Button,
   PrintButton,
@@ -102,7 +103,7 @@ const ReportAndEditor = ({ reportId }) => {
   };
 
   return (
-    <Suspense fallback={<span>Loading report...</span>}>
+    <Suspense fallback={<Spinner text={`Loading report ${reportId}`} />}>
       {props.paneSize === 0 && (
         <TopRightFixedMenu>
           <GoHomeButton />

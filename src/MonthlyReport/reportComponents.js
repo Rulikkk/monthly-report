@@ -1,6 +1,6 @@
 import "./typedef";
 
-import React, { Fragment } from "react";
+import React, { Fragment, Suspense } from "react";
 import { useParams, navigate } from "@reach/router";
 
 import { useRecoilValue } from "recoil";
@@ -15,6 +15,7 @@ import { Scrollable } from "./Scrollable";
 import { Praises } from "./Praises";
 
 import BenchInfoSection from "./BenchInfoSection";
+import Spinner from "../Spinner";
 
 const formatter = new Intl.DateTimeFormat("en", {
   month: "short",
@@ -307,36 +308,51 @@ const ProjectListForState = (p) => {
   );
 };
 
-export default ({ reportToPrintRef }) => {
+const ReportHeader = () => {
   let {
-    value: { notes, reportName, headerImageSrc }
+    value: { notes, reportName }
   } = useRecoilValue(state.configQuery());
+  return (
+    <>
+      <img alt="Logo" src="/head.png" className="mx-auto" />
+      <h1 className="text-3xl">
+        <ReportSelector /> — {reportName || "<data.reportName>"}
+      </h1>
+      <Note notes={notes} />
+    </>
+  );
+};
+
+const ReportBody = () => {
   let { benchInfoData, projects, praises } = useActiveReport();
   return (
+    <>
+      <TotalsTable />
+
+      {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
+
+      {PROJECT_STATES_ALL.map((status) =>
+        projects && projects[status] ? (
+          <ProjectListForState
+            key={status}
+            projectState={status}
+            projects={projects[status]}
+          />
+        ) : null
+      )}
+      <Praises praises={praises} />
+    </>
+  );
+};
+
+export default () => {
+  return (
     <Scrollable>
-      <div
-        ref={reportToPrintRef}
-        className="container p-4 mx-auto max-w-4xl good-fonts"
-      >
-        <img alt="Logo" src={headerImageSrc} className="mx-auto" />
-        <h1 className="text-3xl">
-          <ReportSelector /> — {reportName || "<data.reportName>"}
-        </h1>
-        <Note notes={notes} />
-        <TotalsTable />
-
-        {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
-
-        {PROJECT_STATES_ALL.map((status) =>
-          projects && projects[status] ? (
-            <ProjectListForState
-              key={status}
-              projectState={status}
-              projects={projects[status]}
-            />
-          ) : null
-        )}
-        <Praises praises={praises} />
+      <div className="container p-4 mx-auto max-w-4xl">
+        <ReportHeader />
+        <Suspense fallback={<Spinner text="Loading report data" high />}>
+          <ReportBody />
+        </Suspense>
       </div>
     </Scrollable>
   );
