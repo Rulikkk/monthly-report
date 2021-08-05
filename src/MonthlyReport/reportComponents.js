@@ -7,7 +7,7 @@ import { useRecoilValue } from "recoil";
 
 import * as state from "./store/state";
 
-import { useActiveReport, usePrevReport } from "./store/hooks";
+import { useActiveAndPrevReport, useActiveReport } from "./store/hooks";
 
 import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
 import { initCap } from "./BaseComponents";
@@ -92,8 +92,10 @@ const Td = ({
 );
 
 const TotalsTable = () => {
-  const { projects } = useActiveReport();
-  const { projects: prevProjects } = usePrevReport();
+  const {
+    activeReport: { projects },
+    prevReport: { prevProjects }
+  } = useActiveAndPrevReport();
   const Row = ({ cells, ...props }) => (
       <tr>
         <Td {...props}>{cells[0]}</Td>
@@ -267,43 +269,48 @@ const ProjectStatus = ({ project, hideOK }) => {
   );
 };
 
-const ProjectTable = ({ projectState, projects }) => (
-  <table className="mt-3 w-full border-collapse">
-    <thead style={{ borderBottom: "solid silver 1px" }}>
-      <tr>
-        <Td bold>Project</Td>
-        <Td bold className="w-3/4">
-          Status
-        </Td>
-      </tr>
-    </thead>
-    <tbody>
-      {projects.map((project) => (
-        <tr key={project.id} style={{ borderBottom: "solid silver 1px" }}>
-          <Td className="align-top" {...{ [projectState]: true }}>
-            {project && project.name}
-          </Td>
-          <Td {...{ [projectState]: true }}>
-            <ProjectStatus
-              project={project}
-              hideOK={projectState === TERMINATED}
-            />
+const ProjectTable = ({ projectState }) => {
+  const { reportId } = useParams();
+  const projects = useRecoilValue(
+    state.statusesByColor({ reportId, color: projectState })
+  );
+  // console.log(`Render ${projects.length} projects ${projectState}`);
+  return projects.length === 0 ? (
+    "No projects"
+  ) : (
+    <table className="mt-3 w-full border-collapse">
+      <thead style={{ borderBottom: "solid silver 1px" }}>
+        <tr>
+          <Td bold>Project</Td>
+          <Td bold className="w-3/4">
+            Status
           </Td>
         </tr>
-      ))}
-    </tbody>
-  </table>
-);
+      </thead>
+      <tbody>
+        {projects.map((project) => (
+          <tr key={project.id} style={{ borderBottom: "solid silver 1px" }}>
+            <Td className="align-top" {...{ [projectState]: true }}>
+              {project && project.name}
+            </Td>
+            <Td {...{ [projectState]: true }}>
+              <ProjectStatus
+                project={project}
+                hideOK={projectState === TERMINATED}
+              />
+            </Td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 const ProjectListForState = (p) => {
   return (
     <>
       <h1 className="text-3xl mt-5">{initCap(p.projectState)}</h1>
-      {p.projects && p.projects.length > 0 ? (
-        <ProjectTable {...p} />
-      ) : (
-        "No projects."
-      )}
+      <ProjectTable {...p} />
     </>
   );
 };
@@ -312,6 +319,7 @@ const ReportHeader = () => {
   let {
     value: { notes, reportName }
   } = useRecoilValue(state.configQuery());
+  console.log("Render report header");
   return (
     <>
       <img alt="Logo" src="/head.png" className="mx-auto" />
@@ -324,33 +332,28 @@ const ReportHeader = () => {
 };
 
 const ReportBody = () => {
-  let { benchInfoData, projects, praises } = useActiveReport();
+  let { benchInfoData, praises } = useActiveReport();
+  console.log("Render report body");
   return (
     <>
-      <TotalsTable />
-
       {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
 
-      {PROJECT_STATES_ALL.map((status) =>
-        projects && projects[status] ? (
-          <ProjectListForState
-            key={status}
-            projectState={status}
-            projects={projects[status]}
-          />
-        ) : null
-      )}
+      {PROJECT_STATES_ALL.map((status) => (
+        <ProjectListForState key={status} projectState={status} />
+      ))}
       <Praises praises={praises} />
     </>
   );
 };
 
 export default () => {
+  console.log("Render report");
   return (
     <Scrollable>
       <div className="container p-4 mx-auto max-w-4xl">
         <ReportHeader />
         <Suspense fallback={<Spinner text="Loading report data" high />}>
+          <TotalsTable />
           <ReportBody />
         </Suspense>
       </div>
