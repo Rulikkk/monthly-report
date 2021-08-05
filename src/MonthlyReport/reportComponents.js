@@ -310,11 +310,11 @@ const ProjectListForState = (p) => {
 
 const ReportHeader = () => {
   let {
-    value: { notes, reportName, headerImageSrc }
+    value: { notes, reportName }
   } = useRecoilValue(state.config);
   return (
     <>
-      <img alt="Logo" src={headerImageSrc} className="mx-auto" />
+      <img alt="Logo" src="/head.png" className="mx-auto" />
       <h1 className="text-3xl">
         <ReportSelector /> — {reportName || "<data.reportName>"}
       </h1>
@@ -348,7 +348,7 @@ const ReportBody = () => {
 export default () => {
   return (
     <Scrollable>
-      <div className="container p-4 mx-auto max-w-4xl good-fonts">
+      <div className="container p-4 mx-auto max-w-4xl">
         <ReportHeader />
         <Suspense fallback={<Spinner text="Loading report data" high />}>
           <ReportBody />
