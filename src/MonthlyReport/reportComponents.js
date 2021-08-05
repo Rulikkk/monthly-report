@@ -15,6 +15,7 @@ import { Scrollable } from "./Scrollable";
 import { Praises } from "./Praises";
 
 import BenchInfoSection from "./BenchInfoSection";
+import Spinner from "../Spinner";
 
 const formatter = new Intl.DateTimeFormat("en", {
   month: "short",
@@ -349,8 +350,7 @@ export default () => {
     <Scrollable>
       <div className="container p-4 mx-auto max-w-4xl good-fonts">
         <ReportHeader />
-
-        <Suspense fallback="Loading report data...">
+        <Suspense fallback={<Spinner text="Loading report data" high />}>
           <ReportBody />
         </Suspense>
       </div>
