@@ -1,10 +1,16 @@
-import { deleteKey, deleteKeys, echo, transformKey, transformKeys } from "./helpers";
+import { deleteKey, deleteKeys, echo, timestamp, transformKey, transformKeys } from "./helpers";
 
 let toUpperCase = (str) => str.toUpperCase();
 
 describe("echo", () => {
   it("returns it's arg", () => {
     expect(echo({ foo: "bar" })).toEqual({ foo: "bar" });
+  });
+});
+
+describe("timestamp", () => {
+  it("returns a timestamp in the HH:MM:SS.MS format", () => {
+    expect(timestamp().match(/^\d{2}:\d{2}:\d{2}.\d{3}$/)).toBeTruthy();
   });
 });
 
