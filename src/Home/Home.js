@@ -3,7 +3,7 @@ import { Link } from "@reach/router";
 import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
 import {
   allReportsIds,
-  config,
+  configQuery,
   reportQuery
 } from "../MonthlyReport/store/state";
 
@@ -24,7 +24,7 @@ const Home = () => {
   });
 
   const preloadConfig = useRecoilCallback(({ snapshot }) => () => {
-    snapshot.getLoadable(config);
+    snapshot.getLoadable(configQuery());
   });
 
   useEffect(() => {
