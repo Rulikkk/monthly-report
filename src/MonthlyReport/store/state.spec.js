@@ -16,6 +16,7 @@ describe("reportQuery selectorFamily", () => {
   it("fetches an object representing a report and applies transformations", async () => {
     let initialSnapshot = snapshot_UNSTABLE();
     let mockData = { id: "some report", project_statuses: [] };
+
     let resultData = {
       id: mockData.id,
       code: mockData.id,
@@ -23,7 +24,7 @@ describe("reportQuery selectorFamily", () => {
       projects: { green: [], yellow: [], red: [], terminated: [] },
     };
     axios.get.mockResolvedValueOnce({ data: mockData });
-    expect(await initialSnapshot.getPromise(reportQuery("id must be defined"))).toEqual(resultData);
+    expect(await initialSnapshot.getPromise(reportQuery("id must be present"))).toEqual(resultData);
   });
 });
 
