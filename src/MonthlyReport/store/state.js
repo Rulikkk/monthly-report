@@ -1,16 +1,16 @@
 import camelCase from "lodash.camelcase";
 import { selector, selectorFamily } from "recoil";
+
 import { PROJECT_STATES_ALL } from "../const";
-import { transformKeys, apply, renameKey } from "./helpers";
+import { apply, transformKey, transformKeys } from "./helpers";
 import { http } from "./utils";
 
 export let allReportsIds = selector({
   key: "allReportsIds",
   get: async () => {
     let { data } = await http.get("/reports");
-    data = data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
-    return data;
-  }
+    return data.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
+  },
 });
 
 export let reportQuery = selectorFamily({
@@ -27,20 +27,22 @@ export let reportQuery = selectorFamily({
       (state) =>
         (data.projects[state] = project_statuses
           .filter((x) => x.status_color === state)
-          .map((x) => x.status))
+          .map((x) => x.status)),
     );
 
     data.code = data.id;
     data = transformKeys(data, camelCase);
 
-    return apply(data, [renameKey("benchInfo", "benchInfoData")]);
-  }
+    return apply(data, [transformKey("benchInfo", () => "benchInfoData")]);
+  },
 });
 
-export let config = selector({
+export let configQuery = selectorFamily({
   key: "config",
-  get: async () => {
-    let { data } = await http.get("/config/main");
-    return transformKeys(data, camelCase);
-  }
+  get:
+    (configId = "main") =>
+    async () => {
+      let { data } = await http.get(`/config/${configId}`);
+      return transformKeys(data, camelCase);
+    },
 });

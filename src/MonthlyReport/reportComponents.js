@@ -311,7 +311,7 @@ const ProjectListForState = (p) => {
 const ReportHeader = () => {
   let {
     value: { notes, reportName }
-  } = useRecoilValue(state.config);
+  } = useRecoilValue(state.configQuery());
   return (
     <>
       <img alt="Logo" src="/head.png" className="mx-auto" />
