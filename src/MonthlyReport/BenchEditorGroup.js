@@ -1,9 +1,11 @@
-import React from "react";
 import isNil from "lodash.isnil";
+import React from "react";
+import { useRecoilState } from "recoil";
 
 import { getRandomId } from "./BaseComponents";
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
 import BenchEditorRemarks from "./BenchEditorRemarks";
+import { reportDraft } from "./store/state";
 
 /**
  *
@@ -23,16 +25,14 @@ const BenchEditorGroup = ({ report, updateReport }) => {
     }
 
     report.benchInfoData.info.push({
-      id: getRandomId()
+      id: getRandomId(),
     });
 
     updateReport();
   };
 
   const deleteBenchInfo = (info) => {
-    const filteredInfo = report.benchInfoData.info.filter(
-      (record) => record.id !== info.id
-    );
+    const filteredInfo = report.benchInfoData.info.filter((record) => record.id !== info.id);
     report.benchInfoData.info = filteredInfo;
 
     updateReport();
@@ -48,8 +48,7 @@ const BenchEditorGroup = ({ report, updateReport }) => {
           type="checkbox"
           className="ml-2"
           checked={report.benchInfoData.benchSectionEnabled}
-          onChange={switchBenchSectionEnabled}
-        ></input>
+          onChange={switchBenchSectionEnabled}></input>
       </h1>
 
       <BenchEditorMainInfo
@@ -60,9 +59,9 @@ const BenchEditorGroup = ({ report, updateReport }) => {
       />
 
       <BenchEditorRemarks
-        remarks={report.benchInfoData.remarks}
+        remarks={report.benchInfoData.remarks ?? []}
         onRemarksUpdate={(newRemarks) => {
-          report.benchInfoData.remarks = newRemarks;
+          // report.benchInfoData.remarks = newRemarks;
           updateReport();
         }}
       />

@@ -11,7 +11,7 @@ import {
   GoHomeButton,
   TopRightFixedMenu,
   useAll,
-  enhanceDataInplace
+  enhanceDataInplace,
 } from "./BaseComponents";
 
 /**
@@ -42,10 +42,9 @@ const EditorShowButton = ({ paneSize, setPaneSize, defaultSize, lastSize }) => (
       setPaneSize(newSize);
       Store.sidebarState = {
         open: true,
-        size: newSize
+        size: newSize,
       };
-    }}
-  >
+    }}>
     {paneSize === 0 && "Edit"}
   </Button>
 );
@@ -54,16 +53,16 @@ const ReportAndEditor = ({ reportId }) => {
   const initialSidebarState = Store.sidebarState,
     props = useAll({
       state: {
-        paneSize: initialSidebarState.open ? initialSidebarState.size : 0
+        paneSize: initialSidebarState.open ? initialSidebarState.size : 0,
       },
       ref: {
-        lastSize: initialSidebarState.size
+        lastSize: initialSidebarState.size,
       },
-      defaultSize: initialSidebarState.size
+      defaultSize: initialSidebarState.size,
     });
   const { data, setData, onChange } = useAll({
     state: {
-      data: parsedData
+      data: parsedData,
     },
     callback: {
       onChange: [
@@ -73,9 +72,9 @@ const ReportAndEditor = ({ reportId }) => {
           if (size > 0) props.lastSize.current = size;
           Store.sidebarState = { open: size > 0, size };
         }, 200),
-        []
-      ]
-    }
+        [],
+      ],
+    },
   });
   // useEffect(
   //   debounce(() => {
@@ -90,9 +89,7 @@ const ReportAndEditor = ({ reportId }) => {
 
     // Remove the project from old state list.
     const oldStateProjects = currentReport.projects[oldState];
-    currentReport.projects[oldState] = oldStateProjects.filter(
-      (p) => p !== project
-    );
+    currentReport.projects[oldState] = oldStateProjects.filter((p) => p !== project);
 
     // Add the project to new state list.
     const newStateProjects = currentReport.projects[newState];
@@ -118,8 +115,7 @@ const ReportAndEditor = ({ reportId }) => {
         defaultSize={props.defaultSize}
         size={props.paneSize}
         primary="second"
-        onChange={onChange}
-      >
+        onChange={onChange}>
         <Report />
         <Editor
           data={data}

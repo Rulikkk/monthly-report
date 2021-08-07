@@ -1,7 +1,7 @@
 import React from "react";
 
+import { Button, EditorShadowedCard } from "./BaseComponents";
 import { Input } from "./Editor";
-import { EditorShadowedCard, Button } from "./BaseComponents";
 
 function EmphasizeCaptionCheckbox({ info, onBenchInfoUpdate }) {
   const checkboxId = `emphasize-${info.id}`;
@@ -25,12 +25,8 @@ function EmphasizeCaptionCheckbox({ info, onBenchInfoUpdate }) {
   );
 }
 
-export default function BenchEditorMainInfoCard({
-  info,
-  onBenchInfoUpdate,
-  onDelete
-}) {
-  const getHandlerForField = field => value => {
+export default function BenchEditorMainInfoCard({ info, onBenchInfoUpdate, onDelete }) {
+  const getHandlerForField = (field) => (value) => {
     info[field] = value;
     onBenchInfoUpdate && onBenchInfoUpdate();
   };
