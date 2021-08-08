@@ -1,9 +1,13 @@
-import React from "react";
-import ReportAndEditor from "./MonthlyReport/ReportAndEditor";
-import { Router } from "@reach/router";
-import { RecoilRoot } from "recoil";
 import "./styles.css";
+import "react-toastify/dist/ReactToastify.css";
+
+import { Router } from "@reach/router";
+import React from "react";
+import { ToastContainer } from "react-toastify";
+import { RecoilRoot } from "recoil";
+
 import Home from "./Home/Home";
+import ReportAndEditor from "./MonthlyReport/ReportAndEditor";
 
 const Main = () => {
   return (
@@ -12,6 +16,7 @@ const Main = () => {
         <Home path="/" />
         <ReportAndEditor path="/report/*reportId" />
       </Router>
+      <ToastContainer />
     </RecoilRoot>
   );
 };

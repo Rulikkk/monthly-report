@@ -20,6 +20,7 @@
     "react-dropzone": "11.0.1",
     "react-scripts": "3.4.1",
     "react-split-pane": "0.1.91",
+    "react-toastify": "^7.0.4",
     "recoil": "^0.4.0"
   },
   "devDependencies": {
