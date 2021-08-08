@@ -5,47 +5,56 @@ import { selector, selectorFamily } from "recoil";
 import { pull } from "./api";
 import { apply, transformKey, transformKeys } from "./helpers";
 import { PROJECT_STATES_ALL } from "../const";
+import { toast } from "react-toastify";
 
 export let reportQuery = selectorFamily({
   key: "report",
-  get: (id) => async () => {
-    if (!id) return;
+  get: (id) => () => {
+    if (id)
+      return pull("report", id)
+        .then(({ data: { project_statuses_ids, project_statuses, ...data } }) => {
+          data.projects = {};
+          project_statuses = groupBy(project_statuses, ({ status_color: c }) => c);
 
-    let {
-      data: { project_statuses_ids, project_statuses, ...data },
-    } = await pull("report", id);
+          for (let status of PROJECT_STATES_ALL) {
+            data.projects[status] = project_statuses[status] ?? [];
+          }
 
-    data.projects = {};
-    project_statuses = groupBy(project_statuses, ({ status_color: c }) => c);
+          data = transformKeys(data, camelCase);
+          data = apply(data, [transformKey("benchInfo", () => "benchInfoData")]);
+          data.code = data.id;
 
-    for (let status of PROJECT_STATES_ALL) {
-      data.projects[status] = project_statuses[status] ?? [];
-    }
-
-    data = transformKeys(data, camelCase);
-    data = apply(data, [transformKey("benchInfo", () => "benchInfoData")]);
-    data.code = data.id;
-
-    return data;
+          return data;
+        })
+        .catch((err) => {
+          toast.error(`Error while fetching report ${id}`);
+          console.error(err);
+        });
   },
 });
 
 export let allReportsIds = selector({
   key: "allReportsIds",
-  get: async () => {
-    let { data } = await pull("reports");
-    return data?.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1));
-  },
+  get: () =>
+    pull("reports")
+      .then(({ data }) => data?.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1)))
+      .catch((err) => {
+        toast.error("Error while fetching available reports list");
+        console.error(err);
+      }),
 });
 
 export let configQuery = selectorFamily({
   key: "config",
   get:
     (id = "main") =>
-    async () => {
-      let { data } = await pull("config", id);
-      return transformKeys(data, camelCase);
-    },
+    () =>
+      pull("config", id)
+        .then(({ data }) => transformKeys(data, camelCase))
+        .catch((err) => {
+          toast.error(`Error while fetching config ${id}`);
+          console.error(err);
+        }),
 });
 
 export let statusesByColor = selectorFamily({
