@@ -48,3 +48,7 @@ export function transformKeys(obj, fn = echo) {
     else return { ...acc, [fn(k)]: v };
   }, {});
 }
+
+export function joinAbs(...items) {
+  return "/" + items.filter(Boolean).join("/");
+}

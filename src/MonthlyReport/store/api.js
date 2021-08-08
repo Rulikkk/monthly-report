@@ -2,7 +2,7 @@ import "../typedef";
 
 import snakeCase from "lodash.snakecase";
 
-import { timestamp, transformKeys } from "./helpers";
+import { timestamp, joinAbs, transformKeys } from "./helpers";
 import { http } from "./utils";
 
 /**
@@ -12,10 +12,9 @@ import { http } from "./utils";
  * @returns {Promise}
  */
 export function push(path, { id, ...rest }) {
-  path = "/" + [path, id].filter(Boolean).join("/");
-  console.log(`${timestamp()} [ push ] ${path}`);
+  console.log(`${timestamp()} [ push ${id ? "id=" + id + " PUT" : "POST"} ] ${path}`);
   let payload = transformKeys(rest, snakeCase);
-  return id ? http.put(path, payload) : http.post(`/${path}`, payload);
+  return id ? http.put(joinAbs(path, id), payload) : http.post(`/${path}`, payload);
 }
 
 /**
@@ -24,8 +23,7 @@ export function push(path, { id, ...rest }) {
  * @param {string} id document identifier
  * @returns {Promise}
  */
-export function pull(path, id) {
-  path = "/" + [path, id].filter(Boolean).join("/");
+export function pull(path, id = null) {
   console.log(`${timestamp()} [ pull ] ${path}`);
-  return http.get(path);
+  return http.get(joinAbs(path, id));
 }
