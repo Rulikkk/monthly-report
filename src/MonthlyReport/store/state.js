@@ -3,7 +3,7 @@ import groupBy from "lodash.groupby";
 import { selector, selectorFamily } from "recoil";
 
 import { pull } from "./api";
-import { apply, mapOfKeys, transformKey, transformKeys } from "./helpers";
+import { apply, transformKey, transformKeys } from "./helpers";
 import { PROJECT_STATES_ALL } from "../const";
 
 export let reportQuery = selectorFamily({
@@ -48,7 +48,7 @@ export let configQuery = selectorFamily({
     },
 });
 
-export const statusesByColor = selectorFamily({
+export let statusesByColor = selectorFamily({
   key: "statusesByColor",
   get:
     ({ reportId, color }) =>

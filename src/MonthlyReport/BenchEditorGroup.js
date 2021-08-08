@@ -1,11 +1,9 @@
 import isNil from "lodash.isnil";
 import React from "react";
-import { useRecoilState } from "recoil";
 
 import { getRandomId } from "./BaseComponents";
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
 import BenchEditorRemarks from "./BenchEditorRemarks";
-import { reportDraft } from "./store/state";
 
 /**
  *
