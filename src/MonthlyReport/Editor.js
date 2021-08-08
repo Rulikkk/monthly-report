@@ -1,19 +1,16 @@
-import React, { useState, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
+import React, { useEffect, useReducer, useState } from "react";
 import TextareaAutosize from "react-autosize-textarea";
-import { PROJECT_STATES_ALL } from "./const";
-import Store from "./Store";
-import {
-  Button,
-  getRandomId,
-  PrintButton,
-  enhanceDataInplace
-} from "./BaseComponents";
-import { Scrollable } from "./Scrollable";
-import { migrateOldReportData } from "./UpdateReportVersion";
-import ProjectState from "./ProjectState";
+import { useDropzone } from "react-dropzone";
+
+import { Button, enhanceDataInplace, getRandomId, PrintButton } from "./BaseComponents";
 import BenchEditorGroup from "./BenchEditorGroup";
+import { PROJECT_STATES_ALL } from "./const";
 import { PraiseEditorGroup } from "./Praises";
+import ProjectState from "./ProjectState";
+import { Scrollable } from "./Scrollable";
+import Store from "./Store";
+import { useActiveReport } from "./store/hooks";
+import { migrateOldReportData } from "./UpdateReportVersion";
 
 const VALIDATION_CODE = "ARBUZ";
 
@@ -39,7 +36,7 @@ export const Input = ({
         "shadow w-full appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline " +
         className,
       value: state,
-      onChange: handleChange
+      onChange: handleChange,
     };
 
   // Update the state value if props value has been changed. Sometimes they can be out of sync.
@@ -47,11 +44,7 @@ export const Input = ({
     setState(value);
   }, [value]);
 
-  return textarea ? (
-    <TextareaAutosize {...props} />
-  ) : (
-    <input type="text" {...props} />
-  );
+  return textarea ? <TextareaAutosize {...props} /> : <input type="text" {...props} />;
 };
 
 export const Issue = ({ issue, updateReport }) => {
@@ -102,8 +95,7 @@ export const AddRemoveNotesButton = ({ project, updateReport }) => {
         if (has) delete project.notes;
         else project.notes = "";
         updateReport();
-      }}
-    >
+      }}>
       <input type="checkbox" checked={has} readOnly /> notes
     </Button>
   );
@@ -125,8 +117,7 @@ export const AddRemoveStaffingButton = ({ project, updateReport }) => {
         if (has) delete project.staffing;
         else project.staffing = "";
         updateReport();
-      }}
-    >
+      }}>
       <input type="checkbox" checked={has} readOnly /> staffing
     </Button>
   );
@@ -139,17 +130,12 @@ export const AddRemoveIssueButton = ({ project, updateReport }) => {
       small
       className="mt-1 mr-1"
       onClick={() => {
-        if (
-          hasIssues &&
-          !window.confirm("Are you sure you want to remove issue?")
-        )
-          return;
+        if (hasIssues && !window.confirm("Are you sure you want to remove issue?")) return;
         project.issues = hasIssues
           ? null
           : [{ id: getRandomId(), issue: "", mitigation: "", eta: "" }];
         updateReport();
-      }}
-    >
+      }}>
       <input type="checkbox" checked={hasIssues} readOnly /> issue
     </Button>
   );
@@ -163,19 +149,13 @@ const AddProjectButton = ({ projects, updateReport, ...props }) => {
       onClick={() => {
         projects.unshift({ id: getRandomId(), name: "" });
         updateReport();
-      }}
-    >
+      }}>
       Add project
     </Button>
   );
 };
 
-export const RemoveProjectButton = ({
-  project,
-  projects,
-  updateReport,
-  ...props
-}) => {
+export const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
   return (
     <Button
       {...props}
@@ -188,27 +168,16 @@ export const RemoveProjectButton = ({
         if (index < 0) return;
         projects.splice(index, 1);
         updateReport();
-      }}
-    >
+      }}>
       Remove
     </Button>
   );
 };
 
-const ProjectGroup = ({
-  forState,
-  projects,
-  updateReport,
-  onProjectStateChange
-}) => (
+const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
-    <AddProjectButton
-      small
-      className="ml-2"
-      projects={projects}
-      updateReport={updateReport}
-    />
+    <AddProjectButton small className="ml-2" projects={projects} updateReport={updateReport} />
     {projects.map((p, i) => (
       <ProjectState
         project={p}
@@ -254,29 +223,21 @@ const MONTH_NAMES = [
   "Sep",
   "Oct",
   "Nov",
-  "Dec"
+  "Dec",
 ];
 
 const getNextCodeAndName = (lastCode) => {
   let [year, month] = lastCode.split("-").map((x) => parseInt(x, 10));
   if (month < 12) month++;
   else [year, month] = [year + 1, 1];
-  return [
-    `${year}-${month.toString().padStart(2, "0")}`,
-    `${MONTH_NAMES[month - 1]} ${year}`
-  ];
+  return [`${year}-${month.toString().padStart(2, "0")}`, `${MONTH_NAMES[month - 1]} ${year}`];
 };
 
 const CopyPreviousReport = ({ data, setData, ...props }) => (
   <Button
     {...props}
     onClick={() => {
-      if (
-        !data ||
-        !data.reports ||
-        !data.reports.length ||
-        data.reports.length === 0
-      ) {
+      if (!data || !data.reports || !data.reports.length || data.reports.length === 0) {
         alert("No reports to copy, please, load initial data.");
         return;
       }
@@ -288,12 +249,9 @@ const CopyPreviousReport = ({ data, setData, ...props }) => (
       incrementLoadId(data);
       setData(data);
       Store.reportJSON = data;
-      alert(
-        `${name} report was copied from previous month. Page will be reloaded.`
-      );
+      alert(`${name} report was copied from previous month. Page will be reloaded.`);
       window.location.reload();
-    }}
-  >
+    }}>
     Add month
   </Button>
 );
@@ -332,15 +290,14 @@ const OpenReport = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    accept: "application/json"
+    accept: "application/json",
   });
 
   return (
     <div
       className="text-white font-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-700 cursor-pointer select-none"
       title="Click or drop JSON here"
-      {...getRootProps()}
-    >
+      {...getRootProps()}>
       <input {...getInputProps()} />
       {isDragActive ? <p>DROP</p> : <p>Open</p>}
     </div>
@@ -355,15 +312,14 @@ const SaveReport = ({ data }) => (
       Store.reportJSON = data;
       const element = document.createElement("a"),
         file = new Blob([JSON.stringify(Store.reportJSON, null, 2)], {
-          type: "text/plain"
+          type: "text/plain",
         });
       element.style = "display:none";
       element.href = URL.createObjectURL(file);
       element.download = "data.json";
       document.body.appendChild(element); // Required for this to work in FireFox
       element.click();
-    }}
-  >
+    }}>
     Save
   </Button>
 );
@@ -375,32 +331,18 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
       setPaneSize(0);
       Store.sidebarState = {
         open: false,
-        size: lastSize.current
+        size: lastSize.current,
       };
-    }}
-  >
+    }}>
     Hide
   </Button>
 );
 
-export default ({
-  activeReportId,
-  onProjectChange,
-  onReportChange,
-  data,
-  setData,
-  activeReportCode,
-  setPaneSize,
-  lastSize,
-  onProjectStateChange
-}) => {
-  const activeReport = data.reports.find((r) => r.code === activeReportCode),
-    updateReport = () => {
-      //  let activeReportDirty = data.reports.find(
-      //    ({ id }) => id === activeReportId
-      //  );
-      setData({ ...data });
-    };
+export default ({ data, setData, setPaneSize, lastSize, onProjectStateChange }) => {
+  let activeReport = useActiveReport();
+  let updateReport = () => {
+    setData({ ...data });
+  };
   return (
     <Scrollable>
       <div className="flex bg-gray-300 justify-between p-1">

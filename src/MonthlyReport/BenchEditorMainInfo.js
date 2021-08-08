@@ -1,4 +1,5 @@
 import React from "react";
+
 import { Button } from "./BaseComponents";
 import BenchEditorMainInfoCard from "./BenchEditorMainInfoCard";
 
@@ -11,11 +12,11 @@ const BenchEditorMainInfo = ({
   benchInfo,
   onAddBenchInfoLine,
   onBenchInfoUpdate,
-  onDeleteBenchInfo
+  onDeleteBenchInfo,
 }) => {
   return (
     <>
-      {benchInfo?.map(info => {
+      {benchInfo?.map((info) => {
         return (
           <BenchEditorMainInfoCard
             key={info.id}

@@ -6,6 +6,16 @@ export function echo(arg) {
   return arg;
 }
 
+/** Create a timestamp string in the HH:MM:SS.MS format */
+export function timestamp() {
+  let d = new Date();
+  let h = d.getHours().toString().padStart(2, "0");
+  let m = d.getMinutes().toString().padStart(2, "0");
+  let s = d.getSeconds().toString().padStart(2, "0");
+  let ms = d.getMilliseconds().toString().padStart(3, "0");
+  return `${[h, m, s].join(":")}.${ms}`;
+}
+
 /** TODO: add description */
 export function apply(obj, fns) {
   return fns.reduce((acc, fn) => fn(acc), obj);

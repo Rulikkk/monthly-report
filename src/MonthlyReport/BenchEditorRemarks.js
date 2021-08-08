@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
 import debounce from "lodash.debounce";
+import React, { useEffect, useState } from "react";
 
 import { Input } from "./Editor";
 
@@ -63,16 +63,14 @@ function processNewRemarks(remarksText, updateRemarks) {
 const debouncedProcessNewRemarks = debounce(processNewRemarks, 200);
 
 const BenchEditorRemarks = ({ remarks, onRemarksUpdate }) => {
-  const [remarksText, setRemarksText] = useState(
-    convertRemarksArrayToText(remarks)
-  );
+  console.log({ remarks });
+  const [remarksText, setRemarksText] = useState(convertRemarksArrayToText(remarks));
 
   useEffect(
-    () =>
-      debouncedProcessNewRemarks(remarksText, onRemarksUpdate, setRemarksText),
+    () => debouncedProcessNewRemarks(remarksText, onRemarksUpdate, setRemarksText),
     // To suppress warning for onRemarksUpdate
     // eslint-disable-next-line
-    [remarksText]
+    [remarksText],
   );
 
   // Update the text in state if remarks array has been changed.
@@ -83,11 +81,7 @@ const BenchEditorRemarks = ({ remarks, onRemarksUpdate }) => {
   return (
     <div className="p-2">
       <h3>Remarks</h3>
-      <Input
-        textarea
-        value={remarksText}
-        onChange={value => setRemarksText(value)}
-      />
+      <Input textarea value={remarksText} onChange={(value) => setRemarksText(value)} />
     </div>
   );
 };
