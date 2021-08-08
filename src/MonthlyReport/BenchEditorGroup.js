@@ -1,20 +1,27 @@
 import isNil from "lodash.isnil";
 import React from "react";
+import { useSetRecoilState } from "recoil";
 
 import { getRandomId } from "./BaseComponents";
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
 import BenchEditorRemarks from "./BenchEditorRemarks";
+import { reportQuery } from "./store/state";
 
 /**
  *
  * @param {Object} obj
  * @param {Report} obj.report
  */
-const BenchEditorGroup = ({ report, updateReport }) => {
+const BenchEditorGroup = ({ report }) => {
+  let setReport = useSetRecoilState(reportQuery(report.reportId));
+
   const switchBenchSectionEnabled = () => {
-    report.benchInfoData.benchSectionEnabled = !report.benchInfoData
-      .benchSectionEnabled;
-    updateReport();
+    setReport({
+      id: report.reportId,
+      benchInfo: {
+        benchSectionEnabled: !report.benchInfoData.benchSectionEnabled,
+      },
+    });
   };
 
   const onAddBenchInfoLine = () => {
