@@ -16,10 +16,10 @@ const BenchEditorMainInfo = ({
 }) => {
   return (
     <>
-      {benchInfo?.map((info) => {
+      {benchInfo?.map((info, i) => {
         return (
           <BenchEditorMainInfoCard
-            key={info.id}
+            key={i} // info.id
             info={info}
             onBenchInfoUpdate={onBenchInfoUpdate}
             onDelete={onDeleteBenchInfo}
