@@ -31,14 +31,12 @@ export let reportQuery = selectorFamily({
           console.error(err);
         });
   },
-  set:
-    (id) =>
-    (_, ...report) => {
-      push("report", { id, ...report }).catch((err) => {
-        toast(`Error while updating report ${id || report.id}`);
-        console.error(err);
-      });
-    },
+  set: (id) => (_, report) => {
+    push("report", { id, ...report }).catch((err) => {
+      toast.error(`Error while updating report ${id || report.id}`);
+      console.error(err);
+    });
+  },
 });
 
 export let allReportsIds = selector({
