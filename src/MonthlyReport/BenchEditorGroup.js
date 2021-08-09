@@ -25,22 +25,17 @@ const BenchEditorGroup = ({ report }) => {
   };
 
   const onAddBenchInfoLine = () => {
-    if (isNil(report.benchInfoData.info)) {
-      report.benchInfoData.info = [];
-    }
-
-    report.benchInfoData.info.push({
-      id: getRandomId(),
+    setReport({
+      benchInfo: {
+        info: [...report.benchInfoData.info, { id: getRandomId() }],
+      },
     });
-
-    updateReport();
   };
 
   const deleteBenchInfo = (info) => {
-    const filteredInfo = report.benchInfoData.info.filter((record) => record.id !== info.id);
-    report.benchInfoData.info = filteredInfo;
-
-    updateReport();
+    setReport({
+      benchInfo: { info: report.benchInfoData.info.filter((record) => record.id !== info.id) },
+    });
   };
 
   return !report ? (
@@ -59,7 +54,7 @@ const BenchEditorGroup = ({ report }) => {
       <BenchEditorMainInfo
         benchInfo={report.benchInfoData.info}
         onAddBenchInfoLine={onAddBenchInfoLine}
-        onBenchInfoUpdate={() => updateReport()}
+        onBenchInfoUpdate={() => null}
         onDeleteBenchInfo={deleteBenchInfo}
       />
 
@@ -67,7 +62,6 @@ const BenchEditorGroup = ({ report }) => {
         remarks={report.benchInfoData.remarks ?? []}
         onRemarksUpdate={(newRemarks) => {
           // report.benchInfoData.remarks = newRemarks;
-          updateReport();
         }}
       />
     </div>
