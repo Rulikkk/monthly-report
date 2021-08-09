@@ -63,7 +63,6 @@ function processNewRemarks(remarksText, updateRemarks) {
 const debouncedProcessNewRemarks = debounce(processNewRemarks, 200);
 
 const BenchEditorRemarks = ({ remarks, onRemarksUpdate }) => {
-  console.log({ remarks });
   const [remarksText, setRemarksText] = useState(convertRemarksArrayToText(remarks));
 
   useEffect(
