@@ -7,6 +7,12 @@ import { apply, transformKey, transformKeys } from "./helpers";
 import { PROJECT_STATES_ALL } from "../const";
 import { toast } from "react-toastify";
 
+export let projectQuery = selectorFamily({
+  key: "project",
+  get: (id) => () => pull("project", id),
+  set: (id) => (_, project) => push("project", id),
+});
+
 export let reportQuery = selectorFamily({
   key: "report",
   get: (id) => () => {

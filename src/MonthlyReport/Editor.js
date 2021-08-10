@@ -1,8 +1,9 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
+import { toast } from "react-toastify";
 
-import { Button, enhanceDataInplace, getRandomId, PrintButton } from "./BaseComponents";
+import { Button, getRandomId, PrintButton } from "./BaseComponents";
 import BenchEditorGroup from "./BenchEditorGroup";
 import { PROJECT_STATES_ALL } from "./const";
 import { PraiseEditorGroup } from "./Praises";
@@ -10,7 +11,8 @@ import ProjectState from "./ProjectState";
 import { Scrollable } from "./Scrollable";
 import Store from "./Store";
 import { useActiveReport } from "./store/hooks";
-import { migrateOldReportData } from "./UpdateReportVersion";
+import { useSetRecoilState } from "recoil";
+import { reportQuery } from "./store/state";
 
 const VALIDATION_CODE = "ARBUZ";
 
@@ -79,8 +81,8 @@ export const Issue = ({ issue, updateReport }) => {
   );
 };
 
-export const AddRemoveNotesButton = ({ project, updateReport }) => {
-  const has = project.notes !== undefined;
+export const AddRemoveNotesButton = ({ project }) => {
+  let has = project.notes !== undefined;
   return (
     <Button
       small
@@ -94,7 +96,6 @@ export const AddRemoveNotesButton = ({ project, updateReport }) => {
           return;
         if (has) delete project.notes;
         else project.notes = "";
-        updateReport();
       }}>
       <input type="checkbox" checked={has} readOnly /> notes
     </Button>
@@ -233,50 +234,55 @@ const getNextCodeAndName = (lastCode) => {
   return [`${year}-${month.toString().padStart(2, "0")}`, `${MONTH_NAMES[month - 1]} ${year}`];
 };
 
-const CopyPreviousReport = ({ data, setData, ...props }) => (
-  <Button
-    {...props}
-    onClick={() => {
-      if (!data || !data.reports || !data.reports.length || data.reports.length === 0) {
-        alert("No reports to copy, please, load initial data.");
-        return;
-      }
-      const lastReport = data.reports[data.reports.length - 1],
-        [code, name] = getNextCodeAndName(lastReport.code),
-        newReport = { ...lastReport, prev: lastReport, code, name };
-      lastReport.next = newReport;
-      data.reports.push(newReport);
-      incrementLoadId(data);
-      setData(data);
-      Store.reportJSON = data;
-      alert(`${name} report was copied from previous month. Page will be reloaded.`);
-      window.location.reload();
-    }}>
-    Add month
-  </Button>
-);
+const CopyPreviousReport = ({ report, ...props }) => {
+  let setReport = useSetRecoilState(reportQuery(report.reportId));
+
+  return (
+    <Button
+      {...props}
+      onClick={async () => {
+        if (!report) {
+          alert("No reports to copy, please, load initial data.");
+          return;
+        }
+        // const lastReport = data.reports[data.reports.length - 1],
+        //   [code, name] = getNextCodeAndName(lastReport.code),
+        //   newReport = { ...lastReport, prev: lastReport, code, name };
+        // lastReport.next = newReport;
+        // data.reports.push(newReport);
+        // incrementLoadId(data);
+        // setData(data);
+        // Store.reportJSON = data;
+        try {
+          // await push("report", {date: report.reportId, ...report});
+          alert(`${report.reportId} report was copied from previous month. Page will be reloaded.`);
+          window.location.reload();
+        } catch (err) {
+          toast.error({ ...err });
+        }
+      }}>
+      Add month
+    </Button>
+  );
+};
 
 const OpenReport = () => {
+  let setReport = useSetRecoilState(reportQuery());
   const onDrop = (acceptedFiles) => {
     const reader = new FileReader();
 
     reader.onabort = () => console.log("file reading was aborted");
     reader.onerror = () => console.log("file reading has failed");
-    reader.onload = () => {
+    reader.onload = async () => {
       // Do whatever you want with the file contents
       try {
-        const loadedData = JSON.parse(reader.result);
-        enhanceDataInplace(loadedData);
-        if (loadedData.validationCode !== VALIDATION_CODE)
-          throw new Error("Invalid validation code in json.");
-        if (!window.confirm("Replace current report with loaded data?")) return;
-        incrementLoadId(loadedData);
-
-        // Upgrade report to the latest format version.
-        const upgradedReportData = migrateOldReportData(loadedData);
-
-        Store.reportJSON = upgradedReportData;
-        window.location.reload();
+        const { reportId, benchInfoData, projects, ...data } = JSON.parse(reader.result);
+        setReport({
+          ...data,
+          date: reportId,
+          benchInfo: benchInfoData,
+          projects: Object.keys(projects).reduce((acc, k) => [...acc, projects[k]], []),
+        });
       } catch (e) {
         window.alert(`Could not parse file with error ${e}.`);
       }
@@ -308,12 +314,10 @@ const SaveReport = ({ data }) => (
   <Button
     value="save"
     onClick={() => {
-      data.validationCode = VALIDATION_CODE;
-      Store.reportJSON = data;
-      const element = document.createElement("a"),
-        file = new Blob([JSON.stringify(Store.reportJSON, null, 2)], {
-          type: "text/plain",
-        });
+      let element = document.createElement("a");
+      let file = new Blob([JSON.stringify(data, null, 2)], {
+        type: "text/plain",
+      });
       element.style = "display:none";
       element.href = URL.createObjectURL(file);
       element.download = "data.json";
@@ -348,9 +352,9 @@ export default ({ data, setData, setPaneSize, lastSize, onProjectStateChange }) 
       <div className="flex bg-gray-300 justify-between p-1">
         <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
         <div className="spaced-row-grid">
-          <CopyPreviousReport data={data} setData={setData} />
+          <CopyPreviousReport report={activeReport} />
           <OpenReport setData={setData} />
-          <SaveReport data={data} />
+          <SaveReport data={activeReport} />
           <PrintButton />
           <EditorHideButton setPaneSize={setPaneSize} lastSize={lastSize} />
         </div>
