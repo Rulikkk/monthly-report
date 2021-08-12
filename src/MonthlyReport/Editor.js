@@ -14,8 +14,6 @@ import { useActiveReport } from "./store/hooks";
 import { useSetRecoilState } from "recoil";
 import { reportQuery } from "./store/state";
 
-const VALIDATION_CODE = "ARBUZ";
-
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
 export const Input = ({
@@ -38,7 +36,7 @@ export const Input = ({
         "shadow w-full appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline " +
         className,
       value: state,
-      onChange: handleChange,
+      onChange: handleChange
     };
 
   // Update the state value if props value has been changed. Sometimes they can be out of sync.
@@ -46,7 +44,11 @@ export const Input = ({
     setState(value);
   }, [value]);
 
-  return textarea ? <TextareaAutosize {...props} /> : <input type="text" {...props} />;
+  return textarea ? (
+    <TextareaAutosize {...props} />
+  ) : (
+    <input type="text" {...props} />
+  );
 };
 
 export const Issue = ({ issue, updateReport }) => {
@@ -96,7 +98,8 @@ export const AddRemoveNotesButton = ({ project }) => {
           return;
         if (has) delete project.notes;
         else project.notes = "";
-      }}>
+      }}
+    >
       <input type="checkbox" checked={has} readOnly /> notes
     </Button>
   );
@@ -118,7 +121,8 @@ export const AddRemoveStaffingButton = ({ project, updateReport }) => {
         if (has) delete project.staffing;
         else project.staffing = "";
         updateReport();
-      }}>
+      }}
+    >
       <input type="checkbox" checked={has} readOnly /> staffing
     </Button>
   );
@@ -131,12 +135,17 @@ export const AddRemoveIssueButton = ({ project, updateReport }) => {
       small
       className="mt-1 mr-1"
       onClick={() => {
-        if (hasIssues && !window.confirm("Are you sure you want to remove issue?")) return;
+        if (
+          hasIssues &&
+          !window.confirm("Are you sure you want to remove issue?")
+        )
+          return;
         project.issues = hasIssues
           ? null
           : [{ id: getRandomId(), issue: "", mitigation: "", eta: "" }];
         updateReport();
-      }}>
+      }}
+    >
       <input type="checkbox" checked={hasIssues} readOnly /> issue
     </Button>
   );
@@ -150,13 +159,19 @@ const AddProjectButton = ({ projects, updateReport, ...props }) => {
       onClick={() => {
         projects.unshift({ id: getRandomId(), name: "" });
         updateReport();
-      }}>
+      }}
+    >
       Add project
     </Button>
   );
 };
 
-export const RemoveProjectButton = ({ project, projects, updateReport, ...props }) => {
+export const RemoveProjectButton = ({
+  project,
+  projects,
+  updateReport,
+  ...props
+}) => {
   return (
     <Button
       {...props}
@@ -169,16 +184,27 @@ export const RemoveProjectButton = ({ project, projects, updateReport, ...props 
         if (index < 0) return;
         projects.splice(index, 1);
         updateReport();
-      }}>
+      }}
+    >
       Remove
     </Button>
   );
 };
 
-const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }) => (
+const ProjectGroup = ({
+  forState,
+  projects,
+  updateReport,
+  onProjectStateChange
+}) => (
   <div>
     <h1 className="text-xl m-2">{initCap(forState)}</h1>
-    <AddProjectButton small className="ml-2" projects={projects} updateReport={updateReport} />
+    <AddProjectButton
+      small
+      className="ml-2"
+      projects={projects}
+      updateReport={updateReport}
+    />
     {projects.map((p, i) => (
       <ProjectState
         project={p}
@@ -193,24 +219,15 @@ const ProjectGroup = ({ forState, projects, updateReport, onProjectStateChange }
 );
 
 const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
-  !report
-    ? "Loading..."
-    : PROJECT_STATES_ALL.map((state) => (
-        <ProjectGroup
-          forState={state}
-          key={state}
-          projects={report.projects[state]}
-          updateReport={updateReport}
-          onProjectStateChange={onProjectStateChange}
-        />
-      ));
-
-const incrementLoadId = (data) => {
-  if (!data.loadId) {
-    data.loadId = 0;
-  }
-  data.loadId = (data.loadId + 1) % 1001;
-};
+  PROJECT_STATES_ALL.map((state) => (
+    <ProjectGroup
+      forState={state}
+      key={state}
+      projects={report.projects[state]}
+      updateReport={updateReport}
+      onProjectStateChange={onProjectStateChange}
+    />
+  ));
 
 const MONTH_NAMES = [
   "Jan",
@@ -224,14 +241,17 @@ const MONTH_NAMES = [
   "Sep",
   "Oct",
   "Nov",
-  "Dec",
+  "Dec"
 ];
 
 const getNextCodeAndName = (lastCode) => {
   let [year, month] = lastCode.split("-").map((x) => parseInt(x, 10));
   if (month < 12) month++;
   else [year, month] = [year + 1, 1];
-  return [`${year}-${month.toString().padStart(2, "0")}`, `${MONTH_NAMES[month - 1]} ${year}`];
+  return [
+    `${year}-${month.toString().padStart(2, "0")}`,
+    `${MONTH_NAMES[month - 1]} ${year}`
+  ];
 };
 
 const CopyPreviousReport = ({ report, ...props }) => {
@@ -255,12 +275,15 @@ const CopyPreviousReport = ({ report, ...props }) => {
         // Store.reportJSON = data;
         try {
           // await push("report", {date: report.reportId, ...report});
-          alert(`${report.reportId} report was copied from previous month. Page will be reloaded.`);
+          alert(
+            `${report.reportId} report was copied from previous month. Page will be reloaded.`
+          );
           window.location.reload();
         } catch (err) {
           toast.error({ ...err });
         }
-      }}>
+      }}
+    >
       Add month
     </Button>
   );
@@ -276,12 +299,17 @@ const OpenReport = () => {
     reader.onload = async () => {
       // Do whatever you want with the file contents
       try {
-        const { reportId, benchInfoData, projects, ...data } = JSON.parse(reader.result);
+        const { reportId, benchInfoData, projects, ...data } = JSON.parse(
+          reader.result
+        );
         setReport({
           ...data,
           date: reportId,
           benchInfo: benchInfoData,
-          projects: Object.keys(projects).reduce((acc, k) => [...acc, projects[k]], []),
+          projects: Object.keys(projects).reduce(
+            (acc, k) => [...acc, projects[k]],
+            []
+          )
         });
       } catch (e) {
         window.alert(`Could not parse file with error ${e}.`);
@@ -296,14 +324,15 @@ const OpenReport = () => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    accept: "application/json",
+    accept: "application/json"
   });
 
   return (
     <div
       className="text-white font-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-700 cursor-pointer select-none"
       title="Click or drop JSON here"
-      {...getRootProps()}>
+      {...getRootProps()}
+    >
       <input {...getInputProps()} />
       {isDragActive ? <p>DROP</p> : <p>Open</p>}
     </div>
@@ -316,14 +345,15 @@ const SaveReport = ({ data }) => (
     onClick={() => {
       let element = document.createElement("a");
       let file = new Blob([JSON.stringify(data, null, 2)], {
-        type: "text/plain",
+        type: "text/plain"
       });
       element.style = "display:none";
       element.href = URL.createObjectURL(file);
       element.download = "data.json";
       document.body.appendChild(element); // Required for this to work in FireFox
       element.click();
-    }}>
+    }}
+  >
     Save
   </Button>
 );
@@ -335,14 +365,21 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
       setPaneSize(0);
       Store.sidebarState = {
         open: false,
-        size: lastSize.current,
+        size: lastSize.current
       };
-    }}>
+    }}
+  >
     Hide
   </Button>
 );
 
-export default ({ data, setData, setPaneSize, lastSize, onProjectStateChange }) => {
+export default ({
+  data,
+  setData,
+  setPaneSize,
+  lastSize,
+  onProjectStateChange
+}) => {
   let activeReport = useActiveReport();
   let updateReport = () => {
     setData({ ...data });
