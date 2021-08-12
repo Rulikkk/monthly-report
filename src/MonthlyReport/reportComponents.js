@@ -186,8 +186,6 @@ const TotalsTable = () => {
         </Td>
       ) : null;
 
-  console.log({ totalProjectsNow, totalProjectsThen });
-
   return (
     <>
       <table className="mt-3 text-left font-mono w-full border-collapse">
@@ -280,7 +278,7 @@ const ProjectTable = ({ projectState }) => {
   const projects = useRecoilValue(
     state.statusesByColor({ reportId, color: projectState })
   );
-  console.log(`Render ${projects.length} projects ${projectState}`);
+  // console.log(`Render ${projects.length} projects ${projectState}`);
   return projects.length === 0 ? (
     "No projects"
   ) : (
@@ -354,6 +352,7 @@ const ReportBody = () => {
 
 export default () => {
   // console.log("Render report");
+  // TODO: this stuff renders twice somwhy, FIX!
   return (
     <Scrollable>
       <div className="container p-4 mx-auto max-w-4xl">
