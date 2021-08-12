@@ -9,7 +9,14 @@ import * as state from "./store/state";
 
 import { useActiveAndPrevReport, useActiveReport } from "./store/hooks";
 
-import { PROJECT_STATES, PROJECT_STATES_ALL, TERMINATED } from "./const";
+import {
+  PROJECT_STATES,
+  PROJECT_STATES_ALL,
+  TERMINATED,
+  GREEN,
+  YELLOW,
+  RED
+} from "./const";
 import { initCap } from "./BaseComponents";
 import { Scrollable } from "./Scrollable";
 import { Praises } from "./Praises";
@@ -94,7 +101,7 @@ const Td = ({
 const TotalsTable = () => {
   const {
     activeReport: { projects },
-    prevReport: { prevProjects }
+    prevReport: { projects: prevProjects }
   } = useActiveAndPrevReport();
   const Row = ({ cells, ...props }) => (
       <tr>
@@ -115,6 +122,7 @@ const TotalsTable = () => {
       ps && PROJECT_STATES.map((t) => (ps[t] ? ps[t].length : 0)).reduce(sum),
     totalProjectsNow = countProjects(projects),
     totalProjectsThen = countProjects(prevProjects),
+    totals = { totalNow: totalProjectsNow, totalThen: totalProjectsThen },
     Comparer = ({
       now,
       then = 0,
@@ -171,12 +179,15 @@ const TotalsTable = () => {
               prevProjects[projectState] &&
               prevProjects[projectState].length
             }
-            lowerBetter={projectState === "yellow" || projectState === "red"}
+            lowerBetter={projectState === YELLOW || projectState === RED}
             projectState={projectState}
             {...props}
           />
         </Td>
       ) : null;
+
+  console.log({ totalProjectsNow, totalProjectsThen });
+
   return (
     <>
       <table className="mt-3 text-left font-mono w-full border-collapse">
@@ -201,20 +212,15 @@ const TotalsTable = () => {
                 lowerBetter={false}
               />
             </Td>
-            {PROJECT_STATES.map((ps) => (
-              <TdComparer key={ps} projectState={ps} />
-            ))}
+            <TdComparer projectState={GREEN} />
+            <TdComparer projectState={YELLOW} />
+            <TdComparer projectState={RED} />
           </tr>
           <tr>
             <Td bold>%</Td>
-            {PROJECT_STATES.map((ps) => (
-              <TdComparer
-                key={ps}
-                projectState={ps}
-                totalNow={totalProjectsNow}
-                totalThen={totalProjectsThen}
-              />
-            ))}
+            <TdComparer projectState={GREEN} {...totals} />
+            <TdComparer projectState={YELLOW} {...totals} />
+            <TdComparer projectState={RED} {...totals} />
           </tr>
         </tbody>
       </table>
@@ -274,7 +280,7 @@ const ProjectTable = ({ projectState }) => {
   const projects = useRecoilValue(
     state.statusesByColor({ reportId, color: projectState })
   );
-  // console.log(`Render ${projects.length} projects ${projectState}`);
+  console.log(`Render ${projects.length} projects ${projectState}`);
   return projects.length === 0 ? (
     "No projects"
   ) : (
@@ -319,7 +325,7 @@ const ReportHeader = () => {
   let {
     value: { notes, reportName }
   } = useRecoilValue(state.configQuery());
-  console.log("Render report header");
+  // console.log("Render report header");
   return (
     <>
       <img alt="Logo" src="/head.png" className="mx-auto" />
@@ -333,7 +339,7 @@ const ReportHeader = () => {
 
 const ReportBody = () => {
   let { benchInfoData, praises } = useActiveReport();
-  console.log("Render report body");
+  // console.log("Render report body");
   return (
     <>
       {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
@@ -347,7 +353,7 @@ const ReportBody = () => {
 };
 
 export default () => {
-  console.log("Render report");
+  // console.log("Render report");
   return (
     <Scrollable>
       <div className="container p-4 mx-auto max-w-4xl">
