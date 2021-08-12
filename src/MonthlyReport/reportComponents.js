@@ -7,7 +7,12 @@ import { useRecoilValue } from "recoil";
 
 import * as state from "./store/state";
 
-import { useActiveAndPrevReport, useActiveReport } from "./store/hooks";
+import {
+  useActiveAndPrevReport,
+  useActiveReport,
+  useActiveReportProjectsByColor,
+  useProjectStatusByIndex
+} from "./store/hooks";
 
 import {
   PROJECT_STATES,
@@ -229,12 +234,8 @@ const TotalsTable = () => {
   );
 };
 
-const ProjectStatus = ({ project, hideOK }) => {
-  const { issues, staffing, notes } = project || {
-    issues: null,
-    staffing: null,
-    notes: null
-  };
+const ProjectStatus = ({ hideOK, color, index }) => {
+  const [{ issues, staffing, notes }] = useProjectStatusByIndex(color, index);
   return (
     <ul>
       {issues ? (
@@ -274,11 +275,7 @@ const ProjectStatus = ({ project, hideOK }) => {
 };
 
 const ProjectTable = ({ projectState }) => {
-  const { reportId } = useParams();
-  const projects = useRecoilValue(
-    state.statusesByColor({ reportId, color: projectState })
-  );
-  // console.log(`Render ${projects.length} projects ${projectState}`);
+  const projects = useActiveReportProjectsByColor(projectState);
   return projects.length === 0 ? (
     "No projects"
   ) : (
@@ -292,14 +289,15 @@ const ProjectTable = ({ projectState }) => {
         </tr>
       </thead>
       <tbody>
-        {projects.map((project) => (
+        {projects.map((project, index) => (
           <tr key={project.id} style={{ borderBottom: "solid silver 1px" }}>
             <Td className="align-top" {...{ [projectState]: true }}>
               {project && project.name}
             </Td>
             <Td {...{ [projectState]: true }}>
               <ProjectStatus
-                project={project}
+                color={projectState}
+                index={index}
                 hideOK={projectState === TERMINATED}
               />
             </Td>
@@ -337,7 +335,7 @@ const ReportHeader = () => {
 
 const ReportBody = () => {
   let { benchInfoData, praises } = useActiveReport();
-  // console.log("Render report body");
+  console.log("Render report body");
   return (
     <>
       {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
@@ -351,7 +349,6 @@ const ReportBody = () => {
 };
 
 export default () => {
-  // console.log("Render report");
   // TODO: this stuff renders twice somwhy, FIX!
   return (
     <Scrollable>

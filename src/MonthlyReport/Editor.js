@@ -10,7 +10,7 @@ import { PraiseEditorGroup } from "./Praises";
 import ProjectState from "./ProjectState";
 import { Scrollable } from "./Scrollable";
 import Store from "./Store";
-import { useActiveReport } from "./store/hooks";
+import { useActiveReport, useActiveReportProjectsByColor } from "./store/hooks";
 import { useSetRecoilState } from "recoil";
 import { reportQuery } from "./store/state";
 
@@ -39,11 +39,6 @@ export const Input = ({
       onChange: handleChange
     };
 
-  // Update the state value if props value has been changed. Sometimes they can be out of sync.
-  useEffect(() => {
-    setState(value);
-  }, [value]);
-
   return textarea ? (
     <TextareaAutosize {...props} />
   ) : (
@@ -57,8 +52,9 @@ export const Issue = ({ issue, updateReport }) => {
       Issue
       <Input
         value={issue.issue}
-        afterChange={updateReport}
-        onChange={(val) => (issue.issue = val)}
+        onChange={(val) => {
+          updateReport({ ...issue, issue: val });
+        }}
         placeholder="Describe issue here"
         textarea
       />
@@ -66,16 +62,14 @@ export const Issue = ({ issue, updateReport }) => {
       Mitigation
       <Input
         value={issue.mitigation}
-        afterChange={updateReport}
-        onChange={(val) => (issue.mitigation = val)}
+        onChange={(val) => updateReport({ ...issue, mitigation: val })}
         placeholder="Add issue mitigation here"
         textarea
       />
       ETA
       <Input
         value={issue.eta}
-        afterChange={updateReport}
-        onChange={(val) => (issue.eta = val)}
+        onChange={(val) => updateReport({ ...issue, eta: val })}
         placeholder="Add issue fix ETA here"
       />
       <br />
@@ -191,40 +185,35 @@ export const RemoveProjectButton = ({
   );
 };
 
-const ProjectGroup = ({
-  forState,
-  projects,
-  updateReport,
-  onProjectStateChange
-}) => (
-  <div>
-    <h1 className="text-xl m-2">{initCap(forState)}</h1>
-    <AddProjectButton
-      small
-      className="ml-2"
-      projects={projects}
-      updateReport={updateReport}
-    />
-    {projects.map((p, i) => (
-      <ProjectState
-        project={p}
+const ProjectGroup = ({ forState, updateReport, onProjectStateChange }) => {
+  const projects = useActiveReportProjectsByColor(forState);
+  return (
+    <div>
+      <h1 className="text-xl m-2">{initCap(forState)}</h1>
+      <AddProjectButton
+        small
+        className="ml-2"
         projects={projects}
-        forState={forState}
-        key={p.id || i}
         updateReport={updateReport}
-        onProjectStateChange={onProjectStateChange}
       />
-    ))}
-  </div>
-);
+      {projects.map((p, i) => (
+        <ProjectState
+          forState={forState}
+          key={p.id || i}
+          index={i}
+          updateReport={updateReport}
+          onProjectStateChange={onProjectStateChange}
+        />
+      ))}
+    </div>
+  );
+};
 
-const ProjectGroupShell = ({ report, updateReport, onProjectStateChange }) =>
+const ProjectGroupShell = ({ report, onProjectStateChange }) =>
   PROJECT_STATES_ALL.map((state) => (
     <ProjectGroup
       forState={state}
       key={state}
-      projects={report.projects[state]}
-      updateReport={updateReport}
       onProjectStateChange={onProjectStateChange}
     />
   ));
@@ -373,40 +362,27 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
   </Button>
 );
 
-export default ({
-  data,
-  setData,
-  setPaneSize,
-  lastSize,
-  onProjectStateChange
-}) => {
+export default ({ setPaneSize, lastSize, onProjectStateChange }) => {
   let activeReport = useActiveReport();
-  let updateReport = () => {
-    setData({ ...data });
-  };
+
   return (
     <Scrollable>
       <div className="flex bg-gray-300 justify-between p-1">
         <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
         <div className="spaced-row-grid">
           <CopyPreviousReport report={activeReport} />
-          <OpenReport setData={setData} />
+          {/* <OpenReport setData={setData} /> */}
           <SaveReport data={activeReport} />
           <PrintButton />
           <EditorHideButton setPaneSize={setPaneSize} lastSize={lastSize} />
         </div>
       </div>
 
-      <BenchEditorGroup report={activeReport} updateReport={updateReport} />
+      <BenchEditorGroup report={activeReport} />
 
-      <ProjectGroupShell
-        key={data.loadId}
-        report={activeReport}
-        updateReport={updateReport}
-        onProjectStateChange={onProjectStateChange}
-      />
+      <ProjectGroupShell onProjectStateChange={onProjectStateChange} />
 
-      <PraiseEditorGroup report={activeReport} updateReport={updateReport} />
+      <PraiseEditorGroup report={activeReport} />
     </Scrollable>
   );
 };

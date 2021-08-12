@@ -28,7 +28,9 @@ const PraiseEditor = ({ praise, updateReport, remove }) => (
   </EditorShadowedCard>
 );
 
-const PraiseEditorGroup = ({ report, updateReport }) =>
+const emptyFunc = () => {};
+
+const PraiseEditorGroup = ({ report, updateReport = emptyFunc }) =>
   !report ? (
     "Loading"
   ) : (

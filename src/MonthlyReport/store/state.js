@@ -1,6 +1,6 @@
 import camelCase from "lodash.camelcase";
 import groupBy from "lodash.groupby";
-import { selector, selectorFamily } from "recoil";
+import { atomFamily, selector, selectorFamily } from "recoil";
 
 import { pull, push } from "./api";
 import { apply, transformKey, transformKeys } from "./helpers";
@@ -16,45 +16,42 @@ export let projectQuery = selectorFamily({
 export let reportQuery = selectorFamily({
   key: "report",
   get: (id) => () => {
-    if (id)
-      return pull("report", id)
-        .then(
-          ({ data: { project_statuses_ids, project_statuses, ...data } }) => {
-            data.projects = {};
+    if (!id) throw new Error("Empty ID to get report");
+    return pull("report", id)
+      .then(({ data: { project_statuses_ids, project_statuses, ...data } }) => {
+        data.projects = {};
 
-            project_statuses = project_statuses.map((project) => {
-              let { name, id, notes, ...restStatus } = project.status;
-              let { status, ...restProject } = project;
+        project_statuses = project_statuses.map((project) => {
+          let { name, id, notes, ...restStatus } = project.status;
+          let { status, ...restProject } = project;
 
-              return notes
-                ? { notes, ...restStatus, ...restProject }
-                : { ...restStatus, ...restProject };
-            });
-
-            project_statuses = groupBy(
-              project_statuses,
-              ({ status_color: c }) => c
-            );
-
-            for (let status of PROJECT_STATES_ALL) {
-              data.projects[status] = project_statuses[status] ?? [];
-            }
-
-            data = transformKeys(data, camelCase);
-            data = apply(data, [
-              transformKey("benchInfo", () => "benchInfoData")
-            ]);
-            data.code = data.id;
-
-            return data;
-          }
-        )
-        .catch((err) => {
-          toast.error(`Error while fetching report ${id}`);
-          console.error(err);
+          return notes
+            ? { notes, ...restStatus, ...restProject }
+            : { ...restStatus, ...restProject };
         });
+
+        project_statuses = groupBy(
+          project_statuses,
+          ({ status_color: c }) => c
+        );
+
+        for (let status of PROJECT_STATES_ALL) {
+          data.projects[status] = project_statuses[status] ?? [];
+        }
+
+        data = transformKeys(data, camelCase);
+        data = apply(data, [transformKey("benchInfo", () => "benchInfoData")]);
+        data.code = data.id;
+
+        return data;
+      })
+      .catch((err) => {
+        toast.error(`Error while fetching report ${id}`);
+        console.error(err);
+      });
   },
   set: (id) => (_, report) => {
+    if (!id) throw new Error("Empty ID to set report");
     push("report", { id, ...report }).catch((err) => {
       toast.error(`Error while updating report ${id || report.id}`);
       console.error(err);
@@ -90,4 +87,13 @@ export let statusesByColor = selectorFamily({
   key: "statusesByColor",
   get: ({ reportId, color }) => ({ get }) =>
     get(reportQuery(reportId)).projects[color]
+});
+
+export let statusByIndex = atomFamily({
+  key: "statusByIndex",
+  default: selectorFamily({
+    key: "statusByIndex/Default",
+    get: ({ reportId, color, index }) => ({ get }) =>
+      get(statusesByColor({ reportId, color }))[index]
+  })
 });

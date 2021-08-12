@@ -1,7 +1,12 @@
-import { useRecoilValue, waitForAll } from "recoil";
+import { useRecoilState, useRecoilValue, waitForAll } from "recoil";
 import { useParams, navigate } from "@reach/router";
 
-import { reportQuery, allReportsIds } from "./state";
+import {
+  reportQuery,
+  allReportsIds,
+  statusesByColor,
+  statusByIndex
+} from "./state";
 
 export const useActiveReport = () => {
   const routeParams = useParams();
@@ -53,4 +58,16 @@ export const useActiveAndPrevReport = () => {
       prevReport: reportQuery(prevId)
     })
   );
+};
+
+export const useActiveReportProjectsByColor = (color) => {
+  const { reportId } = useParams();
+
+  return useRecoilValue(statusesByColor({ reportId, color }));
+};
+
+export const useProjectStatusByIndex = (color, index) => {
+  const { reportId } = useParams();
+
+  return useRecoilState(statusByIndex({ reportId, color, index }));
 };

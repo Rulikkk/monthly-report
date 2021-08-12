@@ -15,6 +15,7 @@ import {
   Issue
 } from "./Editor";
 import { EditorShadowedCard } from "./BaseComponents";
+import { useProjectStatusByIndex } from "./store/hooks";
 
 /**
  * A project state change callback.
@@ -34,73 +35,85 @@ import { EditorShadowedCard } from "./BaseComponents";
  */
 const ProjectState = ({
   forState,
-  project,
   updateReport,
   projects,
+  index,
   onProjectStateChange
-}) => (
-  <EditorShadowedCard>
-    <Input
-      className="font-bold"
-      value={project.name}
-      placeholder="Project Name"
-      afterChange={updateReport}
-      onChange={val => (project.name = val)}
-    />
-    <div className="flex justify-end">
-      <AddRemoveIssueButton project={project} updateReport={updateReport} />
-      <AddRemoveNotesButton project={project} updateReport={updateReport} />
-      <AddRemoveStaffingButton project={project} updateReport={updateReport} />
-      <RemoveProjectButton
-        project={project}
-        projects={projects}
-        updateReport={updateReport}
+}) => {
+  const [project, setProject] = useProjectStatusByIndex(forState, index);
+  return (
+    <EditorShadowedCard>
+      <Input
+        className="font-bold"
+        value={project.name}
+        placeholder="Project Name"
+        afterChange={updateReport}
+        onChange={(val) => (project.name = val)}
       />
-    </div>
-    <div className="flex justify-end py-1">
-      <span>
-        Move to:{" "}
-        <ProjectStateMoveToStateSelect
-          allStates={PROJECT_STATES_ALL}
-          currentState={forState}
-          onStateChange={(oldState, newState) =>
-            onProjectStateChange &&
-            onProjectStateChange(project, oldState, newState)
-          }
+      <div className="flex justify-end">
+        <AddRemoveIssueButton project={project} updateReport={updateReport} />
+        <AddRemoveNotesButton project={project} updateReport={updateReport} />
+        <AddRemoveStaffingButton
+          project={project}
+          updateReport={updateReport}
         />
-      </span>
-    </div>
-    {project.issues &&
-      project.issues.map((issue, i) => (
-        <Issue key={issue.id || i} issue={issue} updateReport={updateReport} />
-      ))}
-    <div>
-      {project.notes !== undefined && (
-        <>
-          Notes
-          <Input
-            value={project.notes}
-            afterChange={updateReport}
-            onChange={val => (project.notes = val)}
-            placeholder="Add notes here"
-            textarea
+        <RemoveProjectButton
+          project={project}
+          projects={projects}
+          updateReport={updateReport}
+        />
+      </div>
+      <div className="flex justify-end py-1">
+        <span>
+          Move to:{" "}
+          <ProjectStateMoveToStateSelect
+            allStates={PROJECT_STATES_ALL}
+            currentState={forState}
+            onStateChange={(oldState, newState) =>
+              onProjectStateChange &&
+              onProjectStateChange(project, oldState, newState)
+            }
           />
-        </>
-      )}
-      {project.staffing !== undefined && (
-        <>
-          Staffing
-          <Input
-            value={project.staffing}
-            afterChange={updateReport}
-            onChange={val => (project.staffing = val)}
-            placeholder="Add staffing info here"
-            textarea
+        </span>
+      </div>
+      {project.issues &&
+        project.issues.map((issue, i) => (
+          <Issue
+            key={i}
+            issue={issue}
+            updateReport={(issue) => {
+              const issues = [...project.issues];
+              issues[i] = issue;
+              setProject({ ...project, issues });
+            }}
           />
-        </>
-      )}
-    </div>
-  </EditorShadowedCard>
-);
+        ))}
+      <div>
+        {project.notes !== undefined && (
+          <>
+            Notes
+            <Input
+              value={project.notes}
+              onChange={(val) => setProject({ ...project, notes: val })}
+              placeholder="Add notes here"
+              textarea
+            />
+          </>
+        )}
+        {project.staffing !== undefined && (
+          <>
+            Staffing
+            <Input
+              value={project.staffing}
+              onChange={(val) => setProject({ ...project, staffing: val })}
+              placeholder="Add staffing info here"
+              textarea
+            />
+          </>
+        )}
+      </div>
+    </EditorShadowedCard>
+  );
+};
 
 export default ProjectState;
