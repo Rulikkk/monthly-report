@@ -10,7 +10,7 @@ import { PraiseEditorGroup } from "./Praises";
 import ProjectState from "./ProjectState";
 import { Scrollable } from "./Scrollable";
 import Store from "./Store";
-import { useActiveReport, useActiveReportProjectsByColor } from "./store/hooks";
+import { useActiveReport, useSetProjectsByColor } from "./store/hooks";
 import { useSetRecoilState } from "recoil";
 import { reportQuery } from "./store/state";
 
@@ -54,14 +54,14 @@ export const Input = ({
   );
 };
 
-export const Issue = ({ issue, updateReport }) => {
+export const Issue = ({ issue, setIssue }) => {
   return (
     <div className="border-l-2 my-4 pl-1">
       Issue
       <Input
         value={issue.issue}
         onChange={(val) => {
-          updateReport({ ...issue, issue: val });
+          setIssue({ ...issue, issue: val });
         }}
         placeholder="Describe issue here"
         textarea
@@ -70,14 +70,14 @@ export const Issue = ({ issue, updateReport }) => {
       Mitigation
       <Input
         value={issue.mitigation}
-        onChange={(val) => updateReport({ ...issue, mitigation: val })}
+        onChange={(val) => setIssue({ ...issue, mitigation: val })}
         placeholder="Add issue mitigation here"
         textarea
       />
       ETA
       <Input
         value={issue.eta}
-        onChange={(val) => updateReport({ ...issue, eta: val })}
+        onChange={(val) => setIssue({ ...issue, eta: val })}
         placeholder="Add issue fix ETA here"
       />
       <br />
@@ -166,15 +166,14 @@ export const AddRemoveIssueButton = ({ project, setProject }) => {
   );
 };
 
-const AddProjectButton = ({ projects, updateReport, ...props }) => {
+const AddProjectButton = ({ projects, setProjects, ...props }) => {
   return (
     <Button
-      {...props}
       small
       onClick={() => {
-        projects.unshift({ id: getRandomId(), name: "" });
-        updateReport();
+        setProjects([{ name: "" }, ...projects]);
       }}
+      {...props}
     >
       Add project
     </Button>
@@ -182,9 +181,9 @@ const AddProjectButton = ({ projects, updateReport, ...props }) => {
 };
 
 export const RemoveProjectButton = ({
-  project,
   projects,
-  updateReport,
+  setProjects,
+  index,
   ...props
 }) => {
   return (
@@ -199,10 +198,9 @@ export const RemoveProjectButton = ({
           !window.confirm("Are you sure you want to remove project?")
         )
           return;
-        const index = projects.indexOf(project);
-        if (index < 0) return;
-        projects.splice(index, 1);
-        updateReport();
+        const newProjects = [...projects];
+        newProjects.splice(index, 1);
+        setProjects(newProjects);
       }}
     >
       Remove
@@ -211,17 +209,19 @@ export const RemoveProjectButton = ({
 };
 
 const ProjectGroup = ({ forState, onProjectStateChange }) => {
-  const projects = useActiveReportProjectsByColor(forState);
+  const [projects, setProjects] = useSetProjectsByColor(forState);
+  const props = { projects, setProjects };
   return (
     <div>
       <h1 className="text-xl m-2">{initCap(forState)}</h1>
-      <AddProjectButton small className="ml-2" projects={projects} />
+      <AddProjectButton small className="ml-2" {...props} />
       {projects.map((p, i) => (
         <ProjectState
           forState={forState}
           key={p.id || i}
           index={i}
           onProjectStateChange={onProjectStateChange}
+          {...props}
         />
       ))}
     </div>

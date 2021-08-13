@@ -4,7 +4,7 @@ import { useParams, navigate } from "@reach/router";
 import {
   reportQuery,
   allReportsIds,
-  statusesByColor,
+  statusesByColorAtom,
   statusByIndex
 } from "./state";
 
@@ -63,7 +63,13 @@ export const useActiveAndPrevReport = () => {
 export const useActiveReportProjectsByColor = (color) => {
   const { reportId } = useParams();
 
-  return useRecoilValue(statusesByColor({ reportId, color }));
+  return useRecoilValue(statusesByColorAtom({ reportId, color }));
+};
+
+export const useSetProjectsByColor = (color) => {
+  const { reportId } = useParams();
+
+  return useRecoilState(statusesByColorAtom({ reportId, color }));
 };
 
 export const useProjectStatusByIndex = (color, index) => {

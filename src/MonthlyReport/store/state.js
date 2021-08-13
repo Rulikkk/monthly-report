@@ -99,6 +99,11 @@ export let statusesByColor = selectorFamily({
     get(reportQuery(reportId)).projects[color]
 });
 
+export let statusesByColorAtom = atomFamily({
+  key: "statusesByColorAtom",
+  default: statusesByColor
+});
+
 export let statusByIndex = atomFamily({
   key: "statusByIndex",
   default: selectorFamily({

@@ -33,27 +33,27 @@ import { useProjectStatusByIndex } from "./store/hooks";
  * @param {*} obj.projects
  * @param {projectStateChangeCallback} obj.onProjectStateChange - a project state change callback.
  */
-const ProjectState = ({ forState, projects, index, onProjectStateChange }) => {
+const ProjectState = ({
+  forState,
+  index,
+  onProjectStateChange,
+  ...projects
+}) => {
   const [project, setProject] = useProjectStatusByIndex(forState, index);
   const props = { project, setProject };
-  const nothing = () => {};
   return (
     <EditorShadowedCard>
       <Input
         className="font-bold"
         value={project.name}
         placeholder="Project Name"
-        onChange={nothing}
+        onChange={(val) => setProject({ ...project, name: val })}
       />
       <div className="flex justify-end">
         <AddRemoveIssueButton {...props} />
         <AddRemoveNotesButton {...props} />
         <AddRemoveStaffingButton {...props} />
-        <RemoveProjectButton
-          project={project}
-          projects={projects}
-          updateReport={nothing}
-        />
+        <RemoveProjectButton index={index} {...projects} />
       </div>
       <div className="flex justify-end py-1">
         <span>
@@ -73,7 +73,7 @@ const ProjectState = ({ forState, projects, index, onProjectStateChange }) => {
           <Issue
             key={i}
             issue={issue}
-            updateReport={(issue) => {
+            setIssue={(issue) => {
               const issues = [...project.issues];
               issues[i] = issue;
               setProject({ ...project, issues });
