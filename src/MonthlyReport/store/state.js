@@ -1,6 +1,6 @@
 import camelCase from "lodash.camelcase";
 import groupBy from "lodash.groupby";
-import { atomFamily, selector, selectorFamily } from "recoil";
+import { atom, atomFamily, selector, selectorFamily } from "recoil";
 
 import { pull, push } from "./api";
 import { apply, transformKey, transformKeys } from "./helpers";
@@ -72,6 +72,11 @@ export let allReportsIds = selector({
       })
 });
 
+export let allReportsIdsAtom = atom({
+  key: "allReportIdsAtom",
+  default: allReportsIds
+});
+
 export let configQuery = selectorFamily({
   key: "config",
   get: (id = "main") => () =>
@@ -81,6 +86,11 @@ export let configQuery = selectorFamily({
         toast.error(`Error while fetching config ${id}`);
         console.error(err);
       })
+});
+
+export let configAtom = atomFamily({
+  key: "configAtom",
+  default: configQuery
 });
 
 export let statusesByColor = selectorFamily({

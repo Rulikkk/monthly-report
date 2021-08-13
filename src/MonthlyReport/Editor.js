@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -15,6 +15,14 @@ import { useSetRecoilState } from "recoil";
 import { reportQuery } from "./store/state";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
+
+const inIframe = () => {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+};
 
 export const Input = ({
   value,
@@ -77,7 +85,7 @@ export const Issue = ({ issue, updateReport }) => {
   );
 };
 
-export const AddRemoveNotesButton = ({ project }) => {
+export const AddRemoveNotesButton = ({ project, setProject }) => {
   let has = project.notes !== undefined;
   return (
     <Button
@@ -87,11 +95,14 @@ export const AddRemoveNotesButton = ({ project }) => {
         if (
           has &&
           project.notes.length > 0 &&
+          !inIframe() &&
           !window.confirm("Are you sure you want to remove notes?")
         )
           return;
-        if (has) delete project.notes;
-        else project.notes = "";
+        if (has) {
+          const { notes, ...rest } = project;
+          setProject(rest);
+        } else setProject({ ...project, notes: "" });
       }}
     >
       <input type="checkbox" checked={has} readOnly /> notes
@@ -99,7 +110,7 @@ export const AddRemoveNotesButton = ({ project }) => {
   );
 };
 
-export const AddRemoveStaffingButton = ({ project, updateReport }) => {
+export const AddRemoveStaffingButton = ({ project, setProject }) => {
   const has = project.staffing !== undefined;
   return (
     <Button
@@ -109,12 +120,16 @@ export const AddRemoveStaffingButton = ({ project, updateReport }) => {
         if (
           has &&
           project.staffing.length > 0 &&
+          !inIframe() &&
           !window.confirm("Are you sure you want to remove staffing?")
         )
           return;
-        if (has) delete project.staffing;
-        else project.staffing = "";
-        updateReport();
+        if (has) {
+          const { staffing, ...rest } = project;
+          setProject(rest);
+        } else {
+          setProject({ ...project, staffing: "" });
+        }
       }}
     >
       <input type="checkbox" checked={has} readOnly /> staffing
@@ -122,7 +137,7 @@ export const AddRemoveStaffingButton = ({ project, updateReport }) => {
   );
 };
 
-export const AddRemoveIssueButton = ({ project, updateReport }) => {
+export const AddRemoveIssueButton = ({ project, setProject }) => {
   const hasIssues = !!(project.issues && project.issues.length > 0);
   return (
     <Button
@@ -131,13 +146,19 @@ export const AddRemoveIssueButton = ({ project, updateReport }) => {
       onClick={() => {
         if (
           hasIssues &&
+          !inIframe() &&
           !window.confirm("Are you sure you want to remove issue?")
         )
           return;
-        project.issues = hasIssues
-          ? null
-          : [{ id: getRandomId(), issue: "", mitigation: "", eta: "" }];
-        updateReport();
+        if (hasIssues) {
+          const { issues, ...rest } = project;
+          setProject(rest);
+        } else {
+          setProject({
+            ...project,
+            issues: [{ issue: "", mitigation: "", eta: "" }]
+          });
+        }
       }}
     >
       <input type="checkbox" checked={hasIssues} readOnly /> issue
@@ -173,7 +194,11 @@ export const RemoveProjectButton = ({
       red
       className="mt-1"
       onClick={() => {
-        if (!window.confirm("Are you sure you want to remove project?")) return;
+        if (
+          !inIframe() &&
+          !window.confirm("Are you sure you want to remove project?")
+        )
+          return;
         const index = projects.indexOf(project);
         if (index < 0) return;
         projects.splice(index, 1);
@@ -185,23 +210,17 @@ export const RemoveProjectButton = ({
   );
 };
 
-const ProjectGroup = ({ forState, updateReport, onProjectStateChange }) => {
+const ProjectGroup = ({ forState, onProjectStateChange }) => {
   const projects = useActiveReportProjectsByColor(forState);
   return (
     <div>
       <h1 className="text-xl m-2">{initCap(forState)}</h1>
-      <AddProjectButton
-        small
-        className="ml-2"
-        projects={projects}
-        updateReport={updateReport}
-      />
+      <AddProjectButton small className="ml-2" projects={projects} />
       {projects.map((p, i) => (
         <ProjectState
           forState={forState}
           key={p.id || i}
           index={i}
-          updateReport={updateReport}
           onProjectStateChange={onProjectStateChange}
         />
       ))}
@@ -209,7 +228,7 @@ const ProjectGroup = ({ forState, updateReport, onProjectStateChange }) => {
   );
 };
 
-const ProjectGroupShell = ({ report, onProjectStateChange }) =>
+const ProjectGroupShell = ({ onProjectStateChange }) =>
   PROJECT_STATES_ALL.map((state) => (
     <ProjectGroup
       forState={state}
@@ -264,9 +283,10 @@ const CopyPreviousReport = ({ report, ...props }) => {
         // Store.reportJSON = data;
         try {
           // await push("report", {date: report.reportId, ...report});
-          alert(
-            `${report.reportId} report was copied from previous month. Page will be reloaded.`
-          );
+          if (!inIframe())
+            alert(
+              `${report.reportId} report was copied from previous month. Page will be reloaded.`
+            );
           window.location.reload();
         } catch (err) {
           toast.error({ ...err });

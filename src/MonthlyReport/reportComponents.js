@@ -37,15 +37,13 @@ const formatter = new Intl.DateTimeFormat("en", {
 const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
 
 const ReportSelector = () => {
-  let allReportsIds = useRecoilValue(state.allReportsIds);
+  let allReportsIds = useRecoilValue(state.allReportsIdsAtom);
 
   const routeParams = useParams();
   if (!routeParams.reportId) navigate("/report/last");
   const activeReportId = routeParams.reportId;
 
-  return !activeReportId ? (
-    "Loading..."
-  ) : (
+  return (
     <>
       <select
         value={activeReportId}
@@ -239,9 +237,9 @@ const ProjectStatus = ({ hideOK, color, index }) => {
   return (
     <ul>
       {issues ? (
-        issues.map((i) =>
+        issues.map((i, idx) =>
           i ? (
-            <Fragment key={i.id}>
+            <Fragment key={idx}>
               <li>{i.issue}</li>
               <li className="mb-2">
                 <B>Mitigation: </B>
@@ -320,7 +318,7 @@ const ProjectListForState = (p) => {
 const ReportHeader = () => {
   let {
     value: { notes, reportName }
-  } = useRecoilValue(state.configQuery());
+  } = useRecoilValue(state.configAtom());
   // console.log("Render report header");
   return (
     <>
