@@ -171,7 +171,7 @@ const AddProjectButton = ({ projects, setProjects, ...props }) => {
     <Button
       small
       onClick={() => {
-        setProjects([{ name: "" }, ...projects]);
+        setProjects([{ name: "", id: getRandomId() }, ...projects]);
       }}
       {...props}
     >

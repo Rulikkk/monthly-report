@@ -233,42 +233,52 @@ const TotalsTable = () => {
 };
 
 const ProjectStatus = ({ hideOK, color, index }) => {
-  const [{ issues, staffing, notes }] = useProjectStatusByIndex(color, index);
+  const [{ id, name, issues, staffing, notes }] = useProjectStatusByIndex(
+    color,
+    index
+  );
   return (
-    <ul>
-      {issues ? (
-        issues.map((i, idx) =>
-          i ? (
-            <Fragment key={idx}>
-              <li>{i.issue}</li>
-              <li className="mb-2">
-                <B>Mitigation: </B>
-                {i.mitigation} <B>ETA: </B> {i.eta || "none"}
-              </li>
-            </Fragment>
+    <tr key={id} style={{ borderBottom: "solid silver 1px" }}>
+      <Td className="align-top" {...{ [color]: true }}>
+        {name}
+      </Td>
+      <Td {...{ [color]: true }}>
+        <ul>
+          {issues ? (
+            issues.map((i, idx) =>
+              i ? (
+                <Fragment key={idx}>
+                  <li>{i.issue}</li>
+                  <li className="mb-2">
+                    <B>Mitigation: </B>
+                    {i.mitigation} <B>ETA: </B> {i.eta || "none"}
+                  </li>
+                </Fragment>
+              ) : (
+                ""
+              )
+            )
           ) : (
-            ""
-          )
-        )
-      ) : (
-        <>
-          {!hideOK && <B>OK. </B>}
-          {notes && <span className="text-gray-600">{notes}</span>}
-        </>
-      )}
-      {staffing && (
-        <li className="text-blue-500">
-          <B>Staffing: </B>
-          {staffing}
-        </li>
-      )}
-      {issues && issues.length > 0 && notes && (
-        <li className="text-gray-600">
-          <B>Notes: </B>
-          {notes}
-        </li>
-      )}
-    </ul>
+            <>
+              {!hideOK && <B>OK. </B>}
+              {notes && <span className="text-gray-600">{notes}</span>}
+            </>
+          )}
+          {staffing && (
+            <li className="text-blue-500">
+              <B>Staffing: </B>
+              {staffing}
+            </li>
+          )}
+          {issues && issues.length > 0 && notes && (
+            <li className="text-gray-600">
+              <B>Notes: </B>
+              {notes}
+            </li>
+          )}
+        </ul>
+      </Td>
+    </tr>
   );
 };
 
@@ -287,19 +297,13 @@ const ProjectTable = ({ projectState }) => {
         </tr>
       </thead>
       <tbody>
-        {projects.map((project, index) => (
-          <tr key={project.id} style={{ borderBottom: "solid silver 1px" }}>
-            <Td className="align-top" {...{ [projectState]: true }}>
-              {project && project.name}
-            </Td>
-            <Td {...{ [projectState]: true }}>
-              <ProjectStatus
-                color={projectState}
-                index={index}
-                hideOK={projectState === TERMINATED}
-              />
-            </Td>
-          </tr>
+        {projects.map((_, index) => (
+          <ProjectStatus
+            key={index}
+            color={projectState}
+            index={index}
+            hideOK={projectState === TERMINATED}
+          />
         ))}
       </tbody>
     </table>

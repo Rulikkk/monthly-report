@@ -109,6 +109,6 @@ export let statusByIndex = atomFamily({
   default: selectorFamily({
     key: "statusByIndex/Default",
     get: ({ reportId, color, index }) => ({ get }) =>
-      get(statusesByColor({ reportId, color }))[index]
+      get(statusesByColorAtom({ reportId, color }))[index]
   })
 });
