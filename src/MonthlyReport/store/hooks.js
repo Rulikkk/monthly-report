@@ -1,17 +1,7 @@
-import {
-  useRecoilState,
-  useRecoilValue,
-  useResetRecoilState,
-  waitForAll
-} from "recoil";
+import { useRecoilState, useRecoilValue, waitForAll } from "recoil";
 import { useParams, navigate } from "@reach/router";
 
-import {
-  reportQuery,
-  allReportsIds,
-  statusesByColorAtom,
-  statusByIndex
-} from "./state";
+import { allReportsIds, statusesByColor, statusById, report } from "./state";
 
 export const useActiveReport = () => {
   const routeParams = useParams();
@@ -19,7 +9,7 @@ export const useActiveReport = () => {
   if (!routeParams.reportId) navigate("/report/last");
 
   const { benchInfoData, projects, praises } = useRecoilValue(
-    reportQuery(routeParams.reportId)
+    report(routeParams.reportId)
   );
 
   return { reportId: routeParams.reportId, benchInfoData, projects, praises };
@@ -38,9 +28,7 @@ export const usePrevReport = () => {
 
   if (index >= 0 && index + 1 < ids.length) prevId = ids[index + 1];
 
-  const { benchInfoData, projects, praises } = useRecoilValue(
-    reportQuery(prevId)
-  );
+  const { benchInfoData, projects, praises } = useRecoilValue(report(prevId));
 
   return { benchInfoData, projects, praises };
 };
@@ -59,8 +47,8 @@ export const useActiveAndPrevReport = () => {
 
   return useRecoilValue(
     waitForAll({
-      activeReport: reportQuery(routeParams.reportId),
-      prevReport: reportQuery(prevId)
+      activeReport: report(routeParams.reportId),
+      prevReport: report(prevId)
     })
   );
 };
@@ -68,17 +56,17 @@ export const useActiveAndPrevReport = () => {
 export const useActiveReportProjectsByColor = (color) => {
   const { reportId } = useParams();
 
-  return useRecoilValue(statusesByColorAtom({ reportId, color }));
+  return useRecoilValue(statusesByColor({ reportId, color }));
 };
 
 export const useSetProjectsByColor = (color) => {
   const { reportId } = useParams();
 
-  return useRecoilState(statusesByColorAtom({ reportId, color }));
+  return useRecoilState(statusesByColor({ reportId, color }));
 };
 
-export const useProjectStatusByIndex = (color, index) => {
+export const useProjectStatusById = (color, id) => {
   const { reportId } = useParams();
 
-  return useRecoilState(statusByIndex({ reportId, color, index }));
+  return useRecoilState(statusById({ reportId, color, id }));
 };

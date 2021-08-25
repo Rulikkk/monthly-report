@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
+import { useParams } from "@reach/router";
 
 import { Button, getRandomId, PrintButton } from "./BaseComponents";
 import BenchEditorGroup from "./BenchEditorGroup";
@@ -12,7 +13,7 @@ import { Scrollable } from "./Scrollable";
 import Store from "./Store";
 import { useActiveReport, useSetProjectsByColor } from "./store/hooks";
 import { useSetRecoilState } from "recoil";
-import { reportQuery } from "./store/state";
+import { report } from "./store/state";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
@@ -166,12 +167,26 @@ export const AddRemoveIssueButton = ({ project, setProject }) => {
   );
 };
 
-const AddProjectButton = ({ projects, setProjects, ...props }) => {
+const AddProjectButton = ({ forState, projects, setProjects, ...props }) => {
+  const { reportId } = useParams();
+  const setReport = useSetRecoilState(report(reportId));
+
   return (
     <Button
       small
       onClick={() => {
-        setProjects([{ name: "", id: getRandomId() }, ...projects]);
+        const newProjects = {
+          [getRandomId()]: { name: "" },
+          ...projects
+        };
+        setProjects(newProjects);
+        setReport((report) => ({
+          ...report,
+          projects: {
+            ...report.projects,
+            [forState]: newProjects
+          }
+        }));
       }}
       {...props}
     >
@@ -181,11 +196,14 @@ const AddProjectButton = ({ projects, setProjects, ...props }) => {
 };
 
 export const RemoveProjectButton = ({
+  forState,
   projects,
   setProjects,
-  index,
+  id,
   ...props
 }) => {
+  const { reportId } = useParams();
+  const setReport = useSetRecoilState(report(reportId));
   return (
     <Button
       {...props}
@@ -198,9 +216,15 @@ export const RemoveProjectButton = ({
           !window.confirm("Are you sure you want to remove project?")
         )
           return;
-        const newProjects = [...projects];
-        newProjects.splice(index, 1);
-        setProjects(newProjects);
+        const { [id]: removedProject, ...remainingProjects } = projects;
+        setProjects(remainingProjects);
+        setReport((report) => ({
+          ...report,
+          projects: {
+            ...report.projects,
+            [forState]: remainingProjects
+          }
+        }));
       }}
     >
       Remove
@@ -210,16 +234,15 @@ export const RemoveProjectButton = ({
 
 const ProjectGroup = ({ forState, onProjectStateChange }) => {
   const [projects, setProjects] = useSetProjectsByColor(forState);
-  const props = { projects, setProjects };
+  const props = { forState, projects, setProjects };
   return (
     <div>
       <h1 className="text-xl m-2">{initCap(forState)}</h1>
       <AddProjectButton small className="ml-2" {...props} />
-      {projects.map((p, i) => (
+      {Object.keys(projects).map((key) => (
         <ProjectState
-          forState={forState}
-          key={p.id || i}
-          index={i}
+          key={key}
+          id={key}
           onProjectStateChange={onProjectStateChange}
           {...props}
         />
@@ -263,7 +286,7 @@ const getNextCodeAndName = (lastCode) => {
 };
 
 const CopyPreviousReport = ({ report, ...props }) => {
-  let setReport = useSetRecoilState(reportQuery(report.reportId));
+  // let setReport = useSetRecoilState(report(report.reportId));
 
   return (
     <Button
@@ -299,7 +322,7 @@ const CopyPreviousReport = ({ report, ...props }) => {
 };
 
 const OpenReport = () => {
-  let setReport = useSetRecoilState(reportQuery());
+  let setReport = useSetRecoilState(report());
   const onDrop = (acceptedFiles) => {
     const reader = new FileReader();
 
@@ -398,7 +421,7 @@ export default ({ setPaneSize, lastSize, onProjectStateChange }) => {
         </div>
       </div>
 
-      <BenchEditorGroup report={activeReport} />
+      <BenchEditorGroup />
 
       <ProjectGroupShell onProjectStateChange={onProjectStateChange} />
 

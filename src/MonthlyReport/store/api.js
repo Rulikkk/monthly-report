@@ -5,6 +5,8 @@ import snakeCase from "lodash.snakecase";
 import { timestamp, joinAbs, transformKeys } from "./helpers";
 import { http } from "./utils";
 
+const DEBUG = true;
+
 /**
  * Create or update document
  * @param {string} path HTTP endpoint
@@ -16,6 +18,15 @@ export function push(path, { id, ...rest }) {
     `${timestamp()} [ push ${id ? "id=" + id + " PUT" : "POST"} ] ${path}`
   );
   let payload = transformKeys(rest, snakeCase);
+
+  if (DEBUG)
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(payload);
+        resolve();
+      }, 200);
+    });
+
   return id
     ? http.put(joinAbs(path, id), payload)
     : http.post(`/${path}`, payload);

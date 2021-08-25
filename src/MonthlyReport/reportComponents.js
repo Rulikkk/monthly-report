@@ -11,7 +11,7 @@ import {
   useActiveAndPrevReport,
   useActiveReport,
   useActiveReportProjectsByColor,
-  useProjectStatusByIndex
+  useProjectStatusById
 } from "./store/hooks";
 
 import {
@@ -37,7 +37,7 @@ const formatter = new Intl.DateTimeFormat("en", {
 const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
 
 const ReportSelector = () => {
-  let allReportsIds = useRecoilValue(state.allReportsIdsAtom);
+  let allReportsIds = useRecoilValue(state.allReportsIds);
 
   const routeParams = useParams();
   if (!routeParams.reportId) navigate("/report/last");
@@ -122,7 +122,10 @@ const TotalsTable = () => {
     ),
     sum = (a, b) => a + b,
     countProjects = (ps) =>
-      ps && PROJECT_STATES.map((t) => (ps[t] ? ps[t].length : 0)).reduce(sum),
+      ps &&
+      PROJECT_STATES.map((t) => (ps[t] ? Object.keys(ps[t]).length : 0)).reduce(
+        sum
+      ),
     totalProjectsNow = countProjects(projects),
     totalProjectsThen = countProjects(prevProjects),
     totals = { totalNow: totalProjectsNow, totalThen: totalProjectsThen },
@@ -176,11 +179,14 @@ const TotalsTable = () => {
       projects && projects[projectState] ? (
         <Td {...{ [projectState]: true }}>
           <Comparer
-            now={projects[projectState] && projects[projectState].length}
+            now={
+              projects[projectState] &&
+              Object.keys(projects[projectState]).length
+            }
             then={
               prevProjects &&
               prevProjects[projectState] &&
-              prevProjects[projectState].length
+              Object.keys(prevProjects[projectState]).length
             }
             lowerBetter={projectState === YELLOW || projectState === RED}
             projectState={projectState}
@@ -232,10 +238,10 @@ const TotalsTable = () => {
   );
 };
 
-const ProjectStatus = ({ hideOK, color, index }) => {
-  const [{ id, name, issues, staffing, notes }] = useProjectStatusByIndex(
+const ProjectStatus = ({ hideOK, color, projectId }) => {
+  const [{ id, name, issues, staffing, notes }] = useProjectStatusById(
     color,
-    index
+    projectId
   );
   return (
     <tr key={id} style={{ borderBottom: "solid silver 1px" }}>
@@ -284,7 +290,7 @@ const ProjectStatus = ({ hideOK, color, index }) => {
 
 const ProjectTable = ({ projectState }) => {
   const projects = useActiveReportProjectsByColor(projectState);
-  return projects.length === 0 ? (
+  return Object.keys(projects).length === 0 ? (
     "No projects"
   ) : (
     <table className="mt-3 w-full border-collapse">
@@ -297,11 +303,11 @@ const ProjectTable = ({ projectState }) => {
         </tr>
       </thead>
       <tbody>
-        {projects.map((_, index) => (
+        {Object.keys(projects).map((key) => (
           <ProjectStatus
-            key={index}
+            key={key}
             color={projectState}
-            index={index}
+            projectId={key}
             hideOK={projectState === TERMINATED}
           />
         ))}
@@ -322,7 +328,7 @@ const ProjectListForState = (p) => {
 const ReportHeader = () => {
   let {
     value: { notes, reportName }
-  } = useRecoilValue(state.configAtom());
+  } = useRecoilValue(state.config());
   // console.log("Render report header");
   return (
     <>

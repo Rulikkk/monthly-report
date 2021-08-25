@@ -3,7 +3,7 @@ import React from "react";
 import { Button, EditorShadowedCard } from "./BaseComponents";
 import { Input } from "./Editor";
 
-function EmphasizeCaptionCheckbox({ info, onBenchInfoUpdate }) {
+function EmphasizeCaptionCheckbox({ info, onChange }) {
   const checkboxId = `emphasize-${info.id}`;
 
   return (
@@ -11,8 +11,7 @@ function EmphasizeCaptionCheckbox({ info, onBenchInfoUpdate }) {
       <input
         type="checkbox"
         onClick={() => {
-          info.emphasizeCaption = !info.emphasizeCaption;
-          onBenchInfoUpdate && onBenchInfoUpdate();
+          onChange(!info.emphasizeCaption);
         }}
         defaultChecked={info.emphasizeCaption}
         id={checkboxId}
@@ -25,10 +24,15 @@ function EmphasizeCaptionCheckbox({ info, onBenchInfoUpdate }) {
   );
 }
 
-export default function BenchEditorMainInfoCard({ info, onBenchInfoUpdate, onDelete }) {
+export default function BenchEditorMainInfoCard({
+  info,
+  index,
+  onBenchInfoUpdate,
+  onDelete
+}) {
   const getHandlerForField = (field) => (value) => {
-    info[field] = value;
-    onBenchInfoUpdate && onBenchInfoUpdate();
+    const newInfo = { ...info, [field]: value };
+    onBenchInfoUpdate && onBenchInfoUpdate(newInfo, index);
   };
 
   return (
@@ -39,7 +43,10 @@ export default function BenchEditorMainInfoCard({ info, onBenchInfoUpdate, onDel
           placeholder="Caption"
           onChange={getHandlerForField("caption")}
         />
-        <EmphasizeCaptionCheckbox {...{ info, onBenchInfoUpdate }} />
+        <EmphasizeCaptionCheckbox
+          info={info}
+          onChange={getHandlerForField("emphasizeCaption")}
+        />
       </div>
 
       <Input

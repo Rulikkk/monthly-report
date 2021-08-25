@@ -3,7 +3,7 @@ import groupBy from "lodash.groupby";
 import { atom, atomFamily, selector, selectorFamily } from "recoil";
 
 import { pull, push } from "./api";
-import { apply, transformKey, transformKeys } from "./helpers";
+import { apply, transformKey, transformKeys, toObjectByKey } from "./helpers";
 import { PROJECT_STATES_ALL } from "../const";
 import { toast } from "react-toastify";
 
@@ -14,7 +14,7 @@ export let projectQuery = selectorFamily({
 });
 
 export let reportQuery = selectorFamily({
-  key: "report",
+  key: "reportQuery",
   get: (id) => () => {
     if (!id) throw new Error("Empty ID to get report");
     return pull("report", id)
@@ -36,7 +36,10 @@ export let reportQuery = selectorFamily({
         );
 
         for (let status of PROJECT_STATES_ALL) {
-          data.projects[status] = project_statuses[status] ?? [];
+          data.projects[status] = toObjectByKey(
+            project_statuses[status] ?? [],
+            "id"
+          );
         }
 
         data = transformKeys(data, camelCase);
@@ -59,8 +62,13 @@ export let reportQuery = selectorFamily({
   }
 });
 
-export let allReportsIds = selector({
-  key: "allReportsIds",
+export const report = atomFamily({
+  key: "report",
+  default: reportQuery
+});
+
+export let allReportsIdsQuery = selector({
+  key: "allReportsIdsQuery",
   get: () =>
     pull("reports")
       .then(({ data }) =>
@@ -72,43 +80,39 @@ export let allReportsIds = selector({
       })
 });
 
-export let allReportsIdsAtom = atom({
+export let allReportsIds = atom({
   key: "allReportIdsAtom",
-  default: allReportsIds
+  default: allReportsIdsQuery
 });
 
-export let configQuery = selectorFamily({
-  key: "config",
-  get: (id = "main") => () =>
-    pull("config", id)
-      .then(({ data }) => transformKeys(data, camelCase))
-      .catch((err) => {
-        toast.error(`Error while fetching config ${id}`);
-        console.error(err);
-      })
-});
-
-export let configAtom = atomFamily({
-  key: "configAtom",
-  default: configQuery
-});
-
-export let statusesByColor = selectorFamily({
-  key: "statusesByColor",
-  get: ({ reportId, color }) => ({ get }) =>
-    get(reportQuery(reportId)).projects[color]
-});
-
-export let statusesByColorAtom = atomFamily({
-  key: "statusesByColorAtom",
-  default: statusesByColor
-});
-
-export let statusByIndex = atomFamily({
-  key: "statusByIndex",
+export let config = atomFamily({
+  key: "config/Default",
   default: selectorFamily({
-    key: "statusByIndex/Default",
-    get: ({ reportId, color, index }) => ({ get }) =>
-      get(statusesByColorAtom({ reportId, color }))[index]
+    key: "configQuery",
+    get: (id = "main") => () =>
+      pull("config", id)
+        .then(({ data }) => transformKeys(data, camelCase))
+        .catch((err) => {
+          toast.error(`Error while fetching config ${id}`);
+          console.error(err);
+        })
+  })
+});
+
+export let statusesByColor = atomFamily({
+  key: "statusesByColor",
+  default: selectorFamily({
+    key: "statusesByColor/Default",
+    get: ({ reportId, color }) => ({ get }) =>
+      get(reportQuery(reportId)).projects[color]
+  })
+});
+
+export let statusById = atomFamily({
+  key: "statusById",
+  default: selectorFamily({
+    key: "statusById/Default",
+    get: ({ reportId, color, id }) => ({ get }) =>
+      get(statusesByColor({ reportId, color }))[id]
   })
 });

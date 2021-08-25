@@ -3,15 +3,15 @@ import React from "react";
 import BenchInfoTable from "./BenchInfoTable";
 import BenchInfoRemarks from "./BenchInfoRemarks";
 
-import { configQuery } from "./store/state";
+import { config } from "./store/state";
 import { useActiveReport } from "./store/hooks";
 
 import { useRecoilValue } from "recoil";
 
 const BenchInfoSection = () => {
   const {
-    value: { benchRemarks: remarks },
-  } = useRecoilValue(configQuery());
+    value: { benchRemarks: remarks }
+  } = useRecoilValue(config());
 
   const { benchInfoData } = useActiveReport();
 

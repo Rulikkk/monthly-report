@@ -15,7 +15,7 @@ import {
   Issue
 } from "./Editor";
 import { EditorShadowedCard } from "./BaseComponents";
-import { useProjectStatusByIndex } from "./store/hooks";
+import { useProjectStatusById } from "./store/hooks";
 
 /**
  * A project state change callback.
@@ -33,13 +33,8 @@ import { useProjectStatusByIndex } from "./store/hooks";
  * @param {*} obj.projects
  * @param {projectStateChangeCallback} obj.onProjectStateChange - a project state change callback.
  */
-const ProjectState = ({
-  forState,
-  index,
-  onProjectStateChange,
-  ...projects
-}) => {
-  const [project, setProject] = useProjectStatusByIndex(forState, index);
+const ProjectState = ({ forState, id, onProjectStateChange, ...projects }) => {
+  const [project, setProject] = useProjectStatusById(forState, id);
   const props = { project, setProject };
   return (
     <EditorShadowedCard>
@@ -53,7 +48,7 @@ const ProjectState = ({
         <AddRemoveIssueButton {...props} />
         <AddRemoveNotesButton {...props} />
         <AddRemoveStaffingButton {...props} />
-        <RemoveProjectButton index={index} {...projects} />
+        <RemoveProjectButton id={id} forState={forState} {...projects} />
       </div>
       <div className="flex justify-end py-1">
         <span>

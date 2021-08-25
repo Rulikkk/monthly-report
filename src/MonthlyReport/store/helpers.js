@@ -6,6 +6,10 @@ export function echo(arg) {
   return arg;
 }
 
+/** Convert array of objects to an object, pulling `key` argument */
+export const toObjectByKey = (array, keyName) =>
+  Object.fromEntries(array.map((x) => [x[keyName], x]));
+
 /** Create a timestamp string in the HH:MM:SS.MS format */
 export function timestamp() {
   let d = new Date();
@@ -44,7 +48,8 @@ export function transformKeys(obj, fn = echo) {
   if (!obj || (typeof obj).match(/string|number|boolean/)) return obj;
   return Object.entries(obj).reduce((acc, [k, v]) => {
     if (isPlainObject(v)) return { ...acc, [fn(k)]: transformKeys(v, fn) };
-    else if (isArray(v)) return { ...acc, [fn(k)]: v.map((vv) => transformKeys(vv, fn)) };
+    else if (isArray(v))
+      return { ...acc, [fn(k)]: v.map((vv) => transformKeys(vv, fn)) };
     else return { ...acc, [fn(k)]: v };
   }, {});
 }
