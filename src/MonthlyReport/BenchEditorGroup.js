@@ -15,7 +15,7 @@ import { getRandomId } from "./BaseComponents";
 const BenchEditorGroup = () => {
   const { reportId } = useParams();
   const [report, setReport] = useRecoilState(reportAtom(reportId));
-
+  console.log(report.benchInfoData.info[0]);
   const switchBenchSectionEnabled = () => {
     setReport({
       ...report,

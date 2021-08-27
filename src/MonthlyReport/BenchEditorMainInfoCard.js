@@ -48,14 +48,12 @@ export default function BenchEditorMainInfoCard({
           onChange={getHandlerForField("emphasizeCaption")}
         />
       </div>
-
       <Input
         className="mb-2"
         value={info.count || ""}
         placeholder="Count"
         onChange={getHandlerForField("count")}
       />
-
       <Input
         className="mb-2"
         value={info.info || ""}
@@ -63,7 +61,6 @@ export default function BenchEditorMainInfoCard({
         textarea
         onChange={getHandlerForField("info")}
       />
-
       <div className="flex flex-row-reverse">
         <Button small red onClick={() => onDelete(info)}>
           Delete

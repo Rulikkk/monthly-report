@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
@@ -47,6 +47,11 @@ export const Input = ({
       value: state,
       onChange: handleChange
     };
+
+  useEffect(() => {
+    if (value !== state) setState(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   return textarea ? (
     <TextareaAutosize {...props} />

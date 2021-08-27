@@ -1,4 +1,5 @@
 import React from "react";
+import { useActiveReport } from "./store/hooks";
 
 const orangeColor = "rgb(196, 89, 17)";
 
@@ -14,9 +15,12 @@ function getEmphasizedStyle(info, paintOrange) {
   return style;
 }
 
-const BenchInfoTable = ({ benchInfoData }) => {
+const BenchInfoTable = () => {
+  const {
+    benchInfoData: { info: benchInfo }
+  } = useActiveReport();
   return (
-    (benchInfoData?.length > 0 && (
+    (benchInfo?.length > 0 && (
       <table className="table-auto w-full">
         <thead>
           <tr style={{ color: orangeColor }}>
@@ -33,7 +37,7 @@ const BenchInfoTable = ({ benchInfoData }) => {
           </tr>
         </thead>
         <tbody>
-          {benchInfoData.map(
+          {benchInfo.map(
             (info, idx) =>
               info.disabled || (
                 <tr
