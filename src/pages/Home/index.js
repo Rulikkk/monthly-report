@@ -5,7 +5,7 @@ import {
   allReportsIds,
   config,
   reportQuery
-} from "../MonthlyReport/store/state";
+} from "../../store/state";
 
 const Home = () => {
   const ids = useRecoilValueLoadable(allReportsIds);
@@ -17,14 +17,6 @@ const Home = () => {
     snapshot.getLoadable(reportQuery(id));
   });
 
-  const preloadConfig = useRecoilCallback(({ snapshot }) => () => {
-    snapshot.getLoadable(config());
-  });
-
-  useEffect(() => {
-    preloadConfig();
-  }, []);
-
   useEffect(() => {
     if (ids.state === 'hasValue' && Array.isArray(ids.contents) ) {
       setLastReportId(ids.contents?.[0])
@@ -34,7 +26,7 @@ const Home = () => {
 
   useEffect(() => {
     if (lastReportId) {
-      setReportLink(lastReportId)
+      setReportLink(lastReportId);
       preloadReport(lastReportId);
     }
   }, [lastReportId])

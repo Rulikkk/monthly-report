@@ -1,21 +1,18 @@
-import "./typedef";
+import "../../typedefs";
 
 import React from "react";
-
-import { PROJECT_STATES_ALL } from "./const";
-
+import { PROJECT_STATES_ALL } from "../../common/constants";
 import ProjectStateMoveToStateSelect from "./ProjectStateMoveToStateSelect";
 
 import {
-  Input,
   AddRemoveNotesButton,
   AddRemoveIssueButton,
   AddRemoveStaffingButton,
   RemoveProjectButton,
   Issue
-} from "./Editor";
-import { EditorShadowedCard } from "./BaseComponents";
-import { useProjectStatusById } from "./store/hooks";
+} from "./EditorSection";
+import { EditorShadowedCard, Input } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import { useProjectStatusById } from "../../store/hooks";
 
 /**
  * A project state change callback.

@@ -1,6 +1,5 @@
 import React from "react";
-import { Button, EditorShadowedCard, SingleImgButton } from "../BaseComponents";
-import { Input } from "../Editor";
+import { Button, EditorShadowedCard, SingleImgButton, Input } from "../BaseComponents";
 
 const PraiseEditor = ({ praise, updateReport, remove }) => (
   <EditorShadowedCard>

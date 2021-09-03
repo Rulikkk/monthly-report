@@ -4,7 +4,7 @@ import { atom, atomFamily, selector, selectorFamily } from "recoil";
 
 import { pull, push } from "./api";
 import { apply, transformKey, transformKeys, toObjectByKey } from "./helpers";
-import { PROJECT_STATES_ALL } from "../const";
+import { PROJECT_STATES_ALL } from "../common/constants";
 import { toast } from "react-toastify";
 
 export let projectQuery = selectorFamily({

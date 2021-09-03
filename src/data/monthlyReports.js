@@ -1,4 +1,4 @@
-import './typedef'
+import '../typedefs'
 
 /**
  * @type {Data}

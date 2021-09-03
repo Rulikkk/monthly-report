@@ -1,21 +1,26 @@
-import data from "./data";
+import data from "../data/monthlyReports";
 
-import { migrateOldReportData } from "./UpdateReportVersion";
+import { migrateOldReportData } from "./monthlyReportUtils";
 
 const serializeFilter = (key, value) => {
   if (key === "next" || key === "prev" || key === "enhanced") return undefined;
   return value;
 };
 
-export default class Store {
+export default class LocalStorageStore {
   static SIDEBAR_STATE_KEY = "SidebarPositionKey";
-  static LOCAL_STORAGE_KEY = "LocalStorageReport";
-  static LAST_SELECTED_REPORT_KEY = "LastSelectedReport";
   static JSON_REPORT = "JsonReport";
 
   static getJsonVal(name, defaultValue) {
-    let val = localStorage.getItem(name);
-    return val ? JSON.parse(val) : defaultValue;
+    const val = localStorage.getItem(name);
+    if (val) {
+      try {
+        return JSON.parse(val);
+      } catch (err) {
+        console.error(`Failed reading "${name}" key from LocalStorage, returning default value`);
+      }
+    }
+    return defaultValue;
   }
 
   static setJsonVal(name, val, serializer) {

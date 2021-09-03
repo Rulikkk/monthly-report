@@ -4,8 +4,8 @@ import { useParams } from "@reach/router";
 import debounce from "lodash.debounce";
 
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
-import { report as reportAtom } from "./store/state";
-import { getRandomId } from "./BaseComponents";
+import { report as reportAtom } from "../../../../store/state";
+import { getRandomId } from "../BaseComponents";
 
 /**
  *
@@ -69,7 +69,7 @@ const BenchEditorGroup = () => {
           className="ml-2"
           checked={report.benchInfoData.benchSectionEnabled}
           onChange={switchBenchSectionEnabled}
-        ></input>
+        />
       </h1>
 
       <BenchEditorMainInfo

@@ -1,7 +1,6 @@
-import debounce from "lodash.debounce";
 import React, { useEffect, useState } from "react";
-
-import { Input } from "./Editor";
+import debounce from "lodash.debounce";
+import { Input } from "../BaseComponents";
 
 function startsNewRemark(remarkText) {
   return remarkText.startsWith("- ");

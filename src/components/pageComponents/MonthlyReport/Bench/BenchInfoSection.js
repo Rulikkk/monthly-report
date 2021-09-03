@@ -1,11 +1,9 @@
 import React from "react";
+import { useRecoilValue } from "recoil";
+import { config } from "../../../../store/state";
 
 import BenchInfoTable from "./BenchInfoTable";
 import BenchInfoRemarks from "./BenchInfoRemarks";
-
-import { config } from "./store/state";
-
-import { useRecoilValue } from "recoil";
 
 const BenchInfoSection = () => {
   const {

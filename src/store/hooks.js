@@ -35,20 +35,18 @@ export const usePrevReport = () => {
 
 export const useActiveAndPrevReport = () => {
   const routeParams = useParams();
-
-  if (!routeParams.reportId) navigate("/report/last");
+  const activeReportId = routeParams.reportId;
+  if (!activeReportId) navigate("/report/last");
 
   const ids = useRecoilValue(allReportsIds);
-  const index = ids.indexOf(routeParams.reportId);
+  const activeReportIndex = ids.indexOf(activeReportId);
 
-  let prevId = null;
-
-  if (index >= 0 && index + 1 < ids.length) prevId = ids[index + 1];
+  const prevId = (activeReportIndex >= 0 && activeReportIndex + 1 < ids.length && ids[activeReportIndex + 1]) ?? null;
 
   return useRecoilValue(
     waitForAll({
-      activeReport: report(routeParams.reportId),
-      prevReport: report(prevId)
+      activeReport: report(activeReportId),
+      ...(prevId ? { prevReport: report(prevId) } : {})
     })
   );
 };

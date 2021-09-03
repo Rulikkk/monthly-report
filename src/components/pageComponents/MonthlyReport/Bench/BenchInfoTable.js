@@ -1,5 +1,5 @@
 import React from "react";
-import { useActiveReport } from "./store/hooks";
+import { useActiveReport } from "../../../../store/hooks";
 
 const orangeColor = "rgb(196, 89, 17)";
 

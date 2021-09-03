@@ -1,7 +1,5 @@
 import React from "react";
-
-import { Button, EditorShadowedCard } from "./BaseComponents";
-import { Input } from "./Editor";
+import { Button, EditorShadowedCard, Input } from "../BaseComponents";
 
 function EmphasizeCaptionCheckbox({ info, onChange }) {
   const checkboxId = `emphasize-${info.id}`;

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Button } from "./BaseComponents";
+import { Button } from "../BaseComponents";
 import BenchEditorMainInfoCard from "./BenchEditorMainInfoCard";
 
 /**

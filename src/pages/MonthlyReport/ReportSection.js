@@ -1,18 +1,18 @@
-import "./typedef";
+import "../../typedefs";
 
 import React, { Fragment, Suspense } from "react";
 import { useParams, navigate } from "@reach/router";
 
 import { useRecoilValue } from "recoil";
 
-import * as state from "./store/state";
+import * as state from "../../store/state";
 
 import {
   useActiveAndPrevReport,
   useActiveReport,
   useActiveReportProjectsByColor,
   useProjectStatusById
-} from "./store/hooks";
+} from "../../store/hooks";
 
 import {
   PROJECT_STATES,
@@ -21,13 +21,13 @@ import {
   GREEN,
   YELLOW,
   RED
-} from "./const";
-import { initCap } from "./BaseComponents";
-import { Scrollable } from "./Scrollable";
-import { Praises } from "./Praises";
+} from "../../common/constants";
+import { initCap } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import Scrollable from "../../components/Scrollable";
+import { Praises } from "../../components/pageComponents/MonthlyReport/Praises";
 
-import BenchInfoSection from "./BenchInfoSection";
-import Spinner from "../Spinner";
+import BenchInfoSection from "../../components/pageComponents/MonthlyReport/Bench/BenchInfoSection";
+import Spinner from "../../components/Spinner";
 
 const formatter = new Intl.DateTimeFormat("en", {
   month: "short",
@@ -37,11 +37,10 @@ const formatter = new Intl.DateTimeFormat("en", {
 const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
 
 const ReportSelector = () => {
-  let allReportsIds = useRecoilValue(state.allReportsIds);
-
+  const allReportsIds = useRecoilValue(state.allReportsIds);
   const routeParams = useParams();
-  if (!routeParams.reportId) navigate("/report/last");
   const activeReportId = routeParams.reportId;
+  if (!activeReportId) navigate("/report/last");
 
   return (
     <>
@@ -65,7 +64,7 @@ const ReportSelector = () => {
 
 const B = ({ children }) => <span className="font-bold">{children}</span>;
 
-const Note = ({
+const Notes = ({
   notes = [
     `Edit "notes" in data.json to update this section.<br>
       Then click "Edit" -> "Load" to apply changes.<br>
@@ -101,105 +100,115 @@ const Td = ({
   </td>
 );
 
+const TotalsTableHeadRow = ({ cells, ...props }) => (
+  <tr>
+    <Td {...props}>{cells[0]}</Td>
+    <Td green {...props}>
+      {cells[1]}
+    </Td>
+    <Td yellow {...props}>
+      {cells[2]}
+    </Td>
+    <Td red {...props}>
+      {cells[3]}
+    </Td>
+  </tr>
+);
+
+const Comparer = ({
+  now,
+  then = 0,
+  totalNow,
+  totalThen,
+  tip,
+  projectState,
+  lowerBetter = false
+}) => {
+  const percent = (v, t) => Math.round((100 * v) / t),
+    nowValue = totalNow ? percent(now, totalNow) : now,
+    thenValue = totalThen ? percent(then, totalThen) : then,
+    maybePercent = totalNow || totalThen ? "%" : "",
+    change = nowValue - thenValue,
+    changeText = ` ${
+      change > 0
+        ? "increased by " + change
+        : change < 0
+          ? "decreased by " + -change
+          : "not changed"
+    }`,
+    good =
+      nowValue === thenValue ||
+      (lowerBetter && nowValue < thenValue) ||
+      (!lowerBetter && nowValue > thenValue),
+    arrow = thenValue > nowValue ? "↓" : "↑",
+    title =
+      (tip && tip + changeText) ||
+      (totalNow
+        ? `Percentage of ${projectState} projects from total${changeText}`
+        : `Number of ${projectState} projects${changeText}`);
+  return (
+    <span title={title} className="cursor-default">
+          {nowValue + maybePercent}{" "}
+      <span
+        className={
+          "font-normal text-sm " +
+          (good ? "text-green-400" : "text-red-400")
+        }
+      >
+            ({arrow}
+        {Math.abs(nowValue - thenValue) + maybePercent})
+          </span>
+        </span>
+  );
+}
+
+const TdComparer = ({ projects, prevProjects, projectState, ...props }) => {
+  if (!projects || !projects[projectState]) {
+    return null
+  }
+
+  return (
+    <Td {...{[projectState]: true}}>
+      <Comparer
+        now={
+          projects[projectState] &&
+          Object.keys(projects[projectState]).length
+        }
+        then={
+          prevProjects &&
+          prevProjects[projectState] &&
+          Object.keys(prevProjects[projectState]).length
+        }
+        lowerBetter={projectState === YELLOW || projectState === RED}
+        projectState={projectState}
+        {...props}
+      />
+    </Td>
+  )
+}
+
 const TotalsTable = () => {
   const {
     activeReport: { projects },
-    prevReport: { projects: prevProjects }
+    prevReport
   } = useActiveAndPrevReport();
-  const Row = ({ cells, ...props }) => (
-      <tr>
-        <Td {...props}>{cells[0]}</Td>
-        <Td green {...props}>
-          {cells[1]}
-        </Td>
-        <Td yellow {...props}>
-          {cells[2]}
-        </Td>
-        <Td red {...props}>
-          {cells[3]}
-        </Td>
-      </tr>
-    ),
-    sum = (a, b) => a + b,
-    countProjects = (ps) =>
-      ps &&
-      PROJECT_STATES.map((t) => (ps[t] ? Object.keys(ps[t]).length : 0)).reduce(
-        sum
-      ),
-    totalProjectsNow = countProjects(projects),
-    totalProjectsThen = countProjects(prevProjects),
-    totals = { totalNow: totalProjectsNow, totalThen: totalProjectsThen },
-    Comparer = ({
-      now,
-      then = 0,
-      totalNow,
-      totalThen,
-      tip,
-      projectState,
-      lowerBetter = false
-    }) => {
-      const percent = (v, t) => Math.round((100 * v) / t),
-        nowValue = totalNow ? percent(now, totalNow) : now,
-        thenValue = totalThen ? percent(then, totalThen) : then,
-        maybePercent = totalNow || totalThen ? "%" : "",
-        change = nowValue - thenValue,
-        changeText = ` ${
-          change > 0
-            ? "increased by " + change
-            : change < 0
-            ? "decreased by " + -change
-            : "not changed"
-        }`,
-        good =
-          nowValue === thenValue ||
-          (lowerBetter && nowValue < thenValue) ||
-          (!lowerBetter && nowValue > thenValue),
-        arrow = thenValue > nowValue ? "↓" : "↑",
-        title =
-          (tip && tip + changeText) ||
-          (totalNow
-            ? `Percentage of ${projectState} projects from total${changeText}`
-            : `Number of ${projectState} projects${changeText}`);
-      return (
-        <span title={title} className="cursor-default">
-          {nowValue + maybePercent}{" "}
-          <span
-            className={
-              "font-normal text-sm " +
-              (good ? "text-green-400" : "text-red-400")
-            }
-          >
-            ({arrow}
-            {Math.abs(nowValue - thenValue) + maybePercent})
-          </span>
-        </span>
-      );
-    },
-    TdComparer = ({ projectState, ...props }) =>
-      projects && projects[projectState] ? (
-        <Td {...{ [projectState]: true }}>
-          <Comparer
-            now={
-              projects[projectState] &&
-              Object.keys(projects[projectState]).length
-            }
-            then={
-              prevProjects &&
-              prevProjects[projectState] &&
-              Object.keys(prevProjects[projectState]).length
-            }
-            lowerBetter={projectState === YELLOW || projectState === RED}
-            projectState={projectState}
-            {...props}
-          />
-        </Td>
-      ) : null;
+
+  const prevProjects = prevReport?.projects;
+
+  const countProjects = (ps) =>
+    ps &&
+    PROJECT_STATES.map((t) => (ps[t] ? Object.keys(ps[t]).length : 0)).reduce(
+      (a, b) => a + b
+    );
+  const totalProjectsNow = countProjects(projects);
+  const totalProjectsPrev = countProjects(prevProjects);
+  const totals = { totalNow: totalProjectsNow, totalPrev: totalProjectsPrev };
 
   return (
     <>
       <table className="mt-3 text-left font-mono w-full border-collapse">
         <thead style={{ borderBottom: "solid silver 1px" }}>
-          <Row
+          <TotalsTableHeadRow
             bold
             cells={[
               "Total Projects",
@@ -214,20 +223,20 @@ const TotalsTable = () => {
             <Td bold>
               <Comparer
                 now={totalProjectsNow}
-                then={totalProjectsThen}
+                then={totalProjectsPrev}
                 tip={"Total projects"}
                 lowerBetter={false}
               />
             </Td>
-            <TdComparer projectState={GREEN} />
-            <TdComparer projectState={YELLOW} />
-            <TdComparer projectState={RED} />
+            <TdComparer projects={projects} prevProjects={prevProjects} projectState={GREEN} />
+            <TdComparer projects={projects} prevProjects={prevProjects} projectState={YELLOW} />
+            <TdComparer projects={projects} prevProjects={prevProjects} projectState={RED} />
           </tr>
           <tr>
             <Td bold>%</Td>
-            <TdComparer projectState={GREEN} {...totals} />
-            <TdComparer projectState={YELLOW} {...totals} />
-            <TdComparer projectState={RED} {...totals} />
+            <TdComparer projects={projects} prevProjects={prevProjects} projectState={GREEN} {...totals} />
+            <TdComparer projects={projects} prevProjects={prevProjects} projectState={YELLOW} {...totals} />
+            <TdComparer projects={projects} prevProjects={prevProjects} projectState={RED} {...totals} />
           </tr>
         </tbody>
       </table>
@@ -243,6 +252,7 @@ const ProjectStatus = ({ hideOK, color, projectId }) => {
     color,
     projectId
   );
+
   return (
     <tr key={id} style={{ borderBottom: "solid silver 1px" }}>
       <Td className="align-top" {...{ [color]: true }}>
@@ -326,28 +336,26 @@ const ProjectListForState = (p) => {
 };
 
 const ReportHeader = () => {
-  let {
+  const {
     value: { notes, reportName }
   } = useRecoilValue(state.config());
-  // console.log("Render report header");
   return (
     <>
       <img alt="Logo" src="/head.png" className="mx-auto" />
       <h1 className="text-3xl">
         <ReportSelector /> — {reportName || "<data.reportName>"}
       </h1>
-      <Note notes={notes} />
+      <Notes notes={notes} />
     </>
   );
 };
 
 const ReportBody = () => {
-  let { benchInfoData, praises } = useActiveReport();
-  console.log("Render report body");
+  const { benchInfoData, praises } = useActiveReport();
+
   return (
     <>
       {benchInfoData?.benchSectionEnabled && <BenchInfoSection />}
-
       {PROJECT_STATES_ALL.map((status) => (
         <ProjectListForState key={status} projectState={status} />
       ))}
@@ -357,7 +365,6 @@ const ReportBody = () => {
 };
 
 export default () => {
-  // TODO: this stuff renders twice somwhy, FIX!
   return (
     <Scrollable>
       <div className="container p-4 mx-auto max-w-4xl">

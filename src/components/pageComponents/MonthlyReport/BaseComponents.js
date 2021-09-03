@@ -1,4 +1,5 @@
-import React, { useState, useRef, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import TextareaAutosize from 'react-autosize-textarea'
 import { useDropzone } from "react-dropzone";
 import { Link } from "@reach/router";
 
@@ -41,21 +42,9 @@ const Button = ({
   </button>
 );
 
-const GoHomeButton = () => (
-  <Link to="/">
-    <Button>Home</Button>
-  </Link>
-);
-
 const PrintButton = () => <Button onClick={() => window.print()}>Print</Button>;
 
-const TopRightFixedMenu = ({ children }) => (
-  <div className="fixed top-0 right-0 z-50 no-print p-1 rounded-bl spaced-row-grid">
-    {children}
-  </div>
-);
-
-const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
+const initCap = (s) => `${s[0].toUpperCase()}${s.slice(1)}`;
 
 const sortedKeys = (x) => Object.keys(x).sort();
 
@@ -65,23 +54,6 @@ const simpleHook = (object, hook, result) => {
       result[r] = Array.isArray(object[r])
         ? hook(...object[r])
         : hook(object[r]);
-};
-
-const useAll = ({ state, ref, callback, ...rest }) => {
-  const result = {};
-  if (state)
-    for (let t of sortedKeys(state)) {
-      const [a, b] = useState(state[t]); // eslint-disable-line
-      result[t] = a;
-      result["set" + initCap(t)] = b;
-    }
-
-  simpleHook(ref, useRef, result);
-  simpleHook(callback, useCallback, result);
-
-  if (rest) for (let r of sortedKeys(rest)) result[r] = rest[r];
-
-  return result;
 };
 
 const useEffects = (effects) => {
@@ -118,6 +90,7 @@ const enhanceDataInplace = (data) => {
   });
 
   data.enhanced = 1;
+  return data;
 };
 
 const EditorShadowedCard = ({ children }) => (
@@ -160,16 +133,51 @@ const SingleImgButton = ({ onImage, className, title, dragTitle }) => {
   );
 };
 
+
+const Input = ({
+  value,
+  onChange,
+  afterChange,
+  textarea = false,
+  className = "",
+  ...otherProps
+}) => {
+  const [state, setState] = useState(value),
+    handleChange = ({ target: { value } }) => {
+      setState(value);
+      onChange && onChange(value);
+      afterChange && afterChange();
+    },
+    props = {
+      ...otherProps,
+      className:
+        "shadow w-full appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline " +
+        className,
+      value: state,
+      onChange: handleChange
+    };
+
+  useEffect(() => {
+    if (value !== state) setState(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return textarea ? (
+    <TextareaAutosize {...props} />
+  ) : (
+    <input type="text" {...props} />
+  );
+};
+
+
 export {
   getRandomId,
   initCap,
   Button,
-  TopRightFixedMenu,
-  useAll,
   useEffects,
   PrintButton,
-  GoHomeButton,
   enhanceDataInplace,
   EditorShadowedCard,
-  SingleImgButton
+  SingleImgButton,
+  Input
 };

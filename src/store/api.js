@@ -1,4 +1,4 @@
-import "../typedef";
+import "../typedefs";
 
 import snakeCase from "lodash.snakecase";
 

@@ -1,19 +1,18 @@
-import React, { useEffect, useState } from "react";
-import TextareaAutosize from "react-autosize-textarea";
+import React from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { useParams } from "@reach/router";
 
-import { Button, getRandomId, PrintButton } from "./BaseComponents";
-import BenchEditorGroup from "./BenchEditorGroup";
-import { PROJECT_STATES_ALL } from "./const";
-import { PraiseEditorGroup } from "./Praises";
+import { Button, getRandomId, PrintButton, Input } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import BenchEditorGroup from "../../components/pageComponents/MonthlyReport/Bench/BenchEditorGroup";
+import { PROJECT_STATES_ALL } from "../../common/constants";
+import { PraiseEditorGroup } from "../../components/pageComponents/MonthlyReport/Praises";
 import ProjectState from "./ProjectState";
-import { Scrollable } from "./Scrollable";
-import Store from "./Store";
-import { useActiveReport, useSetProjectsByColor } from "./store/hooks";
+import Scrollable from "../../components/Scrollable";
+import LocalStorageStore from "../../common/localStorageStore";
+import { useActiveReport, useSetProjectsByColor } from "../../store/hooks";
 import { useSetRecoilState } from "recoil";
-import { report } from "./store/state";
+import { report } from "../../store/state";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
@@ -23,41 +22,6 @@ const inIframe = () => {
   } catch (e) {
     return true;
   }
-};
-
-export const Input = ({
-  value,
-  onChange,
-  afterChange,
-  textarea = false,
-  className = "",
-  ...otherProps
-}) => {
-  const [state, setState] = useState(value),
-    handleChange = ({ target: { value } }) => {
-      setState(value);
-      onChange && onChange(value);
-      afterChange && afterChange();
-    },
-    props = {
-      ...otherProps,
-      className:
-        "shadow w-full appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline " +
-        className,
-      value: state,
-      onChange: handleChange
-    };
-
-  useEffect(() => {
-    if (value !== state) setState(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  return textarea ? (
-    <TextareaAutosize {...props} />
-  ) : (
-    <input type="text" {...props} />
-  );
 };
 
 export const Issue = ({ issue, setIssue }) => {
@@ -400,7 +364,7 @@ const EditorHideButton = ({ setPaneSize, lastSize }) => (
     value="Edit"
     onClick={() => {
       setPaneSize(0);
-      Store.sidebarState = {
+      LocalStorageStore.sidebarState = {
         open: false,
         size: lastSize.current
       };
