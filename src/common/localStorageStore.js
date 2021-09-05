@@ -9,7 +9,6 @@ const serializeFilter = (key, value) => {
 
 export default class LocalStorageStore {
   static SIDEBAR_STATE_KEY = "SidebarPositionKey";
-  static JSON_REPORT = "JsonReport";
 
   static getJsonVal(name, defaultValue) {
     const val = localStorage.getItem(name);
@@ -33,14 +32,5 @@ export default class LocalStorageStore {
 
   static set sidebarState(value) {
     this.setJsonVal(this.SIDEBAR_STATE_KEY, value);
-  }
-
-  static get reportJSON() {
-    let reportData = this.getJsonVal(this.JSON_REPORT, data);
-    return migrateOldReportData(reportData);
-  }
-
-  static set reportJSON(value) {
-    this.setJsonVal(this.JSON_REPORT, value, serializeFilter);
   }
 }

@@ -1,7 +1,7 @@
 import { useRecoilState, useRecoilValue, waitForAll } from "recoil";
 import { useParams, navigate } from "@reach/router";
 
-import { allReportsIds, statusesByColor, statusById, report } from "./state";
+import { allReportsIds, statusesByColor, statusById, reportAtomFamily } from "./state";
 
 export const useActiveReport = () => {
   const routeParams = useParams();
@@ -9,7 +9,7 @@ export const useActiveReport = () => {
   if (!routeParams.reportId) navigate("/report/last");
 
   const { benchInfoData, projects, praises } = useRecoilValue(
-    report(routeParams.reportId)
+    reportAtomFamily(routeParams.reportId)
   );
 
   return { reportId: routeParams.reportId, benchInfoData, projects, praises };
@@ -28,7 +28,7 @@ export const usePrevReport = () => {
 
   if (index >= 0 && index + 1 < ids.length) prevId = ids[index + 1];
 
-  const { benchInfoData, projects, praises } = useRecoilValue(report(prevId));
+  const { benchInfoData, projects, praises } = useRecoilValue(reportAtomFamily(prevId));
 
   return { benchInfoData, projects, praises };
 };
@@ -45,8 +45,8 @@ export const useActiveAndPrevReport = () => {
 
   return useRecoilValue(
     waitForAll({
-      activeReport: report(activeReportId),
-      ...(prevId ? { prevReport: report(prevId) } : {})
+      activeReport: reportAtomFamily(activeReportId),
+      ...(prevId ? { prevReport: reportAtomFamily(prevId) } : {})
     })
   );
 };

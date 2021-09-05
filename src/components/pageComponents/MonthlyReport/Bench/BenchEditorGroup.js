@@ -4,7 +4,7 @@ import { useParams } from "@reach/router";
 import debounce from "lodash.debounce";
 
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
-import { report as reportAtom } from "../../../../store/state";
+import { reportAtomFamily as reportAtom } from "../../../../store/state";
 import { getRandomId } from "../BaseComponents";
 
 /**
@@ -15,7 +15,6 @@ import { getRandomId } from "../BaseComponents";
 const BenchEditorGroup = () => {
   const { reportId } = useParams();
   const [report, setReport] = useRecoilState(reportAtom(reportId));
-  console.log(report.benchInfoData.info[0]);
   const switchBenchSectionEnabled = () => {
     setReport({
       ...report,

@@ -2,6 +2,9 @@ import React, { Suspense, useState } from "react"
 import { Link } from "@reach/router"
 import Split from "react-split-pane"
 import debounce from "lodash.debounce"
+import {useRecoilCallback, useRecoilState} from 'recoil'
+import camelCase from "lodash.camelcase";
+import {PROJECT_STATES_ALL} from '../../common/constants'
 import LocalStorageStore from "../../common/localStorageStore"
 import Spinner from "../../components/Spinner"
 import {
@@ -9,6 +12,7 @@ import {
   enhanceDataInplace,
   PrintButton,
 } from "../../components/pageComponents/MonthlyReport/BaseComponents"
+import {allReportsIds, reportAtomFamily} from '../../store/state'
 import EditorSection from "./EditorSection"
 import ReportSection from "./ReportSection"
 
@@ -44,11 +48,10 @@ const MIN_PANEL_SIZE_PX = 150;
 const MonthlyReport = ({ reportId }) => {
   const initialSidebarState = LocalStorageStore.sidebarState;
   const [panelSize, setPanelSize] = useState(initialSidebarState.open ? initialSidebarState.size : 0);
-  const [data, setData] = useState(enhanceDataInplace(LocalStorageStore.reportJSON));
 
   const storePanelSize = (open, size) => LocalStorageStore.sidebarState = { open, size };
 
-  const onChange = debounce((size) => {
+  const onPanelSizeChange = debounce((size) => {
     const newSize = size < MIN_PANEL_SIZE_PX ? 0 : size;
     setPanelSize(newSize);
     storePanelSize(newSize > 0, newSize);
@@ -59,21 +62,39 @@ const MonthlyReport = ({ reportId }) => {
     storePanelSize(true, DEFAULT_PANEL_SIZE_PX);
   }
 
-  const onProjectStateChange = (project, oldState, newState) => {
-    // Find current report.
-    const currentReport = data.reports.find((r) => r.code === reportId);
+  const changeProjectState = useRecoilCallback(({ snapshot, set }) => async (project, oldState, newState) => {
+    const currentReport = await snapshot.getPromise(reportAtomFamily(reportId));
+    const projectIdCased = camelCase(project.id);
 
-    // Remove the project from old state list.
-    const oldStateProjects = currentReport.projects[oldState];
-    currentReport.projects[oldState] = oldStateProjects.filter((p) => p !== project);
+    const updatedCurrentReport = {
+      ...currentReport,
+      projects: PROJECT_STATES_ALL.map(state => {
+        const projectStates = currentReport.projects[state]
 
-    // Add the project to new state list.
-    const newStateProjects = currentReport.projects[newState];
-    currentReport.projects[newState] = [project, ...newStateProjects];
+        const projectsMap = Object.keys(projectStates).reduce((acc2, pId) => {
+          if (state === oldState && pId === projectIdCased) {
+            return acc2;
+          }
 
-    // Update the component state.
-    setData({ ...data });
-  };
+          return {
+            ...acc2,
+            [pId]: projectStates[pId]
+          }
+        }, {});
+
+        if (state === newState) {
+          projectsMap[projectIdCased] = project;
+        }
+
+        return [state, projectsMap]
+      }).reduce((acc, [state, projectsMap]) => ({
+        ...acc,
+        [state]: projectsMap
+      }), {})
+    }
+
+    set(reportAtomFamily(reportId), updatedCurrentReport);
+  }, [reportId]);
 
   return (
     <Suspense fallback={<Spinner text={`Loading report ${reportId}`} />}>
@@ -91,13 +112,13 @@ const MonthlyReport = ({ reportId }) => {
         defaultSize={DEFAULT_PANEL_SIZE_PX}
         size={panelSize}
         primary="second"
-        onChange={onChange}
+        onChange={onPanelSizeChange}
       >
         <ReportSection />
         <EditorSection
           setPaneSize={setPanelSize}
           lastSize={panelSize}
-          onProjectStateChange={onProjectStateChange}
+          onProjectStateChange={changeProjectState}
         />
       </Split>
     </Suspense>

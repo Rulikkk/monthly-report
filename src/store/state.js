@@ -13,7 +13,7 @@ export let projectQuery = selectorFamily({
   set: (id) => (_, project) => push("project", id)
 });
 
-export let reportQuery = selectorFamily({
+export const reportQuery = selectorFamily({
   key: "reportQuery",
   get: (id) => () => {
     if (!id) throw new Error("Empty ID to get report");
@@ -62,12 +62,12 @@ export let reportQuery = selectorFamily({
   }
 });
 
-export const report = atomFamily({
+export const reportAtomFamily = atomFamily({
   key: "report",
   default: reportQuery
 });
 
-export let allReportsIdsQuery = selector({
+export const allReportsIdsQuery = selector({
   key: "allReportsIdsQuery",
   get: () =>
     pull("reports")
@@ -80,7 +80,7 @@ export let allReportsIdsQuery = selector({
       })
 });
 
-export let allReportsIds = atom({
+export const allReportsIds = atom({
   key: "allReportIdsAtom",
   default: allReportsIdsQuery
 });
@@ -103,8 +103,7 @@ export let statusesByColor = atomFamily({
   key: "statusesByColor",
   default: selectorFamily({
     key: "statusesByColor/Default",
-    get: ({ reportId, color }) => ({ get }) =>
-      get(reportQuery(reportId)).projects[color]
+    get: ({ reportId, color }) => ({ get }) => get(reportAtomFamily(reportId)).projects[color]
   })
 });
 

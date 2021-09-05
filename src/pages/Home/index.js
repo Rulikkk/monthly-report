@@ -3,7 +3,6 @@ import { Link } from "@reach/router";
 import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
 import {
   allReportsIds,
-  config,
   reportQuery
 } from "../../store/state";
 

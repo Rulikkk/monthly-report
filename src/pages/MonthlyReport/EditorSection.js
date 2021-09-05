@@ -11,8 +11,14 @@ import ProjectState from "./ProjectState";
 import Scrollable from "../../components/Scrollable";
 import LocalStorageStore from "../../common/localStorageStore";
 import { useActiveReport, useSetProjectsByColor } from "../../store/hooks";
-import { useSetRecoilState } from "recoil";
-import { report } from "../../store/state";
+import {
+  useRecoilState,
+  useSetRecoilState,
+  useRecoilValueLoadable,
+  useRecoilStateLoadable,
+  useRecoilCallback,
+} from "recoil"
+import {allReportsIds, reportAtomFamily} from "../../store/state"
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
@@ -138,7 +144,7 @@ export const AddRemoveIssueButton = ({ project, setProject }) => {
 
 const AddProjectButton = ({ forState, projects, setProjects, ...props }) => {
   const { reportId } = useParams();
-  const setReport = useSetRecoilState(report(reportId));
+  const setReport = useSetRecoilState(reportAtomFamily(reportId));
 
   return (
     <Button
@@ -172,7 +178,7 @@ export const RemoveProjectButton = ({
   ...props
 }) => {
   const { reportId } = useParams();
-  const setReport = useSetRecoilState(report(reportId));
+  const setReport = useSetRecoilState(reportAtomFamily(reportId));
   return (
     <Button
       {...props}
@@ -255,35 +261,61 @@ const getNextCodeAndName = (lastCode) => {
 };
 
 const CopyPreviousReport = ({ report, ...props }) => {
-  // let setReport = useSetRecoilState(report(report.reportId));
+  const createNewReportState = useRecoilCallback(({ snapshot, set }) => async () => {
+    const allReportsIdsValue = await snapshot.getPromise(allReportsIds);
+
+    const lastReportIdDate = new Date(Date.parse(`${allReportsIdsValue[0]}-01`));
+    const newReportIdDate = new Date(lastReportIdDate.setMonth(lastReportIdDate.getMonth() + 1));
+    const newReportId = `${newReportIdDate.getFullYear()}-${newReportIdDate.getMonth() + 1}`
+
+    const lastReportValue = await snapshot.getPromise(reportAtomFamily(allReportsIdsValue[0]));
+    if (!lastReportValue) {
+      alert("No previous reports found");
+      return;
+    }
+
+    set(reportAtomFamily(newReportId), { ...lastReportValue });
+    set(allReportsIds, [newReportId, ...allReportsIdsValue]);
+  }, []);
+
+  const oldOnClick = async () => {
+    if (!report) {
+      alert("No reports to copy, please, load initial data.");
+      return;
+    }
+    // const lastReport = data.reports[data.reports.length - 1],
+    //   [code, name] = getNextCodeAndName(lastReport.code),
+    //   newReport = { ...lastReport, prev: lastReport, code, name };
+    // lastReport.next = newReport;
+    // data.reports.push(newReport);
+    // incrementLoadId(data);
+    // setData(data);
+    // Store.reportJSON = data;
+    try {
+      // await push("report", {date: report.reportId, ...report});
+      if (!inIframe())
+        alert(
+          `${report.reportId} report was copied from previous month. Page will be reloaded.`
+        );
+      window.location.reload();
+    } catch (err) {
+      toast.error({ ...err });
+    }
+  }
+  //
+  // const onClick = () => {
+  //   if (!allReportsIdsValue.length) {
+  //   }
+  //
+  //   setAllReportsIds([newReportId, ...allReportsIdsValue]);
+  //   console.log('111', lastReportValue.contents);
+  //   setNewReportState(lastReportValue.contents);
+  // };
 
   return (
     <Button
       {...props}
-      onClick={async () => {
-        if (!report) {
-          alert("No reports to copy, please, load initial data.");
-          return;
-        }
-        // const lastReport = data.reports[data.reports.length - 1],
-        //   [code, name] = getNextCodeAndName(lastReport.code),
-        //   newReport = { ...lastReport, prev: lastReport, code, name };
-        // lastReport.next = newReport;
-        // data.reports.push(newReport);
-        // incrementLoadId(data);
-        // setData(data);
-        // Store.reportJSON = data;
-        try {
-          // await push("report", {date: report.reportId, ...report});
-          if (!inIframe())
-            alert(
-              `${report.reportId} report was copied from previous month. Page will be reloaded.`
-            );
-          window.location.reload();
-        } catch (err) {
-          toast.error({ ...err });
-        }
-      }}
+      onClick={() => createNewReportState()}
     >
       Add month
     </Button>
@@ -291,7 +323,7 @@ const CopyPreviousReport = ({ report, ...props }) => {
 };
 
 const OpenReport = () => {
-  let setReport = useSetRecoilState(report());
+  let setReport = useSetRecoilState(reportAtomFamily());
   const onDrop = (acceptedFiles) => {
     const reader = new FileReader();
 

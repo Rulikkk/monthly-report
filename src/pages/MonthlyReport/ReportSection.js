@@ -4,6 +4,7 @@ import React, { Fragment, Suspense } from "react";
 import { useParams, navigate } from "@reach/router";
 
 import { useRecoilValue } from "recoil";
+import { formatIdAsDate } from '../../common/utils'
 
 import * as state from "../../store/state";
 
@@ -28,13 +29,6 @@ import { Praises } from "../../components/pageComponents/MonthlyReport/Praises";
 
 import BenchInfoSection from "../../components/pageComponents/MonthlyReport/Bench/BenchInfoSection";
 import Spinner from "../../components/Spinner";
-
-const formatter = new Intl.DateTimeFormat("en", {
-  month: "short",
-  year: "numeric"
-});
-
-const formatIdAsDate = (id) => formatter.format(Date.parse(id + "-01"));
 
 const ReportSelector = () => {
   const allReportsIds = useRecoilValue(state.allReportsIds);

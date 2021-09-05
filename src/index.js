@@ -10,18 +10,17 @@ import Home from "./pages/Home";
 import MonthlyReport from "./pages/MonthlyReport";
 import {config} from './store/state'
 
-
 const RecoilRootTopLevelCmp = ({ children }) => {
   const preloadConfig = useRecoilCallback(({ snapshot }) => () => {
     snapshot.getLoadable(config());
-  });
+  }, []);
 
   useEffect(() => {
     preloadConfig();
   }, []);
 
   return children;
-}
+};
 
 const Main = () => (
   <RecoilRoot>

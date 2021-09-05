@@ -24,7 +24,7 @@ const BenchInfoTable = () => {
       <table className="table-auto w-full">
         <thead>
           <tr style={{ color: orangeColor }}>
-            <th className="w-3/12"></th>
+            <th className="w-3/12" />
             <th
               className="w-1/12 text-left p-2 pr-8"
               style={{ fontWeight: "bold" }}
