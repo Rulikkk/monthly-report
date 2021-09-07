@@ -1,6 +1,6 @@
 module.exports = {
   parser: "babel-eslint",
-  plugins: ["@typescript-eslint", "prettier", "unused-imports"],
+  plugins: ["prettier", "unused-imports"],
   extends: [
     "eslint:recommended",
     "plugin:react/recommended",
@@ -26,7 +26,6 @@ module.exports = {
     browser: true,
   },
   rules: {
-    "@typescript-eslint/explicit-module-boundary-types": "off",
     "react/prop-types": "off",
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
