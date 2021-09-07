@@ -45,7 +45,8 @@ export function transformKey(k, fn = echo) {
  * @example transformKeys({a: {b: 1}}, v => v.toUpperCase()) -> {A: {B: 1}}
  * */
 export function transformKeys(obj, fn = echo, propNames = null) {
-  const keyToBeChanged = (key) => propNames && Array.isArray(propNames) && propNames.includes(key);
+  const keyToBeChanged = (key) =>
+    propNames && (propNames === "*" || (Array.isArray(propNames) && propNames.includes(key)));
 
   if (!obj || (typeof obj).match(/string|number|boolean/)) return obj;
   return Object.entries(obj).reduce((acc, [k, v]) => {

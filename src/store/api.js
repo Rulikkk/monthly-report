@@ -15,7 +15,7 @@ const DEBUG = true;
  */
 export function push(path, { id, ...rest }) {
   console.log(`${timestamp()} [ push ${id ? "id=" + id + " PUT" : "POST"} ] ${path}`);
-  let payload = transformKeys(rest, snakeCase);
+  let payload = transformKeys(rest, snakeCase, "*");
 
   if (DEBUG)
     return new Promise((resolve) => {
