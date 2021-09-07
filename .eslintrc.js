@@ -1,7 +1,12 @@
 module.exports = {
   parser: "babel-eslint",
-  plugins: ["@typescript-eslint", "prettier"],
-  extends: ["plugin:prettier/recommended", "prettier"],
+  plugins: ["@typescript-eslint", "prettier", "unused-imports"],
+  extends: [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
+    "prettier",
+  ],
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
@@ -23,5 +28,9 @@ module.exports = {
   rules: {
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "react/prop-types": "off",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
   },
 };
