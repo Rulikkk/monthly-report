@@ -16,13 +16,7 @@ import ProjectState from "./ProjectState";
 import Scrollable from "../../components/Scrollable";
 import LocalStorageStore from "../../common/localStorageStore";
 import { useActiveReport, useSetProjectsByColor } from "../../store/hooks";
-import {
-  useRecoilState,
-  useSetRecoilState,
-  useRecoilValueLoadable,
-  useRecoilStateLoadable,
-  useRecoilCallback,
-} from "recoil";
+import { useSetRecoilState, useRecoilCallback } from "recoil";
 import { allReportsIds, reportAtomFamily } from "../../store/state";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");

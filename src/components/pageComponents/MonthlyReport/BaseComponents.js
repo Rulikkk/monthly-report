@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 
