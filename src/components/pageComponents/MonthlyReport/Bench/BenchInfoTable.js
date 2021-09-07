@@ -17,7 +17,7 @@ function getEmphasizedStyle(info, paintOrange) {
 
 const BenchInfoTable = () => {
   const {
-    benchInfoData: { info: benchInfo }
+    benchInfoData: { info: benchInfo },
   } = useActiveReport();
   return (
     (benchInfo?.length > 0 && (
@@ -25,10 +25,7 @@ const BenchInfoTable = () => {
         <thead>
           <tr style={{ color: orangeColor }}>
             <th className="w-3/12" />
-            <th
-              className="w-1/12 text-left p-2 pr-8"
-              style={{ fontWeight: "bold" }}
-            >
+            <th className="w-1/12 text-left p-2 pr-8" style={{ fontWeight: "bold" }}>
               Count
             </th>
             <th className="text-left p-2" style={{ fontWeight: "normal" }}>
@@ -40,10 +37,7 @@ const BenchInfoTable = () => {
           {benchInfo.map(
             (info, idx) =>
               info.disabled || (
-                <tr
-                  key={idx}
-                  className={`${idx % 2 === 0 && "bg-gray-200"} align-top`}
-                >
+                <tr key={idx} className={`${idx % 2 === 0 && "bg-gray-200"} align-top`}>
                   <td className="p-2" style={getEmphasizedStyle(info, true)}>
                     {info.caption}
                   </td>
@@ -52,7 +46,7 @@ const BenchInfoTable = () => {
                   </td>
                   <td className="p-2 pr-4 text-justify">{info.info}</td>
                 </tr>
-              )
+              ),
           )}
         </tbody>
       </table>

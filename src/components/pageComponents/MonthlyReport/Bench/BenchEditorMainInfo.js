@@ -12,7 +12,7 @@ const BenchEditorMainInfo = ({
   benchInfo,
   onAddBenchInfoLine,
   onBenchInfoUpdate,
-  onDeleteBenchInfo
+  onDeleteBenchInfo,
 }) => {
   return (
     <>

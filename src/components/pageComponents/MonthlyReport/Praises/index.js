@@ -42,8 +42,7 @@ const PraiseEditorGroup = ({ report, updateReport = emptyFunc }) =>
           if (!report.praises) report.praises = [];
           report.praises.unshift({ text: "" });
           updateReport();
-        }}
-      >
+        }}>
         Add praise
       </Button>
       {report.praises &&

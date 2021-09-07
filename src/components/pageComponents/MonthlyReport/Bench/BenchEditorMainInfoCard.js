@@ -22,12 +22,7 @@ function EmphasizeCaptionCheckbox({ info, onChange }) {
   );
 }
 
-export default function BenchEditorMainInfoCard({
-  info,
-  index,
-  onBenchInfoUpdate,
-  onDelete
-}) {
+export default function BenchEditorMainInfoCard({ info, index, onBenchInfoUpdate, onDelete }) {
   const getHandlerForField = (field) => (value) => {
     const newInfo = { ...info, [field]: value };
     onBenchInfoUpdate && onBenchInfoUpdate(newInfo, index);
@@ -41,10 +36,7 @@ export default function BenchEditorMainInfoCard({
           placeholder="Caption"
           onChange={getHandlerForField("caption")}
         />
-        <EmphasizeCaptionCheckbox
-          info={info}
-          onChange={getHandlerForField("emphasizeCaption")}
-        />
+        <EmphasizeCaptionCheckbox info={info} onChange={getHandlerForField("emphasizeCaption")} />
       </div>
       <Input
         className="mb-2"

@@ -14,12 +14,8 @@ import React from "react";
  * @param {string} obj.currentState - a current state.
  * @param {stateChangeCallback} obj.onStateChange - a state change callback.
  */
-const ProjectStateMoveToStateSelect = ({
-  allStates,
-  currentState,
-  onStateChange
-}) => {
-  const onChangeHandler = event => {
+const ProjectStateMoveToStateSelect = ({ allStates, currentState, onStateChange }) => {
+  const onChangeHandler = (event) => {
     const newState = event.target.value;
     onStateChange && onStateChange(currentState, newState);
   };
@@ -27,10 +23,9 @@ const ProjectStateMoveToStateSelect = ({
     <select
       className="text-white bg-blue-500 hover:bg-blue-700 font-xs px-2 py-0 rounded truncate"
       value={currentState}
-      onChange={onChangeHandler}
-    >
+      onChange={onChangeHandler}>
       {allStates &&
-        allStates.map(state => (
+        allStates.map((state) => (
           <option value={state} key={state}>
             {state}
           </option>

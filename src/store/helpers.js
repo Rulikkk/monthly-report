@@ -44,13 +44,19 @@ export function transformKey(k, fn = echo) {
  * Transform all keys of a given object
  * @example transformKeys({a: {b: 1}}, v => v.toUpperCase()) -> {A: {B: 1}}
  * */
-export function transformKeys(obj, fn = echo) {
+export function transformKeys(obj, fn = echo, propNames = null) {
+  const keyToBeChanged = (key) => propNames && Array.isArray(propNames) && propNames.includes(key);
+
   if (!obj || (typeof obj).match(/string|number|boolean/)) return obj;
   return Object.entries(obj).reduce((acc, [k, v]) => {
-    if (isPlainObject(v)) return { ...acc, [fn(k)]: transformKeys(v, fn) };
+    if (isPlainObject(v))
+      return { ...acc, [keyToBeChanged(k) ? fn(k) : k]: transformKeys(v, fn, propNames) };
     else if (isArray(v))
-      return { ...acc, [fn(k)]: v.map((vv) => transformKeys(vv, fn)) };
-    else return { ...acc, [fn(k)]: v };
+      return {
+        ...acc,
+        [keyToBeChanged(k) ? fn(k) : k]: v.map((vv) => transformKeys(vv, fn, propNames)),
+      };
+    else return { ...acc, [keyToBeChanged(k) ? fn(k) : k]: v };
   }, {});
 }
 

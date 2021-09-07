@@ -1,20 +1,15 @@
-import React, { Suspense, useState } from "react"
-import { Link } from "@reach/router"
-import Split from "react-split-pane"
-import debounce from "lodash.debounce"
-import {useRecoilCallback, useRecoilState} from 'recoil'
-import camelCase from "lodash.camelcase";
-import {PROJECT_STATES_ALL} from '../../common/constants'
-import LocalStorageStore from "../../common/localStorageStore"
-import Spinner from "../../components/Spinner"
-import {
-  Button,
-  enhanceDataInplace,
-  PrintButton,
-} from "../../components/pageComponents/MonthlyReport/BaseComponents"
-import {allReportsIds, reportAtomFamily} from '../../store/state'
-import EditorSection from "./EditorSection"
-import ReportSection from "./ReportSection"
+import React, { Suspense, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import Split from "react-split-pane";
+import debounce from "lodash.debounce";
+import { useRecoilCallback } from "recoil";
+import { PROJECT_STATES_ALL } from "../../common/constants";
+import LocalStorageStore from "../../common/localStorageStore";
+import Spinner from "../../components/Spinner";
+import { Button, PrintButton } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import { reportAtomFamily } from "../../store/state";
+import EditorSection from "./EditorSection";
+import ReportSection from "./ReportSection";
 
 /**
  * TODO:
@@ -34,10 +29,7 @@ const GoHomeButton = () => (
 );
 
 const EditorShowButton = ({ openPanel }) => (
-  <Button
-    value="Edit"
-    onClick={openPanel}
-  >
+  <Button value="Edit" onClick={openPanel}>
     Edit
   </Button>
 );
@@ -45,11 +37,14 @@ const EditorShowButton = ({ openPanel }) => (
 const DEFAULT_PANEL_SIZE_PX = 450;
 const MIN_PANEL_SIZE_PX = 150;
 
-const MonthlyReport = ({ reportId }) => {
+const MonthlyReport = () => {
+  const { reportId } = useParams();
   const initialSidebarState = LocalStorageStore.sidebarState;
-  const [panelSize, setPanelSize] = useState(initialSidebarState.open ? initialSidebarState.size : 0);
+  const [panelSize, setPanelSize] = useState(
+    initialSidebarState.open ? initialSidebarState.size : 0,
+  );
 
-  const storePanelSize = (open, size) => LocalStorageStore.sidebarState = { open, size };
+  const storePanelSize = (open, size) => (LocalStorageStore.sidebarState = { open, size });
 
   const onPanelSizeChange = debounce((size) => {
     const newSize = size < MIN_PANEL_SIZE_PX ? 0 : size;
@@ -60,41 +55,47 @@ const MonthlyReport = ({ reportId }) => {
   const openPanel = () => {
     setPanelSize(DEFAULT_PANEL_SIZE_PX);
     storePanelSize(true, DEFAULT_PANEL_SIZE_PX);
-  }
+  };
 
-  const changeProjectState = useRecoilCallback(({ snapshot, set }) => async (project, oldState, newState) => {
-    const currentReport = await snapshot.getPromise(reportAtomFamily(reportId));
-    const projectIdCased = camelCase(project.id);
+  const changeProjectState = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async (project, oldState, newState) => {
+        const currentReport = await snapshot.getPromise(reportAtomFamily(reportId));
 
-    const updatedCurrentReport = {
-      ...currentReport,
-      projects: PROJECT_STATES_ALL.map(state => {
-        const projectStates = currentReport.projects[state]
+        const updatedCurrentReport = {
+          ...currentReport,
+          projects: PROJECT_STATES_ALL.map((state) => {
+            const projectStates = currentReport.projects[state];
 
-        const projectsMap = Object.keys(projectStates).reduce((acc2, pId) => {
-          if (state === oldState && pId === projectIdCased) {
-            return acc2;
-          }
+            const projectsMap = Object.keys(projectStates).reduce((acc2, pId) => {
+              if (state === oldState && pId === project.id) {
+                return acc2;
+              }
 
-          return {
-            ...acc2,
-            [pId]: projectStates[pId]
-          }
-        }, {});
+              return {
+                ...acc2,
+                [pId]: projectStates[pId],
+              };
+            }, {});
 
-        if (state === newState) {
-          projectsMap[projectIdCased] = project;
-        }
+            if (state === newState) {
+              projectsMap[project.id] = project;
+            }
 
-        return [state, projectsMap]
-      }).reduce((acc, [state, projectsMap]) => ({
-        ...acc,
-        [state]: projectsMap
-      }), {})
-    }
+            return [state, projectsMap];
+          }).reduce(
+            (acc, [state, projectsMap]) => ({
+              ...acc,
+              [state]: projectsMap,
+            }),
+            {},
+          ),
+        };
 
-    set(reportAtomFamily(reportId), updatedCurrentReport);
-  }, [reportId]);
+        set(reportAtomFamily(reportId), updatedCurrentReport);
+      },
+    [reportId],
+  );
 
   return (
     <Suspense fallback={<Spinner text={`Loading report ${reportId}`} />}>
@@ -112,8 +113,7 @@ const MonthlyReport = ({ reportId }) => {
         defaultSize={DEFAULT_PANEL_SIZE_PX}
         size={panelSize}
         primary="second"
-        onChange={onPanelSizeChange}
-      >
+        onChange={onPanelSizeChange}>
         <ReportSection />
         <EditorSection
           setPaneSize={setPanelSize}

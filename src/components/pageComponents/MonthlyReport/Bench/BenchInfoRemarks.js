@@ -21,8 +21,8 @@ const BenchInfoRemarks = ({ remarks }) => {
 const styles = {
   tableStyle: {
     color: "#7f7f7f",
-    fontSize: "0.8em"
-  }
+    fontSize: "0.8em",
+  },
 };
 
 export default BenchInfoRemarks;

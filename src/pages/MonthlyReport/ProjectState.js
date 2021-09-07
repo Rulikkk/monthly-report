@@ -9,9 +9,12 @@ import {
   AddRemoveIssueButton,
   AddRemoveStaffingButton,
   RemoveProjectButton,
-  Issue
+  Issue,
 } from "./EditorSection";
-import { EditorShadowedCard, Input } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import {
+  EditorShadowedCard,
+  Input,
+} from "../../components/pageComponents/MonthlyReport/BaseComponents";
 import { useProjectStatusById } from "../../store/hooks";
 
 /**
@@ -54,8 +57,7 @@ const ProjectState = ({ forState, id, onProjectStateChange, ...projects }) => {
             allStates={PROJECT_STATES_ALL}
             currentState={forState}
             onStateChange={(oldState, newState) =>
-              onProjectStateChange &&
-              onProjectStateChange(project, oldState, newState)
+              onProjectStateChange && onProjectStateChange(project, oldState, newState)
             }
           />
         </span>

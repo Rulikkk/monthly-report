@@ -1,14 +1,11 @@
-import React, {useEffect, useState} from "react"
-import { Link } from "@reach/router";
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useRecoilCallback, useRecoilValueLoadable } from "recoil";
-import {
-  allReportsIds,
-  reportQuery
-} from "../../store/state";
+import { allReportsIds, reportQuery } from "../../store/state";
 
 const Home = () => {
   const ids = useRecoilValueLoadable(allReportsIds);
-  const [reportLink, setReportLink] = useState('last');
+  const [reportLink, setReportLink] = useState("last");
   const [lastReportId, setLastReportId] = useState(null);
   const [preLastReportId, setPreLastReportId] = useState(null);
 
@@ -17,28 +14,25 @@ const Home = () => {
   });
 
   useEffect(() => {
-    if (ids.state === 'hasValue' && Array.isArray(ids.contents) ) {
-      setLastReportId(ids.contents?.[0])
-      setPreLastReportId(ids.contents?.[1])
+    if (ids.state === "hasValue" && Array.isArray(ids.contents)) {
+      setLastReportId(ids.contents?.[0]);
+      setPreLastReportId(ids.contents?.[1]);
     }
-  }, [ids])
+  }, [ids]);
 
   useEffect(() => {
     if (lastReportId) {
       setReportLink(lastReportId);
       preloadReport(lastReportId);
     }
-  }, [lastReportId])
+  }, [lastReportId]);
 
   useEffect(() => {
     preLastReportId && preloadReport(preLastReportId);
-  }, [preLastReportId])
+  }, [preLastReportId]);
 
   return (
-    <div
-      className="container p-4 mx-auto max-w-4xl"
-      style={{ paddingRight: "34px" }}
-    >
+    <div className="container p-4 mx-auto max-w-4xl" style={{ paddingRight: "34px" }}>
       <img alt="Logo" src="/head.png" className="mx-auto" />
       <nav className="list-disc list-inside m-8">
         <li>

@@ -7,7 +7,7 @@ import BenchInfoRemarks from "./BenchInfoRemarks";
 
 const BenchInfoSection = () => {
   const {
-    value: { benchRemarks: remarks }
+    value: { benchRemarks: remarks },
   } = useRecoilValue(config());
 
   return (

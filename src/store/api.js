@@ -14,9 +14,7 @@ const DEBUG = true;
  * @returns {Promise}
  */
 export function push(path, { id, ...rest }) {
-  console.log(
-    `${timestamp()} [ push ${id ? "id=" + id + " PUT" : "POST"} ] ${path}`
-  );
+  console.log(`${timestamp()} [ push ${id ? "id=" + id + " PUT" : "POST"} ] ${path}`);
   let payload = transformKeys(rest, snakeCase);
 
   if (DEBUG)
@@ -27,9 +25,7 @@ export function push(path, { id, ...rest }) {
       }, 200);
     });
 
-  return id
-    ? http.put(joinAbs(path, id), payload)
-    : http.post(`/${path}`, payload);
+  return id ? http.put(joinAbs(path, id), payload) : http.post(`/${path}`, payload);
 }
 
 /**
@@ -39,10 +35,6 @@ export function push(path, { id, ...rest }) {
  * @returns {Promise}
  */
 export function pull(path, id = null) {
-  console.log(
-    id
-      ? `${timestamp()} [ pull ] ${path}/${id}`
-      : `${timestamp()} [ pull ] ${path}`
-  );
+  console.log(id ? `${timestamp()} [ pull ] ${path}/${id}` : `${timestamp()} [ pull ] ${path}`);
   return http.get(joinAbs(path, id));
 }

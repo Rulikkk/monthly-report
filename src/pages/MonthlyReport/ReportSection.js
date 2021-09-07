@@ -1,10 +1,10 @@
 import "../../typedefs";
 
 import React, { Fragment, Suspense } from "react";
-import { useParams, navigate } from "@reach/router";
+import { useParams, useHistory } from "react-router-dom";
 
 import { useRecoilValue } from "recoil";
-import { formatIdAsDate } from '../../common/utils'
+import { formatIdAsDate } from "../../common/utils";
 
 import * as state from "../../store/state";
 
@@ -12,7 +12,7 @@ import {
   useActiveAndPrevReport,
   useActiveReport,
   useActiveReportProjectsByColor,
-  useProjectStatusById
+  useProjectStatusById,
 } from "../../store/hooks";
 
 import {
@@ -21,7 +21,7 @@ import {
   TERMINATED,
   GREEN,
   YELLOW,
-  RED
+  RED,
 } from "../../common/constants";
 import { initCap } from "../../components/pageComponents/MonthlyReport/BaseComponents";
 import Scrollable from "../../components/Scrollable";
@@ -33,16 +33,16 @@ import Spinner from "../../components/Spinner";
 const ReportSelector = () => {
   const allReportsIds = useRecoilValue(state.allReportsIds);
   const routeParams = useParams();
+  const history = useHistory();
   const activeReportId = routeParams.reportId;
-  if (!activeReportId) navigate("/report/last");
+  if (!activeReportId) history.push("/report/last");
 
   return (
     <>
       <select
         value={activeReportId}
-        onChange={(e) => navigate(`/report/${e.target.value}`)}
-        className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print"
-      >
+        onChange={(e) => history.push(`/report/${e.target.value}`)}
+        className="text-3xl font-bold mt-3 bg-gray-200 rounded leading-tight no-print">
         {allReportsIds.map((r) => (
           <option className="text-normal" value={r} key={r}>
             {formatIdAsDate(r)}
@@ -62,8 +62,8 @@ const Notes = ({
   notes = [
     `Edit "notes" in data.json to update this section.<br>
       Then click "Edit" -> "Load" to apply changes.<br>
-      "Notes" is an array, which is joined and set as html.`
-  ]
+      "Notes" is an array, which is joined and set as html.`,
+  ],
 }) => (
   <ul
     className="list-disc list-inside bg-gray-200 p-4 text-sm"
@@ -78,7 +78,7 @@ const Td = ({
   red,
   green,
   bold,
-  c = (f, t) => (f ? ` ${t}` : "")
+  c = (f, t) => (f ? ` ${t}` : ""),
 }) => (
   <td
     className={
@@ -88,8 +88,7 @@ const Td = ({
       c(green, "bg-green-200") +
       c(yellow, "bg-yellow-200") +
       c(bold, "font-bold")
-    }
-  >
+    }>
     {children}
   </td>
 );
@@ -116,7 +115,7 @@ const Comparer = ({
   totalThen,
   tip,
   projectState,
-  lowerBetter = false
+  lowerBetter = false,
 }) => {
   const percent = (v, t) => Math.round((100 * v) / t),
     nowValue = totalNow ? percent(now, totalNow) : now,
@@ -124,11 +123,7 @@ const Comparer = ({
     maybePercent = totalNow || totalThen ? "%" : "",
     change = nowValue - thenValue,
     changeText = ` ${
-      change > 0
-        ? "increased by " + change
-        : change < 0
-          ? "decreased by " + -change
-          : "not changed"
+      change > 0 ? "increased by " + change : change < 0 ? "decreased by " + -change : "not changed"
     }`,
     good =
       nowValue === thenValue ||
@@ -142,32 +137,24 @@ const Comparer = ({
         : `Number of ${projectState} projects${changeText}`);
   return (
     <span title={title} className="cursor-default">
-          {nowValue + maybePercent}{" "}
-      <span
-        className={
-          "font-normal text-sm " +
-          (good ? "text-green-400" : "text-red-400")
-        }
-      >
-            ({arrow}
+      {nowValue + maybePercent}{" "}
+      <span className={"font-normal text-sm " + (good ? "text-green-400" : "text-red-400")}>
+        ({arrow}
         {Math.abs(nowValue - thenValue) + maybePercent})
-          </span>
-        </span>
+      </span>
+    </span>
   );
-}
+};
 
 const TdComparer = ({ projects, prevProjects, projectState, ...props }) => {
   if (!projects || !projects[projectState]) {
-    return null
+    return null;
   }
 
   return (
-    <Td {...{[projectState]: true}}>
+    <Td {...{ [projectState]: true }}>
       <Comparer
-        now={
-          projects[projectState] &&
-          Object.keys(projects[projectState]).length
-        }
+        now={projects[projectState] && Object.keys(projects[projectState]).length}
         then={
           prevProjects &&
           prevProjects[projectState] &&
@@ -178,22 +165,20 @@ const TdComparer = ({ projects, prevProjects, projectState, ...props }) => {
         {...props}
       />
     </Td>
-  )
-}
+  );
+};
 
 const TotalsTable = () => {
   const {
     activeReport: { projects },
-    prevReport
+    prevReport,
   } = useActiveAndPrevReport();
 
   const prevProjects = prevReport?.projects;
 
   const countProjects = (ps) =>
     ps &&
-    PROJECT_STATES.map((t) => (ps[t] ? Object.keys(ps[t]).length : 0)).reduce(
-      (a, b) => a + b
-    );
+    PROJECT_STATES.map((t) => (ps[t] ? Object.keys(ps[t]).length : 0)).reduce((a, b) => a + b);
   const totalProjectsNow = countProjects(projects);
   const totalProjectsPrev = countProjects(prevProjects);
   const totals = { totalNow: totalProjectsNow, totalPrev: totalProjectsPrev };
@@ -204,12 +189,7 @@ const TotalsTable = () => {
         <thead style={{ borderBottom: "solid silver 1px" }}>
           <TotalsTableHeadRow
             bold
-            cells={[
-              "Total Projects",
-              "Green State",
-              "Yellow State",
-              "Red State"
-            ]}
+            cells={["Total Projects", "Green State", "Yellow State", "Red State"]}
           />
         </thead>
         <tbody>
@@ -228,9 +208,24 @@ const TotalsTable = () => {
           </tr>
           <tr>
             <Td bold>%</Td>
-            <TdComparer projects={projects} prevProjects={prevProjects} projectState={GREEN} {...totals} />
-            <TdComparer projects={projects} prevProjects={prevProjects} projectState={YELLOW} {...totals} />
-            <TdComparer projects={projects} prevProjects={prevProjects} projectState={RED} {...totals} />
+            <TdComparer
+              projects={projects}
+              prevProjects={prevProjects}
+              projectState={GREEN}
+              {...totals}
+            />
+            <TdComparer
+              projects={projects}
+              prevProjects={prevProjects}
+              projectState={YELLOW}
+              {...totals}
+            />
+            <TdComparer
+              projects={projects}
+              prevProjects={prevProjects}
+              projectState={RED}
+              {...totals}
+            />
           </tr>
         </tbody>
       </table>
@@ -242,10 +237,7 @@ const TotalsTable = () => {
 };
 
 const ProjectStatus = ({ hideOK, color, projectId }) => {
-  const [{ id, name, issues, staffing, notes }] = useProjectStatusById(
-    color,
-    projectId
-  );
+  const [{ id, name, issues, staffing, notes }] = useProjectStatusById(color, projectId);
 
   return (
     <tr key={id} style={{ borderBottom: "solid silver 1px" }}>
@@ -266,7 +258,7 @@ const ProjectStatus = ({ hideOK, color, projectId }) => {
                 </Fragment>
               ) : (
                 ""
-              )
+              ),
             )
           ) : (
             <>
@@ -331,7 +323,7 @@ const ProjectListForState = (p) => {
 
 const ReportHeader = () => {
   const {
-    value: { notes, reportName }
+    value: { notes, reportName },
   } = useRecoilValue(state.config());
   return (
     <>

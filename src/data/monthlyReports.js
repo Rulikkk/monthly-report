@@ -1,4 +1,4 @@
-import '../typedefs'
+import "../typedefs";
 
 /**
  * @type {Data}
@@ -13,12 +13,12 @@ const defaultData = {
           {
             name: "test name",
             notes: "test notes",
-            staffing: "test staffing"
+            staffing: "test staffing",
           },
           {
-            name: "test name"
+            name: "test name",
           },
-          { name: "test name" }
+          { name: "test name" },
         ],
         yellow: [
           {
@@ -27,11 +27,11 @@ const defaultData = {
               {
                 issue: "test issue",
                 mitigation: "test mitigation",
-                eta: "mid may"
-              }
+                eta: "mid may",
+              },
             ],
             notes: "test notes",
-            staffing: "test staffing"
+            staffing: "test staffing",
           },
           {
             name: "test name",
@@ -40,14 +40,14 @@ const defaultData = {
               {
                 issue: "test issue 2",
                 mitigation: "test mitigation 2.",
-                eta: "Mid-december"
-              }
-            ]
-          }
+                eta: "Mid-december",
+              },
+            ],
+          },
         ],
         red: [],
-        terminated: []
-      }
+        terminated: [],
+      },
     },
     {
       code: "2019-02",
@@ -56,8 +56,8 @@ const defaultData = {
         green: [{}, {}, {}, {}, {}],
         yellow: [],
         red: [{}],
-        terminated: []
-      }
+        terminated: [],
+      },
     },
     {
       code: "2019-03",
@@ -66,8 +66,8 @@ const defaultData = {
         green: [{}],
         yellow: [{}],
         red: [],
-        terminated: []
-      }
+        terminated: [],
+      },
     },
     {
       code: "2019-04",
@@ -76,8 +76,8 @@ const defaultData = {
         green: [],
         yellow: [],
         red: [],
-        terminated: []
-      }
+        terminated: [],
+      },
     },
     {
       code: "2019-05",
@@ -86,8 +86,8 @@ const defaultData = {
         green: [],
         yellow: [],
         red: [],
-        terminated: []
-      }
+        terminated: [],
+      },
     },
     {
       code: "2019-06",
@@ -96,8 +96,8 @@ const defaultData = {
         green: [],
         yellow: [],
         red: [],
-        terminated: []
-      }
+        terminated: [],
+      },
     },
     {
       code: "2019-07",
@@ -106,10 +106,10 @@ const defaultData = {
         green: [],
         yellow: [],
         red: [],
-        terminated: []
-      }
-    }
-  ]
+        terminated: [],
+      },
+    },
+  ],
 };
 
 export default defaultData;

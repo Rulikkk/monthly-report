@@ -1,6 +1,6 @@
 import React from "react";
 import { useRecoilState } from "recoil";
-import { useParams } from "@reach/router";
+import { useParams } from "react-router-dom";
 import debounce from "lodash.debounce";
 
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
@@ -20,8 +20,8 @@ const BenchEditorGroup = () => {
       ...report,
       benchInfoData: {
         ...report.benchInfoData,
-        benchSectionEnabled: !report.benchInfoData.benchSectionEnabled
-      }
+        benchSectionEnabled: !report.benchInfoData.benchSectionEnabled,
+      },
     });
   };
 
@@ -30,8 +30,8 @@ const BenchEditorGroup = () => {
       ...report,
       benchInfoData: {
         ...report.benchInfoData,
-        info: [...report.benchInfoData.info, { id: getRandomId() }]
-      }
+        info: [...report.benchInfoData.info, { id: getRandomId() }],
+      },
     });
   };
 
@@ -40,10 +40,8 @@ const BenchEditorGroup = () => {
       ...report,
       benchInfoData: {
         ...report.benchInfoData,
-        info: report.benchInfoData.info.filter(
-          (record) => record.id !== info.id
-        )
-      }
+        info: report.benchInfoData.info.filter((record) => record.id !== info.id),
+      },
     });
   };
 
@@ -52,8 +50,8 @@ const BenchEditorGroup = () => {
       ...report,
       benchInfoData: {
         ...report.benchInfoData,
-        info: [...report.benchInfoData.info]
-      }
+        info: [...report.benchInfoData.info],
+      },
     };
     newReport.benchInfoData.info[index] = info;
     setReport(newReport);

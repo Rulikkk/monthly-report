@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
-import TextareaAutosize from 'react-autosize-textarea'
+import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
-import { Link } from "@reach/router";
 
 const getRandomId = () => {
   let array = new Uint32Array(8);
@@ -21,7 +20,7 @@ const getButtonClassName = (red, small, disabled, className) =>
     getButtonColor(red ? "red" : "blue"),
     small ? "" : "py-1",
     disabled ? "opacity-50 cursor-not-allowed" : "",
-    className
+    className,
   ].join(" ");
 
 const Button = ({
@@ -36,8 +35,7 @@ const Button = ({
     className={getButtonClassName(red, small, disabled, className)}
     type="button"
     title={typeof children === "string" ? children : null}
-    {...props}
-  >
+    {...props}>
     {children}
   </button>
 );
@@ -51,9 +49,7 @@ const sortedKeys = (x) => Object.keys(x).sort();
 const simpleHook = (object, hook, result) => {
   if (object)
     for (let r of sortedKeys(object))
-      result[r] = Array.isArray(object[r])
-        ? hook(...object[r])
-        : hook(object[r]);
+      result[r] = Array.isArray(object[r]) ? hook(...object[r]) : hook(object[r]);
 };
 
 const useEffects = (effects) => {
@@ -117,12 +113,12 @@ const SingleImgButton = ({ onImage, className, title, dragTitle }) => {
         window.alert(`Could not parse file with error ${e}.`);
       }
     },
-    [onImage]
+    [onImage],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: false,
-    accept: "image/*"
+    accept: "image/*",
   });
 
   return (
@@ -133,7 +129,6 @@ const SingleImgButton = ({ onImage, className, title, dragTitle }) => {
   );
 };
 
-
 const Input = ({
   value,
   onChange,
@@ -142,33 +137,21 @@ const Input = ({
   className = "",
   ...otherProps
 }) => {
-  const [state, setState] = useState(value),
-    handleChange = ({ target: { value } }) => {
-      setState(value);
-      onChange && onChange(value);
-      afterChange && afterChange();
-    },
-    props = {
-      ...otherProps,
-      className:
-        "shadow w-full appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline " +
-        className,
-      value: state,
-      onChange: handleChange
-    };
+  const handleChange = ({ target: { value } }) => {
+    onChange && onChange(value);
+    afterChange && afterChange();
+  };
+  const props = {
+    ...otherProps,
+    className:
+      "shadow w-full appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline " +
+      className,
+    value,
+    onChange: handleChange,
+  };
 
-  useEffect(() => {
-    if (value !== state) setState(value);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value]);
-
-  return textarea ? (
-    <TextareaAutosize {...props} />
-  ) : (
-    <input type="text" {...props} />
-  );
+  return textarea ? <TextareaAutosize {...props} /> : <input type="text" {...props} />;
 };
-
 
 export {
   getRandomId,
@@ -179,5 +162,5 @@ export {
   enhanceDataInplace,
   EditorShadowedCard,
   SingleImgButton,
-  Input
+  Input,
 };
