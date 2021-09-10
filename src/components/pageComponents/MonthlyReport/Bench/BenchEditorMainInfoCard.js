@@ -8,9 +8,7 @@ function EmphasizeCaptionCheckbox({ info, onChange }) {
     <div className="flex flex-col justify-center items-center pl-2">
       <input
         type="checkbox"
-        onClick={() => {
-          onChange(!info.emphasizeCaption);
-        }}
+        onClick={() => onChange(!info.emphasizeCaption)}
         defaultChecked={info.emphasizeCaption}
         id={checkboxId}
         name={checkboxId}

@@ -4,17 +4,12 @@ import React from "react";
 import { PROJECT_STATES_ALL } from "../../common/constants";
 import ProjectStateMoveToStateSelect from "./ProjectStateMoveToStateSelect";
 
-import {
-  AddRemoveNotesButton,
-  AddRemoveIssueButton,
-  AddRemoveStaffingButton,
-  RemoveProjectButton,
-  Issue,
-} from "./EditorSection";
+import { RemoveProjectButton, Issue } from "./EditorSection";
 import {
   EditorShadowedCard,
   Input,
 } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import { Checkbox } from "../../components";
 import { useProjectStatusById } from "../../store/hooks";
 
 /**
@@ -45,9 +40,14 @@ const ProjectState = ({ forState, id, onProjectStateChange, ...projects }) => {
         onChange={(val) => setProject({ ...project, name: val })}
       />
       <div className="flex justify-end">
-        <AddRemoveIssueButton {...props} />
-        <AddRemoveNotesButton {...props} />
-        <AddRemoveStaffingButton {...props} />
+        <Checkbox
+          label="issue"
+          projectField="issues"
+          initialValue={[{ issue: "", mitigation: "", eta: "" }]}
+          {...props}
+        />
+        <Checkbox label="notes" projectField="notes" {...props} />
+        <Checkbox label="staffing" projectField="staffing" {...props} />
         <RemoveProjectButton id={id} forState={forState} {...projects} />
       </div>
       <div className="flex justify-end py-1">

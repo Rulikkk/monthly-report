@@ -2,6 +2,7 @@ import React from "react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
+import { useSetRecoilState, useRecoilCallback } from "recoil";
 
 import {
   Button,
@@ -16,18 +17,10 @@ import ProjectState from "./ProjectState";
 import Scrollable from "../../components/Scrollable";
 import LocalStorageStore from "../../common/localStorageStore";
 import { useActiveReport, useSetProjectsByColor } from "../../store/hooks";
-import { useSetRecoilState, useRecoilCallback } from "recoil";
 import { allReportsIds, reportAtomFamily } from "../../store/state";
+import { inIframe } from "../../common/utils";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
-
-const inIframe = () => {
-  try {
-    return window.self !== window.top;
-  } catch (e) {
-    return true;
-  }
-};
 
 export const Issue = ({ issue, setIssue }) => {
   return (
@@ -57,80 +50,6 @@ export const Issue = ({ issue, setIssue }) => {
       />
       <br />
     </div>
-  );
-};
-
-export const AddRemoveNotesButton = ({ project, setProject }) => {
-  let has = project.notes !== undefined;
-  return (
-    <Button
-      small
-      className="mt-1 mr-1"
-      onClick={() => {
-        if (
-          has &&
-          project.notes.length > 0 &&
-          !inIframe() &&
-          !window.confirm("Are you sure you want to remove notes?")
-        )
-          return;
-        if (has) {
-          const { notes, ...rest } = project;
-          setProject(rest);
-        } else setProject({ ...project, notes: "" });
-      }}>
-      <input type="checkbox" checked={has} readOnly /> notes
-    </Button>
-  );
-};
-
-export const AddRemoveStaffingButton = ({ project, setProject }) => {
-  const has = project.staffing !== undefined;
-  return (
-    <Button
-      small
-      className="mt-1 mr-1"
-      onClick={() => {
-        if (
-          has &&
-          project.staffing.length > 0 &&
-          !inIframe() &&
-          !window.confirm("Are you sure you want to remove staffing?")
-        )
-          return;
-        if (has) {
-          const { staffing, ...rest } = project;
-          setProject(rest);
-        } else {
-          setProject({ ...project, staffing: "" });
-        }
-      }}>
-      <input type="checkbox" checked={has} readOnly /> staffing
-    </Button>
-  );
-};
-
-export const AddRemoveIssueButton = ({ project, setProject }) => {
-  const hasIssues = !!(project.issues && project.issues.length > 0);
-  return (
-    <Button
-      small
-      className="mt-1 mr-1"
-      onClick={() => {
-        if (hasIssues && !inIframe() && !window.confirm("Are you sure you want to remove issue?"))
-          return;
-        if (hasIssues) {
-          const { issues, ...rest } = project;
-          setProject(rest);
-        } else {
-          setProject({
-            ...project,
-            issues: [{ issue: "", mitigation: "", eta: "" }],
-          });
-        }
-      }}>
-      <input type="checkbox" checked={hasIssues} readOnly /> issue
-    </Button>
   );
 };
 
