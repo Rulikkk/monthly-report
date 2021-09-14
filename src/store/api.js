@@ -32,6 +32,10 @@ export function cloneLastReport() {
   return http.post("/reports/clone_last");
 }
 
+export function updateProjectStatus(id, payload) {
+  return http.post(`/project_status/${id}`, payload);
+}
+
 /**
  * Fetch document
  * @param {string} path HTTP endpoint

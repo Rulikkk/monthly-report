@@ -7,6 +7,7 @@ import { PROJECT_STATES_ALL } from "../../common/constants";
 import LocalStorageStore from "../../common/localStorageStore";
 import Spinner from "../../components/Spinner";
 import { Button, PrintButton } from "../../components/pageComponents/MonthlyReport/BaseComponents";
+import { updateProjectStatus } from "../../store/api";
 import { reportAtomFamily } from "../../store/state";
 import EditorSection from "./EditorSection";
 import ReportSection from "./ReportSection";
@@ -92,6 +93,16 @@ const MonthlyReport = () => {
           ),
         };
 
+        const payload = {
+          name: project.name,
+          status_color: newState,
+          status: {
+            notes: project.notes,
+            staffing: project.staffing,
+            issues: project.issues,
+          },
+        };
+        await updateProjectStatus(project.id, payload);
         set(reportAtomFamily(reportId), updatedCurrentReport);
       },
     [reportId],
