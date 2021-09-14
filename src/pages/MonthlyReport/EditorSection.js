@@ -1,6 +1,5 @@
 import React from "react";
 import { useDropzone } from "react-dropzone";
-import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import { useSetRecoilState, useRecoilCallback } from "recoil";
 
@@ -13,6 +12,7 @@ import {
 import BenchEditorGroup from "../../components/pageComponents/MonthlyReport/Bench/BenchEditorGroup";
 import { PROJECT_STATES_ALL } from "../../common/constants";
 import { PraiseEditorGroup } from "../../components/pageComponents/MonthlyReport/Praises";
+import { cloneLastReport } from "../../store/api";
 import ProjectState from "./ProjectState";
 import Scrollable from "../../components/Scrollable";
 import LocalStorageStore from "../../common/localStorageStore";
@@ -140,68 +140,19 @@ const MONTH_NAMES = [
   "Dec",
 ];
 
-const getNextCodeAndName = (lastCode) => {
-  let [year, month] = lastCode.split("-").map((x) => parseInt(x, 10));
-  if (month < 12) month++;
-  else [year, month] = [year + 1, 1];
-  return [`${year}-${month.toString().padStart(2, "0")}`, `${MONTH_NAMES[month - 1]} ${year}`];
-};
-
 const CopyPreviousReport = ({ report, ...props }) => {
   const createNewReportState = useRecoilCallback(
     ({ snapshot, set }) =>
       async () => {
+        const {
+          data: { id: newReportId },
+        } = await cloneLastReport();
+
         const allReportsIdsValue = await snapshot.getPromise(allReportsIds);
-
-        const lastReportIdDate = new Date(Date.parse(`${allReportsIdsValue[0]}-01`));
-        const newReportIdDate = new Date(
-          lastReportIdDate.setMonth(lastReportIdDate.getMonth() + 1),
-        );
-        const newReportId = `${newReportIdDate.getFullYear()}-${newReportIdDate.getMonth() + 1}`;
-
-        const lastReportValue = await snapshot.getPromise(reportAtomFamily(allReportsIdsValue[0]));
-        if (!lastReportValue) {
-          alert("No previous reports found");
-          return;
-        }
-
-        set(reportAtomFamily(newReportId), { ...lastReportValue });
         set(allReportsIds, [newReportId, ...allReportsIdsValue]);
       },
     [],
   );
-
-  const oldOnClick = async () => {
-    if (!report) {
-      alert("No reports to copy, please, load initial data.");
-      return;
-    }
-    // const lastReport = data.reports[data.reports.length - 1],
-    //   [code, name] = getNextCodeAndName(lastReport.code),
-    //   newReport = { ...lastReport, prev: lastReport, code, name };
-    // lastReport.next = newReport;
-    // data.reports.push(newReport);
-    // incrementLoadId(data);
-    // setData(data);
-    // Store.reportJSON = data;
-    try {
-      // await push("report", {date: report.reportId, ...report});
-      if (!inIframe())
-        alert(`${report.reportId} report was copied from previous month. Page will be reloaded.`);
-      window.location.reload();
-    } catch (err) {
-      toast.error({ ...err });
-    }
-  };
-  //
-  // const onClick = () => {
-  //   if (!allReportsIdsValue.length) {
-  //   }
-  //
-  //   setAllReportsIds([newReportId, ...allReportsIdsValue]);
-  //   console.log('111', lastReportValue.contents);
-  //   setNewReportState(lastReportValue.contents);
-  // };
 
   return (
     <Button {...props} onClick={() => createNewReportState()}>

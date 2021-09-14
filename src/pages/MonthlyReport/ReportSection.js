@@ -1,7 +1,7 @@
 import "../../typedefs";
 
 import React, { Fragment, Suspense } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams, useHistory, Link } from "react-router-dom";
 
 import { useRecoilValue } from "recoil";
 import { formatIdAsDate } from "../../common/utils";
@@ -327,7 +327,9 @@ const ReportHeader = () => {
   } = useRecoilValue(state.config());
   return (
     <>
-      <img alt="Logo" src="/head.png" className="mx-auto" />
+      <Link to="/">
+        <img alt="Logo" src="/head.png" className="mx-auto" />
+      </Link>
       <h1 className="text-3xl">
         <ReportSelector /> — {reportName || "<data.reportName>"}
       </h1>
