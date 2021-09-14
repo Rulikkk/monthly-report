@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import TextareaAutosize from "react-autosize-textarea";
 import { useDropzone } from "react-dropzone";
 
@@ -43,51 +43,6 @@ const Button = ({
 const PrintButton = () => <Button onClick={() => window.print()}>Print</Button>;
 
 const initCap = (s) => `${s[0].toUpperCase()}${s.slice(1)}`;
-
-const sortedKeys = (x) => Object.keys(x).sort();
-
-const simpleHook = (object, hook, result) => {
-  if (object)
-    for (let r of sortedKeys(object))
-      result[r] = Array.isArray(object[r]) ? hook(...object[r]) : hook(object[r]);
-};
-
-const useEffects = (effects) => {
-  for (let effect of effects) {
-    simpleHook(effect, useEffect, {});
-  }
-};
-
-const enhanceDataInplace = (data) => {
-  const reps = data.reports;
-
-  // fill next/prev links
-  if (reps.length > 1) {
-    reps[0].next = reps[1];
-    reps[reps.length - 1].prev = reps[reps.length - 2];
-  }
-  for (let i = 1; i < data.reports.length - 1; i++) {
-    reps[i].prev = reps[i - 1];
-    reps[i].next = reps[i + 1];
-  }
-
-  // fill IDs for projects and issues
-  reps.forEach((report) => {
-    if (!report.projects) report.projects = [];
-    for (let k in report.projects) {
-      report.projects[k].forEach((proj) => {
-        if (!proj.id) proj.id = getRandomId();
-        if (proj.issues)
-          proj.issues.forEach((issue) => {
-            if (!issue.id) issue.id = getRandomId();
-          });
-      });
-    }
-  });
-
-  data.enhanced = 1;
-  return data;
-};
 
 const EditorShadowedCard = ({ children }) => (
   <div className="m-2 p-2 rounded border shadow-lg">{children}</div>
@@ -153,14 +108,4 @@ const Input = ({
   return textarea ? <TextareaAutosize {...props} /> : <input type="text" {...props} />;
 };
 
-export {
-  getRandomId,
-  initCap,
-  Button,
-  useEffects,
-  PrintButton,
-  enhanceDataInplace,
-  EditorShadowedCard,
-  SingleImgButton,
-  Input,
-};
+export { getRandomId, initCap, Button, PrintButton, EditorShadowedCard, SingleImgButton, Input };
