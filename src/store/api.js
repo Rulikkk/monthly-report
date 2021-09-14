@@ -28,6 +28,10 @@ export function push(path, { id, ...rest }) {
   return id ? http.put(joinAbs(path, id), payload) : http.post(`/${path}`, payload);
 }
 
+export function cloneLastReport() {
+  return http.post("/reports/clone_last");
+}
+
 /**
  * Fetch document
  * @param {string} path HTTP endpoint
