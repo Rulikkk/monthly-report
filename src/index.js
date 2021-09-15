@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import { ToastContainer } from "react-toastify";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import { RecoilRoot, useRecoilCallback } from "recoil";
+import { RecoilRoot, useRecoilCallback, useRecoilSnapshot } from "recoil";
 
 import Home from "./pages/Home";
 import MonthlyReport from "./pages/MonthlyReport";
@@ -26,8 +26,21 @@ const RecoilRootTopLevelCmp = ({ children }) => {
   return children;
 };
 
+const DebugObserver = () => {
+  const snapshot = useRecoilSnapshot();
+  useEffect(() => {
+    console.debug("The following atoms were modified:");
+    for (const node of snapshot.getNodes_UNSTABLE({ isModified: true })) {
+      console.debug(node.key, snapshot.getLoadable(node));
+    }
+  }, [snapshot]);
+
+  return null;
+};
+
 const Main = () => (
   <RecoilRoot>
+    <DebugObserver />
     <RecoilRootTopLevelCmp>
       <Router>
         <Switch>

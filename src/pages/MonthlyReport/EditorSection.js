@@ -5,20 +5,18 @@ import { useSetRecoilState, useRecoilCallback } from "recoil";
 
 import {
   Button,
-  getRandomId,
   PrintButton,
   Input,
 } from "../../components/pageComponents/MonthlyReport/BaseComponents";
 import BenchEditorGroup from "../../components/pageComponents/MonthlyReport/Bench/BenchEditorGroup";
 import { PROJECT_STATES_ALL } from "../../common/constants";
 import { PraiseEditorGroup } from "../../components/pageComponents/MonthlyReport/Praises";
-import { cloneLastReport } from "../../store/api";
+import { addProjectStatus, cloneLastReport, removeProjectStatus } from "../../store/api";
 import ProjectState from "./ProjectState";
 import Scrollable from "../../components/Scrollable";
 import LocalStorageStore from "../../common/localStorageStore";
-import { useActiveReport, useSetProjectsByColor } from "../../store/hooks";
-import { allReportsIds, reportAtomFamily } from "../../store/state";
-import { inIframe } from "../../common/utils";
+import { useActiveReport, useActiveReportProjectsByColor } from "../../store/hooks";
+import { allReportsIds, reportAtomFamily, statusesByColor } from "../../store/state";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
@@ -27,7 +25,7 @@ export const Issue = ({ issue, setIssue }) => {
     <div className="border-l-2 my-4 pl-1">
       Issue
       <Input
-        value={issue.issue}
+        value={issue.issue || ""}
         onChange={(val) => {
           setIssue({ ...issue, issue: val });
         }}
@@ -37,14 +35,14 @@ export const Issue = ({ issue, setIssue }) => {
       <br />
       Mitigation
       <Input
-        value={issue.mitigation}
+        value={issue.mitigation || ""}
         onChange={(val) => setIssue({ ...issue, mitigation: val })}
         placeholder="Add issue mitigation here"
         textarea
       />
       ETA
       <Input
-        value={issue.eta}
+        value={issue.eta || ""}
         onChange={(val) => setIssue({ ...issue, eta: val })}
         placeholder="Add issue fix ETA here"
       />
@@ -53,68 +51,99 @@ export const Issue = ({ issue, setIssue }) => {
   );
 };
 
-const AddProjectButton = ({ forState, projects, setProjects, ...props }) => {
+const AddProjectButton = ({ projectStatus, ...props }) => {
   const { reportId } = useParams();
-  const setReport = useSetRecoilState(reportAtomFamily(reportId));
 
-  return (
-    <Button
-      small
-      onClick={() => {
+  const onAddProject = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        const [report, projects] = await Promise.all([
+          snapshot.getPromise(reportAtomFamily(reportId)),
+          snapshot.getPromise(statusesByColor({ reportId, color: projectStatus })),
+        ]);
+
+        const newProjectObj = { name: "", status: {} };
+
+        const {
+          data: { id: newProjectId },
+        } = await addProjectStatus({
+          ...newProjectObj,
+          date: `${reportId}-01`,
+          status_color: projectStatus,
+        });
+
         const newProjects = {
-          [getRandomId()]: { name: "" },
+          [newProjectId]: newProjectObj,
           ...projects,
         };
-        setProjects(newProjects);
-        setReport((report) => ({
+        set(statusesByColor({ reportId, color: projectStatus }), newProjects);
+        set(reportAtomFamily(reportId), {
           ...report,
           projects: {
             ...report.projects,
-            [forState]: newProjects,
+            [projectStatus]: newProjects,
           },
-        }));
-      }}
-      {...props}>
+        });
+      },
+    [projectStatus, reportId],
+  );
+
+  return (
+    <Button small onClick={onAddProject} {...props}>
       Add project
     </Button>
   );
 };
 
-export const RemoveProjectButton = ({ forState, projects, setProjects, id, ...props }) => {
+export const RemoveProjectButton = ({ projectStatus, id, ...props }) => {
   const { reportId } = useParams();
-  const setReport = useSetRecoilState(reportAtomFamily(reportId));
-  return (
-    <Button
-      {...props}
-      small
-      red
-      className="mt-1"
-      onClick={() => {
-        if (!inIframe() && !window.confirm("Are you sure you want to remove project?")) return;
+
+  const onRemoveProjectStatus = useRecoilCallback(
+    ({ snapshot, set }) =>
+      async () => {
+        if (!window.confirm("Are you sure you want to remove project?")) return;
+
+        const [report, projects] = await Promise.all([
+          snapshot.getPromise(reportAtomFamily(reportId)),
+          snapshot.getPromise(statusesByColor({ reportId, color: projectStatus })),
+        ]);
+
         const { [id]: removedProject, ...remainingProjects } = projects;
-        setProjects(remainingProjects);
-        setReport((report) => ({
+
+        set(statusesByColor({ reportId, color: projectStatus }), remainingProjects);
+        set(reportAtomFamily(reportId), {
           ...report,
           projects: {
             ...report.projects,
-            [forState]: remainingProjects,
+            [projectStatus]: remainingProjects,
           },
-        }));
-      }}>
+        });
+
+        await removeProjectStatus(id);
+      },
+    [id, projectStatus],
+  );
+
+  return (
+    <Button {...props} small red className="mt-1" onClick={onRemoveProjectStatus}>
       Remove
     </Button>
   );
 };
 
-const ProjectGroup = ({ forState, onProjectStateChange }) => {
-  const [projects, setProjects] = useSetProjectsByColor(forState);
-  const props = { forState, projects, setProjects };
+const ProjectsStatusGroup = ({ projectStatus, onProjectStateChange }) => {
+  const projects = useActiveReportProjectsByColor(projectStatus);
   return (
     <div>
-      <h1 className="text-xl m-2">{initCap(forState)}</h1>
-      <AddProjectButton small className="ml-2" {...props} />
+      <h1 className="text-xl m-2">{initCap(projectStatus)}</h1>
+      <AddProjectButton small className="ml-2" projectStatus={projectStatus} />
       {Object.keys(projects).map((key) => (
-        <ProjectState key={key} id={key} onProjectStateChange={onProjectStateChange} {...props} />
+        <ProjectState
+          key={key}
+          id={key}
+          onProjectStateChange={onProjectStateChange}
+          projectStatus={projectStatus}
+        />
       ))}
     </div>
   );
@@ -122,7 +151,11 @@ const ProjectGroup = ({ forState, onProjectStateChange }) => {
 
 const ProjectGroupShell = ({ onProjectStateChange }) =>
   PROJECT_STATES_ALL.map((state) => (
-    <ProjectGroup forState={state} key={state} onProjectStateChange={onProjectStateChange} />
+    <ProjectsStatusGroup
+      projectStatus={state}
+      key={state}
+      onProjectStateChange={onProjectStateChange}
+    />
   ));
 
 const MONTH_NAMES = [

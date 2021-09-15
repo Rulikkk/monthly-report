@@ -3,12 +3,11 @@ import { Link, useParams } from "react-router-dom";
 import Split from "react-split-pane";
 import debounce from "lodash.debounce";
 import { useRecoilCallback } from "recoil";
-import { PROJECT_STATES_ALL } from "../../common/constants";
 import LocalStorageStore from "../../common/localStorageStore";
 import Spinner from "../../components/Spinner";
 import { Button, PrintButton } from "../../components/pageComponents/MonthlyReport/BaseComponents";
 import { updateProjectStatus } from "../../store/api";
-import { reportAtomFamily } from "../../store/state";
+import { statusesByColor } from "../../store/state";
 import EditorSection from "./EditorSection";
 import ReportSection from "./ReportSection";
 
@@ -61,49 +60,24 @@ const MonthlyReport = () => {
   const changeProjectState = useRecoilCallback(
     ({ snapshot, set }) =>
       async (project, oldState, newState) => {
-        const currentReport = await snapshot.getPromise(reportAtomFamily(reportId));
+        const oldStateObj = await snapshot.getPromise(
+          statusesByColor({ reportId, color: oldState }),
+        );
+        const newStateObj = await snapshot.getPromise(
+          statusesByColor({ reportId, color: newState }),
+        );
 
-        const updatedCurrentReport = {
-          ...currentReport,
-          projects: PROJECT_STATES_ALL.map((state) => {
-            const projectStates = currentReport.projects[state];
+        const oldStateObjUpdated = Object.entries(oldStateObj)
+          .filter(([pId]) => pId !== project.id)
+          .reduce((acc, [pId, v]) => ({ ...acc, [pId]: v }), {});
+        set(statusesByColor({ reportId, color: oldState }), oldStateObjUpdated);
 
-            const projectsMap = Object.keys(projectStates).reduce((acc2, pId) => {
-              if (state === oldState && pId === project.id) {
-                return acc2;
-              }
+        const newStateObjUpdated = { ...newStateObj, [project.id]: project };
+        set(statusesByColor({ reportId, color: newState }), newStateObjUpdated);
 
-              return {
-                ...acc2,
-                [pId]: projectStates[pId],
-              };
-            }, {});
-
-            if (state === newState) {
-              projectsMap[project.id] = project;
-            }
-
-            return [state, projectsMap];
-          }).reduce(
-            (acc, [state, projectsMap]) => ({
-              ...acc,
-              [state]: projectsMap,
-            }),
-            {},
-          ),
-        };
-
-        const payload = {
-          name: project.name,
+        await updateProjectStatus(project.id, {
           status_color: newState,
-          status: {
-            notes: project.notes,
-            staffing: project.staffing,
-            issues: project.issues,
-          },
-        };
-        await updateProjectStatus(project.id, payload);
-        set(reportAtomFamily(reportId), updatedCurrentReport);
+        });
       },
     [reportId],
   );

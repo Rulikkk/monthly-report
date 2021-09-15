@@ -1,4 +1,4 @@
-import { useRecoilState, useRecoilValue, waitForAll } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState, waitForAll } from "recoil";
 import { useParams, useHistory } from "react-router-dom";
 
 import { allReportsIds, statusesByColor, statusById, reportAtomFamily } from "./state";
@@ -62,14 +62,26 @@ export const useActiveReportProjectsByColor = (color) => {
   return useRecoilValue(statusesByColor({ reportId, color }));
 };
 
-export const useSetProjectsByColor = (color) => {
+export const useProjectsByColor = (color) => {
   const { reportId } = useParams();
 
   return useRecoilState(statusesByColor({ reportId, color }));
+};
+
+export const useSetProjectsByColor = (color) => {
+  const { reportId } = useParams();
+
+  return useSetRecoilState(statusesByColor({ reportId, color }));
 };
 
 export const useProjectStatusById = (color, id) => {
   const { reportId } = useParams();
 
   return useRecoilState(statusById({ reportId, color, id }));
+};
+
+export const useProjectStatusByIdValue = (color, id) => {
+  const { reportId } = useParams();
+
+  return useRecoilValue(statusById({ reportId, color, id }));
 };

@@ -1,7 +1,8 @@
 import "../../typedefs";
 
-import React from "react";
+import React, { useCallback } from "react";
 import { PROJECT_STATES_ALL } from "../../common/constants";
+import { updateProjectStatus } from "../../store/api";
 import ProjectStateMoveToStateSelect from "./ProjectStateMoveToStateSelect";
 
 import { RemoveProjectButton, Issue } from "./EditorSection";
@@ -11,6 +12,10 @@ import {
 } from "../../components/pageComponents/MonthlyReport/BaseComponents";
 import { Checkbox } from "../../components";
 import { useProjectStatusById } from "../../store/hooks";
+import debounce from "lodash.debounce";
+import set from "lodash.set";
+import unset from "lodash.unset";
+import isNil from "lodash.isnil";
 
 /**
  * A project state change callback.
@@ -28,70 +33,118 @@ import { useProjectStatusById } from "../../store/hooks";
  * @param {*} obj.projects
  * @param {projectStateChangeCallback} obj.onProjectStateChange - a project state change callback.
  */
-const ProjectState = ({ forState, id, onProjectStateChange, ...projects }) => {
-  const [project, setProject] = useProjectStatusById(forState, id);
-  const props = { project, setProject };
+const ProjectState = ({ projectStatus, id, onProjectStateChange }) => {
+  const [project, setProject] = useProjectStatusById(projectStatus, id);
+
+  const saveProjectChange = useCallback(
+    debounce(async (payload) => {
+      await updateProjectStatus(id, payload);
+    }, 300),
+    [id],
+  );
+
+  const onProjectChange = async (updatedProject, projectField) => {
+    setProject(updatedProject);
+    saveProjectChange({ [projectField]: updatedProject[projectField] });
+  };
+
+  const onStatusCheckboxUpdate = useCallback(
+    (checked, label, statusObjField, initialValue) => {
+      if (!checked && !window.confirm(`Are you sure you want to remove ${label}?`)) {
+        return;
+      }
+
+      const clonedProject = { ...project, status: { ...project.status } };
+      const projectField = `status.${statusObjField}`;
+      if (checked) {
+        set(clonedProject, projectField, initialValue);
+      } else {
+        unset(clonedProject, projectField);
+      }
+      onProjectChange(clonedProject, "status");
+    },
+    [onProjectChange],
+  );
+
   return (
     <EditorShadowedCard>
       <Input
         className="font-bold"
         value={project.name}
         placeholder="Project Name"
-        onChange={(val) => setProject({ ...project, name: val })}
+        onChange={(val) => onProjectChange({ ...project, name: val }, "name")}
       />
       <div className="flex justify-end">
         <Checkbox
           label="issue"
-          projectField="issues"
-          initialValue={[{ issue: "", mitigation: "", eta: "" }]}
-          {...props}
+          checked={!isNil(project.status.issues)}
+          onChange={(checked) =>
+            onStatusCheckboxUpdate(checked, "issues", "issues", [
+              { issue: "", mitigation: "", eta: "" },
+            ])
+          }
         />
-        <Checkbox label="notes" projectField="notes" {...props} />
-        <Checkbox label="staffing" projectField="staffing" {...props} />
-        <RemoveProjectButton id={id} forState={forState} {...projects} />
+        <Checkbox
+          label="notes"
+          checked={!isNil(project.status.notes)}
+          onChange={(checked) => onStatusCheckboxUpdate(checked, "notes", "notes", "")}
+        />
+        <Checkbox
+          label="staffing"
+          checked={!isNil(project.status.staffing)}
+          onChange={(checked) => onStatusCheckboxUpdate(checked, "staffing", "staffing", "")}
+        />
+        <RemoveProjectButton id={id} projectStatus={projectStatus} />
       </div>
       <div className="flex justify-end py-1">
         <span>
           Move to:{" "}
           <ProjectStateMoveToStateSelect
             allStates={PROJECT_STATES_ALL}
-            currentState={forState}
+            currentState={projectStatus}
             onStateChange={(oldState, newState) =>
               onProjectStateChange && onProjectStateChange(project, oldState, newState)
             }
           />
         </span>
       </div>
-      {project.issues &&
-        project.issues.map((issue, i) => (
+      {!isNil(project.status.issues) &&
+        project.status.issues.map((issue, i) => (
           <Issue
             key={i}
             issue={issue}
             setIssue={(issue) => {
-              const issues = [...project.issues];
+              const issues = [...project.status.issues];
               issues[i] = issue;
-              setProject({ ...project, issues });
+              onProjectChange({ ...project, status: { ...project.status, issues } }, "status");
             }}
           />
         ))}
       <div>
-        {project.notes !== undefined && (
+        {!isNil(project.status.notes) && (
           <>
             Notes
             <Input
-              value={project.notes}
-              onChange={(val) => setProject({ ...project, notes: val })}
+              value={project.status.notes}
+              onChange={(val) =>
+                onProjectChange({ ...project, status: { ...project.status, notes: val } }, "status")
+              }
               placeholder="Add notes here"
               textarea
             />
           </>
         )}
-        {project.staffing !== undefined && (
+        {!isNil(project.status.staffing) && (
           <>
             Staffing
             <Input
-              value={project.staffing}
-              onChange={(val) => setProject({ ...project, staffing: val })}
+              value={project.status.staffing}
+              onChange={(val) =>
+                onProjectChange(
+                  { ...project, status: { ...project.status, staffing: val } },
+                  "status",
+                )
+              }
               placeholder="Add staffing info here"
               textarea
             />

@@ -12,7 +12,7 @@ import {
   useActiveAndPrevReport,
   useActiveReport,
   useActiveReportProjectsByColor,
-  useProjectStatusById,
+  useProjectStatusByIdValue,
 } from "../../store/hooks";
 
 import {
@@ -237,7 +237,7 @@ const TotalsTable = () => {
 };
 
 const ProjectStatus = ({ hideOK, color, projectId }) => {
-  const [{ id, name, issues, staffing, notes }] = useProjectStatusById(color, projectId);
+  const { id, name, status } = useProjectStatusByIdValue(color, projectId);
 
   return (
     <tr key={id} style={{ borderBottom: "solid silver 1px" }}>
@@ -246,8 +246,8 @@ const ProjectStatus = ({ hideOK, color, projectId }) => {
       </Td>
       <Td {...{ [color]: true }}>
         <ul>
-          {issues ? (
-            issues.map((i, idx) =>
+          {status?.issues ? (
+            status?.issues.map((i, idx) =>
               i ? (
                 <Fragment key={idx}>
                   <li>{i.issue}</li>
@@ -263,19 +263,19 @@ const ProjectStatus = ({ hideOK, color, projectId }) => {
           ) : (
             <>
               {!hideOK && <B>OK. </B>}
-              {notes && <span className="text-gray-600">{notes}</span>}
+              {status?.notes && <span className="text-gray-600">{status?.notes}</span>}
             </>
           )}
-          {staffing && (
+          {status?.staffing && (
             <li className="text-blue-500">
               <B>Staffing: </B>
-              {staffing}
+              {status?.staffing}
             </li>
           )}
-          {issues && issues.length > 0 && notes && (
+          {status?.notes && (
             <li className="text-gray-600">
               <B>Notes: </B>
-              {notes}
+              {status?.notes}
             </li>
           )}
         </ul>

@@ -22,13 +22,14 @@ export const reportQuery = selectorFamily({
         data.projects = {};
 
         project_statuses = project_statuses.map((project) => {
-          let { name, id, notes, ...restStatus } = project.status;
-          let { status, ...restProject } = project;
-
-          return { ...(notes ? { notes } : {}), ...restStatus, ...restProject };
+          const {
+            status: { name, id, ...restStatus },
+            ...restProject
+          } = project;
+          return { ...restProject, status: restStatus };
         });
 
-        project_statuses = groupBy(project_statuses, ({ status_color: c }) => c);
+        project_statuses = groupBy(project_statuses, ({ status_color }) => status_color);
 
         for (const status of PROJECT_STATES_ALL) {
           data.projects[status] = toObjectByKey(project_statuses[status] ?? [], "id");
@@ -106,7 +107,7 @@ export let config = atomFamily({
   }),
 });
 
-export let statusesByColor = atomFamily({
+export const statusesByColor = atomFamily({
   key: "statusesByColor",
   default: selectorFamily({
     key: "statusesByColor/Default",
@@ -117,7 +118,7 @@ export let statusesByColor = atomFamily({
   }),
 });
 
-export let statusById = atomFamily({
+export const statusById = atomFamily({
   key: "statusById",
   default: selectorFamily({
     key: "statusById/Default",
@@ -127,3 +128,34 @@ export let statusById = atomFamily({
         get(statusesByColor({ reportId, color }))[id],
   }),
 });
+
+// export const statusesByColor = selectorFamily({
+//   key: "statusesByColor",
+//   get:
+//     ({ reportId, color }) =>
+//     ({ get }) =>
+//       get(reportAtomFamily(reportId)).projects[color],
+//   set:
+//     ({ reportId, color }) =>
+//     ({ get, set }, newValue) => {
+//       const report = get(reportAtomFamily(reportId));
+//       set(reportAtomFamily(reportId), {
+//         ...report,
+//         projects: { ...report.projects, [color]: newValue },
+//       });
+//     },
+// });
+//
+// export const statusById = selectorFamily({
+//   key: "statusById",
+//   get:
+//     ({ reportId, color, id }) =>
+//     ({ get }) =>
+//       get(statusesByColor({ reportId, color }))[id],
+//   set:
+//     ({ reportId, color, id }) =>
+//     ({ get, set }, newValue) => {
+//       const report = get(reportAtomFamily(reportId));
+//       set(statusesByColor({ reportId, color }), { ...report.projects[color], [id]: newValue });
+//     },
+// });

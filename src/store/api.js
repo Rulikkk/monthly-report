@@ -36,6 +36,14 @@ export function updateProjectStatus(id, payload) {
   return http.post(`/project_status/${id}`, payload);
 }
 
+export function removeProjectStatus(id) {
+  return http.delete(`/project_status/${id}`);
+}
+
+export function addProjectStatus(payload) {
+  return http.post(`/project_status`, payload);
+}
+
 /**
  * Fetch document
  * @param {string} path HTTP endpoint
