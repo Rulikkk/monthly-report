@@ -118,6 +118,17 @@ export const benchInfoAtomFamily = atomFamily({
   }),
 });
 
+export const praisesAtomFamily = atomFamily({
+  key: "praisesAtomFamily",
+  default: selectorFamily({
+    key: "praisesAtomFamily/Default",
+    get:
+      ({ reportId }) =>
+      ({ get }) =>
+        get(reportAtomFamily(reportId)).praises,
+  }),
+});
+
 export const statusesByColor = atomFamily({
   key: "statusesByColor",
   default: selectorFamily({

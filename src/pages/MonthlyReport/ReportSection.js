@@ -10,9 +10,9 @@ import * as state from "../../store/state";
 
 import {
   useActiveAndPrevReport,
-  useActiveReport,
   useActiveReportProjectsByColor,
   useBenchInfoDataValue,
+  usePraisesDataValue,
   useProjectStatusByIdValue,
 } from "../../store/hooks";
 
@@ -340,8 +340,8 @@ const ReportHeader = () => {
 };
 
 const ReportBody = () => {
-  const { praises } = useActiveReport();
   const benchInfoData = useBenchInfoDataValue();
+  const praises = usePraisesDataValue();
 
   return (
     <>

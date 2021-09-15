@@ -19,7 +19,7 @@ const BenchEditorMainInfo = ({
       {benchInfo?.map((info, i) => {
         return (
           <BenchEditorMainInfoCard
-            key={info.id}
+            key={info.id || i}
             index={i}
             info={info}
             onBenchInfoUpdate={onBenchInfoUpdate}

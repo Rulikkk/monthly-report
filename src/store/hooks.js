@@ -7,6 +7,7 @@ import {
   statusById,
   reportAtomFamily,
   benchInfoAtomFamily,
+  praisesAtomFamily,
 } from "./state";
 
 export const useActiveReport = () => {
@@ -108,4 +109,22 @@ export const useSetBenchInfoData = () => {
   const { reportId } = useParams();
 
   return useSetRecoilState(benchInfoAtomFamily({ reportId }));
+};
+
+export const usePraisesDataState = () => {
+  const { reportId } = useParams();
+
+  return useRecoilState(praisesAtomFamily({ reportId }));
+};
+
+export const usePraisesDataValue = () => {
+  const { reportId } = useParams();
+
+  return useRecoilValue(praisesAtomFamily({ reportId }));
+};
+
+export const useSetPraisesData = () => {
+  const { reportId } = useParams();
+
+  return useSetRecoilState(praisesAtomFamily({ reportId }));
 };

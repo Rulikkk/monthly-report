@@ -1,7 +1,6 @@
 import React from "react";
-import { useDropzone } from "react-dropzone";
 import { useParams } from "react-router-dom";
-import { useSetRecoilState, useRecoilCallback } from "recoil";
+import { useRecoilCallback } from "recoil";
 
 import {
   Button,
@@ -158,21 +157,6 @@ const ProjectGroupShell = ({ onProjectStateChange }) =>
     />
   ));
 
-const MONTH_NAMES = [
-  "Jan",
-  "Feb",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
-
 const CopyPreviousReport = ({ report, ...props }) => {
   const createNewReportState = useRecoilCallback(
     ({ snapshot, set }) =>
@@ -191,50 +175,6 @@ const CopyPreviousReport = ({ report, ...props }) => {
     <Button {...props} onClick={() => createNewReportState()}>
       Add month
     </Button>
-  );
-};
-
-const OpenReport = () => {
-  let setReport = useSetRecoilState(reportAtomFamily());
-  const onDrop = (acceptedFiles) => {
-    const reader = new FileReader();
-
-    reader.onabort = () => console.log("file reading was aborted");
-    reader.onerror = () => console.log("file reading has failed");
-    reader.onload = async () => {
-      // Do whatever you want with the file contents
-      try {
-        const { reportId, benchInfoData, projects, ...data } = JSON.parse(reader.result);
-        setReport({
-          ...data,
-          date: reportId,
-          benchInfo: benchInfoData,
-          projects: Object.keys(projects).reduce((acc, k) => [...acc, projects[k]], []),
-        });
-      } catch (e) {
-        window.alert(`Could not parse file with error ${e}.`);
-      }
-    };
-    if (acceptedFiles.length > 1) {
-      window.alert(`Only support one file.`);
-      return;
-    }
-    acceptedFiles.forEach((file) => reader.readAsText(file, ""));
-  };
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-    accept: "application/json",
-  });
-
-  return (
-    <div
-      className="text-white font-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-700 cursor-pointer select-none"
-      title="Click or drop JSON here"
-      {...getRootProps()}>
-      <input {...getInputProps()} />
-      {isDragActive ? <p>DROP</p> : <p>Open</p>}
-    </div>
   );
 };
 
@@ -279,7 +219,6 @@ export default ({ setPaneSize, lastSize, onProjectStateChange }) => {
         <h1 className="text-black font-bold p-1 truncate">Report Editor</h1>
         <div className="spaced-row-grid">
           <CopyPreviousReport report={activeReport} />
-          {/* <OpenReport setData={setData} /> */}
           <SaveReport data={activeReport} />
           <PrintButton />
           <EditorHideButton setPaneSize={setPaneSize} lastSize={lastSize} />
@@ -290,7 +229,7 @@ export default ({ setPaneSize, lastSize, onProjectStateChange }) => {
 
       <ProjectGroupShell onProjectStateChange={onProjectStateChange} />
 
-      <PraiseEditorGroup report={activeReport} />
+      <PraiseEditorGroup />
     </Scrollable>
   );
 };

@@ -1,64 +1,87 @@
-import React from "react";
+import debounce from "lodash.debounce";
+import React, { useCallback } from "react";
+import { useParams } from "react-router-dom";
+import { updateBenchOrPraises } from "../../../../store/api";
+import { usePraisesDataState } from "../../../../store/hooks";
 import { Button, EditorShadowedCard, SingleImgButton, Input } from "../BaseComponents";
 
-const PraiseEditor = ({ praise, updateReport, remove }) => (
+const PraiseEditor = ({ praise, onPraiseUpdate, onPraiseRemove }) => (
   <EditorShadowedCard>
     <Input
       value={praise.text}
-      afterChange={updateReport}
-      onChange={(val) => (praise.text = val)}
+      onChange={(val) => onPraiseUpdate({ ...praise, text: val })}
       placeholder="Describe praise here"
       textarea
     />
     <div className="flex justify-end">
       <SingleImgButton
-        onImage={(img) => {
-          praise.img = img;
-          updateReport();
-        }}
+        onImage={(img) => onPraiseUpdate({ ...praise, img })}
         className="ml-2 text-white font-xs px-2 py-1 rounded bg-blue-500 hover:bg-blue-700 cursor-pointer select-none"
         title="Add image"
         dragTitle="DROP HERE"
       />
-      <Button small red className="ml-1" onClick={remove}>
+      <Button small red className="ml-1" onClick={onPraiseRemove}>
         Remove
       </Button>
     </div>
   </EditorShadowedCard>
 );
 
-const emptyFunc = () => {};
+const PraiseEditorGroup = () => {
+  const { reportId } = useParams();
+  const [praises, setPraises] = usePraisesDataState();
 
-const PraiseEditorGroup = ({ report, updateReport = emptyFunc }) =>
-  !report ? (
+  const getAPIPayload = (praises) => ({
+    praises: praises.map((p) => ({ text: p.text, image: p.img })),
+  });
+
+  const savePraisesUpdates = useCallback(
+    (payload) => updateBenchOrPraises(reportId, payload),
+    [reportId],
+  );
+
+  const savePraisesUpdatesDebounced = useCallback(debounce(savePraisesUpdates, 300), [
+    savePraisesUpdates,
+  ]);
+
+  const addNewPraise = () => {
+    const updated = [{ text: "" }, ...(praises || [])];
+    setPraises(updated);
+    savePraisesUpdates(getAPIPayload(updated));
+  };
+
+  const onPraiseRemove = (idx) => () => {
+    const updated = praises.filter((_, i) => idx !== i);
+    setPraises(updated);
+    savePraisesUpdates(getAPIPayload(updated));
+  };
+
+  const onPraiseUpdated = (idx) => (updatedPraise) => {
+    const updated = praises.map((p, i) => (idx === i ? updatedPraise : p));
+    setPraises(updated);
+    savePraisesUpdatesDebounced(getAPIPayload(updated));
+  };
+
+  return !praises ? (
     "Loading"
   ) : (
-    <>
+    <div className="pb-2 flex-auto flex-col">
       <h1 className="text-xl m-2">Praises</h1>
-      <Button
-        small
-        className="ml-2"
-        onClick={() => {
-          if (!report.praises) report.praises = [];
-          report.praises.unshift({ text: "" });
-          updateReport();
-        }}>
+      <Button small className="ml-2" onClick={addNewPraise}>
         Add praise
       </Button>
-      {report.praises &&
-        report.praises.map((p, i) => (
+      {praises &&
+        praises.map((p, i) => (
           <PraiseEditor
             key={i}
             praise={p}
-            updateReport={updateReport}
-            remove={() => {
-              report.praises = report.praises.filter((x) => x !== p);
-              updateReport();
-            }}
+            onPraiseUpdate={onPraiseUpdated(i)}
+            onPraiseRemove={onPraiseRemove(i)}
           />
         ))}
-    </>
+    </div>
   );
+};
 
 const Praise = ({ praise: { img, text } }) => (
   <li className="mb-8">

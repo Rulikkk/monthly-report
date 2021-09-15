@@ -36,7 +36,7 @@ const BenchInfoTable = () => {
           {benchInfo.map(
             (info, idx) =>
               info.disabled || (
-                <tr key={idx} className={`${idx % 2 === 0 && "bg-gray-200"} align-top`}>
+                <tr key={info.id || idx} className={`${idx % 2 === 0 && "bg-gray-200"} align-top`}>
                   <td className="p-2" style={getEmphasizedStyle(info.emphasizeCaption, true)}>
                     {info.caption}
                   </td>
