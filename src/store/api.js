@@ -44,6 +44,10 @@ export function addProjectStatus(payload) {
   return http.post(`/project_status`, payload);
 }
 
+export function updateBenchOrPraises(reportId, payload) {
+  return http.put(`/report/${reportId}`, payload);
+}
+
 /**
  * Fetch document
  * @param {string} path HTTP endpoint

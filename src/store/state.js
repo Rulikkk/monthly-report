@@ -13,6 +13,47 @@ export let projectQuery = selectorFamily({
   set: (id) => (_, project) => push("project", id),
 });
 
+export const allReportsIdsQuery = selector({
+  key: "allReportsIdsQuery",
+  get: () =>
+    pull("reports")
+      .then(({ data }) => data?.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1)))
+      .catch((err) => {
+        toast.error("Error while fetching available reports list");
+        console.error(err);
+      }),
+});
+
+export const allReportsIds = atom({
+  key: "allReportIdsAtom",
+  default: allReportsIdsQuery,
+});
+
+export let config = atomFamily({
+  key: "config/Default",
+  default: selectorFamily({
+    key: "configQuery",
+    get:
+      (id = "main") =>
+      async () => {
+        try {
+          let { data } = await pull("config", id);
+          data = transformKeys(data, camelCase, [
+            "created_at",
+            "updated_at",
+            "bench_remarks",
+            "header_image_src",
+            "report_name",
+          ]);
+          return data;
+        } catch (err) {
+          toast.error(`Error while fetching config ${id}`);
+          console.error(err);
+        }
+      },
+  }),
+});
+
 export const reportQuery = selectorFamily({
   key: "reportQuery",
   get: (id) => () => {
@@ -66,44 +107,14 @@ export const reportAtomFamily = atomFamily({
   default: reportQuery,
 });
 
-export const allReportsIdsQuery = selector({
-  key: "allReportsIdsQuery",
-  get: () =>
-    pull("reports")
-      .then(({ data }) => data?.map(({ id }) => id).sort((a, b) => (a > b ? -1 : 1)))
-      .catch((err) => {
-        toast.error("Error while fetching available reports list");
-        console.error(err);
-      }),
-});
-
-export const allReportsIds = atom({
-  key: "allReportIdsAtom",
-  default: allReportsIdsQuery,
-});
-
-export let config = atomFamily({
-  key: "config/Default",
+export const benchInfoAtomFamily = atomFamily({
+  key: "benchInfoAtomFamily",
   default: selectorFamily({
-    key: "configQuery",
+    key: "benchInfoAtomFamily/Default",
     get:
-      (id = "main") =>
-      async () => {
-        try {
-          let { data } = await pull("config", id);
-          data = transformKeys(data, camelCase, [
-            "created_at",
-            "updated_at",
-            "bench_remarks",
-            "header_image_src",
-            "report_name",
-          ]);
-          return data;
-        } catch (err) {
-          toast.error(`Error while fetching config ${id}`);
-          console.error(err);
-        }
-      },
+      ({ reportId }) =>
+      ({ get }) =>
+        get(reportAtomFamily(reportId)).benchInfoData,
   }),
 });
 

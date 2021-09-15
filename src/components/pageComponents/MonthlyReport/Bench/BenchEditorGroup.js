@@ -1,11 +1,11 @@
-import React from "react";
-import { useRecoilState } from "recoil";
+import React, { useCallback } from "react";
 import { useParams } from "react-router-dom";
-import debounce from "lodash.debounce";
+import { updateBenchOrPraises } from "../../../../store/api";
+import { useBenchInfoDataState } from "../../../../store/hooks";
 
 import BenchEditorMainInfo from "./BenchEditorMainInfo";
-import { reportAtomFamily as reportAtom } from "../../../../store/state";
 import { getRandomId } from "../BaseComponents";
+import debounce from "lodash.debounce";
 
 /**
  *
@@ -14,48 +14,63 @@ import { getRandomId } from "../BaseComponents";
  */
 const BenchEditorGroup = () => {
   const { reportId } = useParams();
-  const [report, setReport] = useRecoilState(reportAtom(reportId));
+  const [benchInfoData, setBenchInfoData] = useBenchInfoDataState();
+
+  const getAPIPayload = (benchInfoDataObj) => ({
+    bench_info: {
+      bench_section_enabled: benchInfoDataObj.benchSectionEnabled,
+      info: benchInfoDataObj.info.map(({ emphasizeCaption, ...infoItem }) => ({
+        ...infoItem,
+        emphasize_caption: emphasizeCaption,
+      })),
+    },
+  });
+
+  const saveBenchUpdates = useCallback(
+    (payload) => updateBenchOrPraises(reportId, payload),
+    [reportId],
+  );
+
+  const saveBenchUpdatesDebounced = useCallback(debounce(saveBenchUpdates, 300), [
+    saveBenchUpdates,
+  ]);
+
   const switchBenchSectionEnabled = () => {
-    setReport({
-      ...report,
-      benchInfoData: {
-        ...report.benchInfoData,
-        benchSectionEnabled: !report.benchInfoData.benchSectionEnabled,
-      },
-    });
+    const updated = {
+      ...benchInfoData,
+      benchSectionEnabled: !benchInfoData.benchSectionEnabled,
+    };
+    setBenchInfoData(updated);
+    saveBenchUpdates(getAPIPayload(updated));
   };
 
   const onAddBenchInfoLine = () => {
-    setReport({
-      ...report,
-      benchInfoData: {
-        ...report.benchInfoData,
-        info: [...report.benchInfoData.info, { id: getRandomId() }],
-      },
-    });
+    const updated = {
+      ...benchInfoData,
+      info: [...benchInfoData.info, { id: getRandomId() }],
+    };
+    setBenchInfoData(updated);
+    saveBenchUpdates(getAPIPayload(updated));
   };
 
   const deleteBenchInfo = (info) => {
-    setReport({
-      ...report,
-      benchInfoData: {
-        ...report.benchInfoData,
-        info: report.benchInfoData.info.filter((record) => record.id !== info.id),
-      },
-    });
+    const updated = {
+      ...benchInfoData,
+      info: benchInfoData.info.filter((record) => record.id !== info.id),
+    };
+    setBenchInfoData(updated);
+    saveBenchUpdates(getAPIPayload(updated));
   };
 
-  const onBenchInfoUpdate = debounce((info, index) => {
-    const newReport = {
-      ...report,
-      benchInfoData: {
-        ...report.benchInfoData,
-        info: [...report.benchInfoData.info],
-      },
+  const onBenchInfoUpdate = (info, index) => {
+    const updated = {
+      ...benchInfoData,
+      info: benchInfoData.info.map((prevInfo, idx) => (idx === index ? info : prevInfo)),
     };
-    newReport.benchInfoData.info[index] = info;
-    setReport(newReport);
-  }, 300);
+    console.log(info, updated);
+    setBenchInfoData(updated);
+    saveBenchUpdatesDebounced(getAPIPayload(updated));
+  };
 
   return (
     <div>
@@ -64,13 +79,13 @@ const BenchEditorGroup = () => {
         <input
           type="checkbox"
           className="ml-2"
-          checked={report.benchInfoData.benchSectionEnabled}
+          checked={benchInfoData.benchSectionEnabled}
           onChange={switchBenchSectionEnabled}
         />
       </h1>
 
       <BenchEditorMainInfo
-        benchInfo={report.benchInfoData.info}
+        benchInfo={benchInfoData.info}
         onAddBenchInfoLine={onAddBenchInfoLine}
         onBenchInfoUpdate={onBenchInfoUpdate}
         onDeleteBenchInfo={deleteBenchInfo}

@@ -12,6 +12,7 @@ import {
   useActiveAndPrevReport,
   useActiveReport,
   useActiveReportProjectsByColor,
+  useBenchInfoDataValue,
   useProjectStatusByIdValue,
 } from "../../store/hooks";
 
@@ -339,7 +340,8 @@ const ReportHeader = () => {
 };
 
 const ReportBody = () => {
-  const { benchInfoData, praises } = useActiveReport();
+  const { praises } = useActiveReport();
+  const benchInfoData = useBenchInfoDataValue();
 
   return (
     <>
