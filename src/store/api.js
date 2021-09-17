@@ -41,7 +41,7 @@ export function removeProjectStatus(id) {
 }
 
 export function addProjectStatus(payload) {
-  return http.post(`/project_status`, payload);
+  return http.post(`/project_statuses`, payload);
 }
 
 export function updateBenchOrPraises(reportId, payload) {

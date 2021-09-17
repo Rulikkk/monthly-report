@@ -70,7 +70,7 @@ const ProjectState = ({ projectStatus, id, onProjectStateChange }) => {
     <EditorShadowedCard>
       <Input
         className="font-bold"
-        value={project.name}
+        value={project.name || ""}
         placeholder="Project Name"
         onChange={(val) => onProjectChange({ ...project, name: val }, "name")}
       />

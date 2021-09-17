@@ -15,7 +15,7 @@ import ProjectState from "./ProjectState";
 import Scrollable from "../../components/Scrollable";
 import LocalStorageStore from "../../common/localStorageStore";
 import { useActiveReport, useActiveReportProjectsByColor } from "../../store/hooks";
-import { allReportsIds, reportAtomFamily, statusesByColor } from "../../store/state";
+import { allReportsIds, reportAtomFamily, statusById, statusesByColor } from "../../store/state";
 
 const initCap = (s) => [s[0].toUpperCase(), ...s.slice(1)].join("");
 
@@ -71,11 +71,14 @@ const AddProjectButton = ({ projectStatus, ...props }) => {
           status_color: projectStatus,
         });
 
+        newProjectObj.id = newProjectId;
+
         const newProjects = {
           [newProjectId]: newProjectObj,
           ...projects,
         };
         set(statusesByColor({ reportId, color: projectStatus }), newProjects);
+        set(statusById({ reportId, color: projectStatus, id: newProjectId }), newProjectObj);
         set(reportAtomFamily(reportId), {
           ...report,
           projects: {
@@ -98,7 +101,7 @@ export const RemoveProjectButton = ({ projectStatus, id, ...props }) => {
   const { reportId } = useParams();
 
   const onRemoveProjectStatus = useRecoilCallback(
-    ({ snapshot, set }) =>
+    ({ snapshot, set, reset }) =>
       async () => {
         if (!window.confirm("Are you sure you want to remove project?")) return;
 
@@ -110,6 +113,7 @@ export const RemoveProjectButton = ({ projectStatus, id, ...props }) => {
         const { [id]: removedProject, ...remainingProjects } = projects;
 
         set(statusesByColor({ reportId, color: projectStatus }), remainingProjects);
+        reset(statusById({ reportId, color: projectStatus, id }));
         set(reportAtomFamily(reportId), {
           ...report,
           projects: {
