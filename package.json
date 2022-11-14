@@ -12,7 +12,7 @@
     "react-autosize-textarea": "7.0.0",
     "react-dom": "16.13.1",
     "react-dropzone": "11.0.1",
-    "react-scripts": "3.4.1",
+    "react-scripts": "5.0.1",
     "react-split-pane": "0.1.91"
   },
   "devDependencies": {
